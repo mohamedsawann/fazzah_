@@ -30,7 +30,7 @@ export default function CreateGame() {
       return response.json();
     },
     onSuccess: (game) => {
-      setLocation(`/registration?gameId=${game.id}&mode=create`);
+      setLocation(`/game-created?gameId=${game.id}`);
     },
     onError: (error: any) => {
       console.error("Game creation error:", error);

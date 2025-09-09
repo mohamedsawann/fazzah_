@@ -27,6 +27,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get game by ID
+  app.get("/api/games/:gameId", async (req, res) => {
+    try {
+      const { gameId } = req.params;
+      const game = await storage.getGame(gameId);
+      
+      if (!game) {
+        return res.status(404).json({ message: "Game not found" });
+      }
+      
+      res.json(game);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Get game by code
   app.get("/api/games/code/:code", async (req, res) => {
     try {
