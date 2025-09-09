@@ -80,7 +80,7 @@ export default function JoinGame() {
                   placeholder="أدخل رمز اللعبة"
                   value={gameCode}
                   onChange={(e) => setGameCode(e.target.value.toUpperCase())}
-                  className="w-full bg-muted border border-border rounded-lg px-4 py-3 text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                  className="w-full bg-muted border border-border rounded-lg px-4 py-3 text-center text-2xl font-bold focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                   maxLength={6}
                   data-testid="input-game-code"
                 />
