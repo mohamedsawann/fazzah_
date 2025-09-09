@@ -15,8 +15,8 @@ export default function Home() {
       </div>
       <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
         {/* Header */}
-        <div className="text-center mb-16 mt-12" data-testid="header-title">
-          <div className="mb-6">
+        <div className="text-center mb-8 mt-8" data-testid="header-title">
+          <div className="mb-3">
             <img 
               src={logoImage} 
               alt="فزه Logo" 
@@ -24,14 +24,14 @@ export default function Home() {
               style={{ filter: 'brightness(0) saturate(100%) invert(47%) sepia(89%) saturate(6000%) hue-rotate(280deg) brightness(105%) contrast(106%)' }}
             />
           </div>
-          <p className="text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-2">Fazzah</p>
+          <p className="text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-1">Fazzah</p>
           <p className="text-base text-muted-foreground font-sans">
             منصة الألعاب التفاعلية ⚡
           </p>
         </div>
 
         {/* Main Action Buttons */}
-        <div className="space-y-6 mb-8">
+        <div className="space-y-4 mb-6">
           <Link href="/join-game">
             <Button
               className="w-full bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 text-primary-foreground font-medium py-6 px-8 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.02] hover:-rotate-1 text-xl h-auto animate-pulse"
@@ -69,7 +69,7 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-4">
             <a
               href="https://linkedin.com"
