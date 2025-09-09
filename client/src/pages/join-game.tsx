@@ -45,7 +45,7 @@ export default function JoinGame() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-purple-950/10 to-background">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900" style={{ background: 'linear-gradient(135deg, hsl(240 20% 4%) 0%, hsl(262 30% 10%) 50%, hsl(240 20% 4%) 100%)' }}>
       <div className="container mx-auto px-4 py-8 max-w-md">
         <div className="mb-6">
           <Link href="/">

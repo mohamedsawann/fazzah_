@@ -213,13 +213,15 @@
     @apply border-border;
   }
 
-  body {
-    @apply font-sans antialiased bg-background text-foreground;
+  html {
     direction: rtl;
   }
 
-  html {
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
     direction: rtl;
+    background: hsl(240 20% 4%);
+    color: hsl(0 0% 98%);
   }
 
   .font-arabic {
