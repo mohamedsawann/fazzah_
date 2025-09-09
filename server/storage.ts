@@ -125,9 +125,32 @@ export class MemStorage implements IStorage {
   }
 
   async getGameQuestions(gameId: string): Promise<Question[]> {
-    return Array.from(this.questions.values())
+    const questions = Array.from(this.questions.values())
       .filter(q => q.gameId === gameId)
       .sort((a, b) => a.order - b.order);
+    
+    // Randomize question order
+    const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+    
+    // Randomize answer options for each question and update correct answer index
+    return shuffledQuestions.map(question => {
+      const optionsWithIndex = question.options.map((option, index) => ({
+        option,
+        wasCorrect: index === question.correctAnswer
+      }));
+      
+      // Shuffle the options
+      const shuffledOptions = [...optionsWithIndex].sort(() => Math.random() - 0.5);
+      
+      // Find the new index of the correct answer
+      const newCorrectIndex = shuffledOptions.findIndex(item => item.wasCorrect);
+      
+      return {
+        ...question,
+        options: shuffledOptions.map(item => item.option),
+        correctAnswer: newCorrectIndex
+      };
+    });
   }
 
   async getQuestion(id: string): Promise<Question | undefined> {
