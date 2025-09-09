@@ -6,19 +6,13 @@ import { useLocation, useSearch } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-interface GameQuestion {
+interface Question {
   id: string;
   gameId: string;
-  questionId: string;
+  text: string;
+  options: string[];
+  correctAnswer: number;
   order: number;
-  question: {
-    id: string;
-    text: string;
-    options: string[];
-    correctAnswer: number;
-    category: string;
-    difficulty: string;
-  };
 }
 
 export default function GamePlay() {
@@ -42,7 +36,7 @@ export default function GamePlay() {
   const playerId = params.get("playerId");
   const gameId = params.get("gameId");
 
-  const { data: questions, isLoading } = useQuery<GameQuestion[]>({
+  const { data: questions, isLoading } = useQuery<Question[]>({
     queryKey: ["/api/games", gameId, "questions"],
     enabled: !!gameId,
   });
@@ -98,10 +92,10 @@ export default function GamePlay() {
     setIsAnswered(true);
 
     const timeSpent = 20 - timeRemaining;
-    const isCorrect = answerIndex === currentQuestion.question.correctAnswer;
+    const isCorrect = answerIndex === currentQuestion.correctAnswer;
 
     const answerData = {
-      questionId: currentQuestion.question.id,
+      questionId: currentQuestion.id,
       selectedAnswer: answerIndex,
       isCorrect,
       timeSpent,
@@ -181,12 +175,12 @@ export default function GamePlay() {
         <Card className="border border-border shadow-lg mb-6">
           <CardContent className="p-6">
             <h3 className="text-xl font-medium text-center mb-6" data-testid="question-text">
-              {currentQuestion?.question.text}
+              {currentQuestion?.text}
             </h3>
 
             {/* Answer Options */}
             <div className="space-y-3">
-              {currentQuestion?.question.options.map((option, index) => (
+              {currentQuestion?.options.map((option, index) => (
                 <Button
                   key={index}
                   variant="secondary"
@@ -195,10 +189,10 @@ export default function GamePlay() {
                   className={`w-full bg-muted hover:bg-primary hover:text-primary-foreground border border-border rounded-lg p-4 text-right transition-all duration-300 transform hover:scale-[1.02] h-auto ${
                     isAnswered
                       ? selectedAnswer === index
-                        ? index === currentQuestion.question.correctAnswer
+                        ? index === currentQuestion.correctAnswer
                           ? "bg-green-600 text-white"
                           : "bg-red-600 text-white"
-                        : index === currentQuestion.question.correctAnswer
+                        : index === currentQuestion.correctAnswer
                         ? "bg-green-600 text-white"
                         : ""
                       : ""
@@ -214,7 +208,7 @@ export default function GamePlay() {
 
         {isAnswered && (
           <div className="text-center text-muted-foreground" data-testid="answer-feedback">
-            {selectedAnswer === currentQuestion?.question.correctAnswer
+            {selectedAnswer === currentQuestion?.correctAnswer
               ? "إجابة صحيحة! 🎉"
               : "إجابة خاطئة"}
           </div>
