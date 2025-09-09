@@ -6,11 +6,13 @@ export interface IStorage {
   createGame(game: InsertGame, questions: InsertQuestion[]): Promise<Game>;
   getGameByCode(code: string): Promise<Game | undefined>;
   getGame(id: string): Promise<Game | undefined>;
+  getAllGames(): Promise<Game[]>;
   
   // Players
   createPlayer(player: InsertPlayer): Promise<Player>;
   getPlayer(id: string): Promise<Player | undefined>;
   getPlayersByGame(gameId: string): Promise<Player[]>;
+  getAllPlayers(): Promise<Player[]>;
   updatePlayerScore(playerId: string, score: number, correctAnswers: number, totalAnswers: number, averageTime: number): Promise<void>;
   completePlayer(playerId: string): Promise<void>;
   
@@ -80,6 +82,10 @@ export class MemStorage implements IStorage {
     return this.games.get(id);
   }
 
+  async getAllGames(): Promise<Game[]> {
+    return Array.from(this.games.values());
+  }
+
   async createPlayer(insertPlayer: InsertPlayer): Promise<Player> {
     const id = randomUUID();
     const player: Player = {
@@ -103,6 +109,10 @@ export class MemStorage implements IStorage {
     return Array.from(this.players.values())
       .filter(player => player.gameId === gameId)
       .sort((a, b) => b.score - a.score);
+  }
+
+  async getAllPlayers(): Promise<Player[]> {
+    return Array.from(this.players.values());
   }
 
   async updatePlayerScore(playerId: string, score: number, correctAnswers: number, totalAnswers: number, averageTime: number): Promise<void> {

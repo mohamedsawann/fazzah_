@@ -150,8 +150,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/stats/today", async (req, res) => {
     try {
       // Count games and players created today
-      const allGames = Array.from(storage["games"].values());
-      const allPlayers = Array.from(storage["players"].values());
+      const allGames = await storage.getAllGames();
+      const allPlayers = await storage.getAllPlayers();
       
       const today = new Date();
       today.setHours(0, 0, 0, 0);
