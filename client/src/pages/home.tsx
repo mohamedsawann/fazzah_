@@ -72,7 +72,7 @@ export default function Home() {
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-4">
             <a
-              href="https://linkedin.com"
+              href="https://www.linkedin.com/in/mohammed-sawan-56ba6b251/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-110"
