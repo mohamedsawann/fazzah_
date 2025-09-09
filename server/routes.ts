@@ -1,24 +1,25 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertGameSchema, insertPlayerSchema, insertPlayerAnswerSchema } from "@shared/schema";
+import { insertGameSchema, insertPlayerSchema, insertPlayerAnswerSchema, insertQuestionSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Create a new game
+  // Create a new game with questions
   app.post("/api/games", async (req, res) => {
     try {
-      const gameData = insertGameSchema.parse(req.body);
-      const game = await storage.createGame(gameData);
+      const requestSchema = z.object({
+        name: z.string().min(1),
+        questions: z.array(z.object({
+          text: z.string().min(1),
+          options: z.array(z.string()).min(2).max(6),
+          correctAnswer: z.number().min(0)
+        })).min(1).max(50)
+      });
       
-      // Get questions for the game
-      const questions = await storage.getQuestionsByCategory(gameData.category, gameData.questionCount);
-      
-      // Create game questions with order
-      for (let i = 0; i < questions.length; i++) {
-        await storage.createGameQuestion(game.id, questions[i].id, i + 1);
-      }
+      const { name, questions } = requestSchema.parse(req.body);
+      const game = await storage.createGame({ name }, questions);
       
       res.json(game);
     } catch (error) {
