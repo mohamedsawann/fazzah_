@@ -146,6 +146,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get today's game statistics
+  app.get("/api/stats/today", async (req, res) => {
+    try {
+      // Count games and players created today
+      const allGames = Array.from(storage["games"].values());
+      const allPlayers = Array.from(storage["players"].values());
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const gamesPlayedToday = allGames.filter(game => {
+        const gameDate = new Date(game.createdAt);
+        gameDate.setHours(0, 0, 0, 0);
+        return gameDate.getTime() === today.getTime();
+      }).length;
+      
+      const totalPlayers = allPlayers.length;
+      
+      res.json({
+        gamesPlayedToday,
+        totalPlayers
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
