@@ -162,7 +162,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Count games and players created today
       const allGames = await storage.getAllGames();
       const allPlayers = await storage.getAllPlayers();
-      const winnersCount = await storage.getWinnersCount();
       
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -177,8 +176,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         gamesPlayedToday,
-        totalPlayers,
-        winnersToday: winnersCount
+        totalPlayers
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Admin endpoint - only for you to see analytics with phone numbers
+  app.get("/api/admin/analytics", async (req, res) => {
+    try {
+      const allGames = await storage.getAllGames();
+      const allPlayers = await storage.getAllPlayers();
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const gamesPlayedToday = allGames.filter(game => {
+        const gameDate = new Date(game.createdAt);
+        gameDate.setHours(0, 0, 0, 0);
+        return gameDate.getTime() === today.getTime();
+      }).length;
+      
+      // Get winners with their phone numbers
+      const winnersWithContacts = [];
+      for (const game of allGames) {
+        const players = await storage.getPlayersByGame(game.id);
+        const completedPlayers = players.filter(p => p.completedAt !== null);
+        
+        if (completedPlayers.length > 0) {
+          // Top scorer is the winner
+          const winner = completedPlayers[0];
+          winnersWithContacts.push({
+            name: winner.name,
+            phone: winner.phone,
+            score: winner.score,
+            gameName: game.name,
+            gameCode: game.code,
+            completedAt: winner.completedAt
+          });
+        }
+      }
+      
+      const completedGames = winnersWithContacts.length;
+      
+      res.json({
+        totalGames: allGames.length,
+        gamesPlayedToday,
+        totalPlayers: allPlayers.length,
+        completedGames,
+        winnersCount: winnersWithContacts.length,
+        winners: winnersWithContacts,
+        averagePlayersPerGame: allGames.length > 0 ? (allPlayers.length / allGames.length).toFixed(1) : 0
       });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
