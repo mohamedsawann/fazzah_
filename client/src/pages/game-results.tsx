@@ -42,18 +42,24 @@ export default function GameResults() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900" style={{ background: 'linear-gradient(135deg, hsl(240 20% 4%) 0%, hsl(262 30% 10%) 50%, hsl(240 20% 4%) 100%)' }}>
-      <div className="container mx-auto px-4 py-8 max-w-md">
+    <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(240 20% 4%) 0%, hsl(280 50% 15%) 25%, hsl(320 60% 20%) 50%, hsl(280 50% 15%) 75%, hsl(240 20% 4%) 100%)' }}>
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-2xl animate-ping" style={{ animationDuration: '4s' }}></div>
+      </div>
+      <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
         <div className="text-center mb-8" data-testid="header-results">
-          <div className="text-6xl mb-4">🎉</div>
-          <h2 className="text-3xl font-bold font-arabic text-primary mb-2">
-            انتهت اللعبة!
+          <div className="text-6xl mb-4 animate-bounce">🎉✨</div>
+          <h2 className="text-3xl font-bold font-arabic text-primary mb-2 animate-pulse">
+            انتهت اللعبة! 🏆
           </h2>
           <p className="text-muted-foreground">Game Completed</p>
         </div>
 
         {/* Player Score */}
-        <Card className="bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 shadow-lg mb-6">
+        <Card className="bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-[1.02] mb-6">
           <CardContent className="p-6">
             <div className="text-center" data-testid="player-stats">
               <div className="text-4xl font-bold text-primary mb-2" data-testid="final-score">
@@ -85,11 +91,11 @@ export default function GameResults() {
         </Card>
 
         {/* Leaderboard */}
-        <Card className="border border-border shadow-lg mb-6">
+        <Card className="border border-accent/30 shadow-lg shadow-accent/20 bg-gradient-to-br from-card to-accent/5 hover:shadow-accent/40 transition-all duration-300 hover:scale-[1.01] mb-6">
           <CardContent className="p-6">
             <h3 className="font-medium text-center mb-4 flex items-center justify-center gap-2">
-              <Trophy className="w-5 h-5 text-primary" />
-              <span>ترتيبك في هذه اللعبة</span>
+              <Trophy className="w-5 h-5 text-primary animate-bounce" />
+              <span>ترتيبك في هذه اللعبة 🏅</span>
             </h3>
 
             <div className="space-y-2" data-testid="leaderboard-list">
@@ -152,20 +158,20 @@ export default function GameResults() {
         <div className="space-y-3">
           <Link href={`/game-play?playerId=${playerId}&gameId=${gameId}`}>
             <Button
-              className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg hover:shadow-primary/25 transition-all duration-300"
+              className="w-full bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-[1.02] hover:-rotate-1 animate-pulse"
               data-testid="button-play-again"
             >
-              العب مرة أخرى
+              العب مرة أخرى 🔄
             </Button>
           </Link>
           
           <Link href="/">
             <Button
               variant="secondary"
-              className="w-full bg-card border border-border hover:bg-muted text-card-foreground font-medium py-3 px-6 rounded-lg shadow-lg transition-all duration-300"
+              className="w-full bg-gradient-to-r from-accent/20 to-primary/20 border border-accent/50 hover:bg-gradient-to-r hover:from-accent/30 hover:to-primary/30 text-card-foreground font-medium py-3 px-6 rounded-lg shadow-lg shadow-accent/20 hover:shadow-accent/40 transition-all duration-300 hover:scale-[1.02] hover:rotate-1"
               data-testid="button-home"
             >
-              العودة للصفحة الرئيسية
+              العودة للصفحة الرئيسية 🏠
             </Button>
           </Link>
         </div>

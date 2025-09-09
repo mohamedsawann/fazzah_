@@ -99,8 +99,14 @@ export default function CreateGame() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900" style={{ background: 'linear-gradient(135deg, hsl(240 20% 4%) 0%, hsl(262 30% 10%) 50%, hsl(240 20% 4%) 100%)' }}>
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(240 20% 4%) 0%, hsl(280 50% 15%) 25%, hsl(320 60% 20%) 50%, hsl(280 50% 15%) 75%, hsl(240 20% 4%) 100%)' }}>
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-2xl animate-ping" style={{ animationDuration: '4s' }}></div>
+      </div>
+      <div className="container mx-auto px-4 py-8 max-w-2xl relative z-10">
         <div className="mb-6">
           <Link href="/">
             <Button
@@ -115,15 +121,15 @@ export default function CreateGame() {
         </div>
 
         <div className="text-center mb-8" data-testid="header-create-game">
-          <h2 className="text-3xl font-bold font-arabic text-primary mb-2">
-            إنشاء لعبة
+          <h2 className="text-3xl font-bold font-arabic text-primary mb-2 animate-pulse">
+            إنشاء لعبة ✨
           </h2>
           <p className="text-muted-foreground">Create New Game</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Game Name */}
-          <Card className="border border-border shadow-lg">
+          <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5 hover:shadow-primary/40 transition-all duration-300 hover:scale-[1.02]">
             <CardContent className="p-6">
               <Label htmlFor="gameName" className="block text-sm font-medium mb-2">
                 اسم اللعبة / Game Name
@@ -143,7 +149,7 @@ export default function CreateGame() {
           {/* Questions */}
           <div className="space-y-4">
             {questions.map((question, questionIndex) => (
-              <Card key={questionIndex} className="border border-border shadow-lg">
+              <Card key={questionIndex} className="border border-accent/30 shadow-lg shadow-accent/20 bg-gradient-to-br from-card to-accent/5 hover:shadow-accent/40 transition-all duration-300 hover:scale-[1.01]">
                 <CardContent className="p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-medium">
@@ -218,21 +224,21 @@ export default function CreateGame() {
             type="button"
             variant="outline"
             onClick={addQuestion}
-            className="w-full bg-card border border-border hover:bg-muted text-card-foreground font-medium py-3 px-6 rounded-lg shadow-lg transition-all duration-300"
+            className="w-full bg-gradient-to-r from-accent/20 to-primary/20 border border-accent/50 hover:bg-gradient-to-r hover:from-accent/30 hover:to-primary/30 text-card-foreground font-medium py-3 px-6 rounded-lg shadow-lg shadow-accent/20 hover:shadow-accent/40 transition-all duration-300 hover:scale-[1.02] hover:rotate-1"
             data-testid="button-add-question"
           >
-            <Plus className="w-5 h-5 mr-2" />
-            إضافة سؤال جديد / Add New Question
+            <Plus className="w-5 h-5 mr-2 animate-bounce" />
+            إضافة سؤال جديد ➕ / Add New Question
           </Button>
 
           {/* Create Game Button */}
           <Button
             type="submit"
             disabled={createGameMutation.isPending || !gameName.trim() || !validateQuestions()}
-            className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg hover:shadow-primary/25 transition-all duration-300"
+            className="w-full bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-[1.02] hover:-rotate-1 animate-pulse"
             data-testid="button-create-game"
           >
-            {createGameMutation.isPending ? "جارٍ الإنشاء..." : "إنشاء اللعبة"}
+            {createGameMutation.isPending ? "جارٍ الإنشاء... ⚡" : "إنشاء اللعبة 🎮"}
           </Button>
         </form>
       </div>

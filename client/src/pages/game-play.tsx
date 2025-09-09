@@ -136,8 +136,14 @@ export default function GamePlay() {
   const progressPercentage = ((20 - timeRemaining) / 20) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900" style={{ background: 'linear-gradient(135deg, hsl(240 20% 4%) 0%, hsl(262 30% 10%) 50%, hsl(240 20% 4%) 100%)' }}>
-      <div className="container mx-auto px-4 py-8 max-w-md">
+    <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(240 20% 4%) 0%, hsl(280 50% 15%) 25%, hsl(320 60% 20%) 50%, hsl(280 50% 15%) 75%, hsl(240 20% 4%) 100%)' }}>
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-2xl animate-ping" style={{ animationDuration: '4s' }}></div>
+      </div>
+      <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
         {/* Game Header */}
         <div className="flex justify-between items-center mb-6" data-testid="game-header">
           <div className="text-center">
@@ -172,7 +178,7 @@ export default function GamePlay() {
         </div>
 
         {/* Question */}
-        <Card className="border border-border shadow-lg mb-6">
+        <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5 mb-6">
           <CardContent className="p-6">
             <h3 className="text-xl font-medium text-center mb-6" data-testid="question-text">
               {currentQuestion?.text}
@@ -186,7 +192,7 @@ export default function GamePlay() {
                   variant="secondary"
                   disabled={isAnswered}
                   onClick={() => handleAnswerSelect(index)}
-                  className={`w-full bg-muted hover:bg-primary hover:text-primary-foreground border border-border rounded-lg p-4 text-right transition-all duration-300 transform hover:scale-[1.02] h-auto ${
+                  className={`w-full bg-gradient-to-r from-accent/10 to-primary/10 hover:from-primary hover:to-accent hover:text-primary-foreground border border-accent/30 rounded-lg p-4 text-right transition-all duration-300 transform hover:scale-[1.02] hover:-rotate-1 shadow-lg hover:shadow-accent/30 h-auto ${
                     isAnswered
                       ? selectedAnswer === index
                         ? index === currentQuestion.correctAnswer
@@ -207,10 +213,10 @@ export default function GamePlay() {
         </Card>
 
         {isAnswered && (
-          <div className="text-center text-muted-foreground" data-testid="answer-feedback">
+          <div className="text-center text-lg font-bold animate-bounce" data-testid="answer-feedback">
             {selectedAnswer === currentQuestion?.correctAnswer
-              ? "إجابة صحيحة! 🎉"
-              : "إجابة خاطئة"}
+              ? <span className="text-green-400">إجابة صحيحة! 🎉✨</span>
+              : <span className="text-red-400">إجابة خاطئة 😔</span>}
           </div>
         )}
       </div>
