@@ -1,21 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
-import { PlayCircle, PlusCircle, Users, Gamepad2 } from "lucide-react";
+import { PlayCircle, PlusCircle } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
-
-interface GameStats {
-  gamesPlayedToday: number;
-  totalPlayers: number;
-}
+import logoImage from "@assets/Untitled_design_no_bg_1757455327542.png";
 
 export default function Home() {
-  const { data: stats } = useQuery<GameStats>({
-    queryKey: ["/api/stats/today"],
-    enabled: true,
-  });
-
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(240 20% 4%) 0%, hsl(280 50% 15%) 25%, hsl(320 60% 20%) 50%, hsl(280 50% 15%) 75%, hsl(240 20% 4%) 100%)' }}>
       {/* Animated background elements */}
@@ -27,42 +16,18 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
         {/* Header */}
         <div className="text-center mb-16 mt-12" data-testid="header-title">
-          <h1 className="text-7xl font-bold font-arabic text-primary mb-4 drop-shadow-lg animate-pulse">
-            فزه
-          </h1>
+          <div className="mb-6">
+            <img 
+              src={logoImage} 
+              alt="فزه Logo" 
+              className="w-64 h-64 mx-auto animate-pulse drop-shadow-lg"
+              style={{ filter: 'brightness(0) saturate(100%) invert(47%) sepia(89%) saturate(6000%) hue-rotate(280deg) brightness(105%) contrast(106%)' }}
+            />
+          </div>
           <p className="text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-2">Fazzah</p>
           <p className="text-base text-muted-foreground font-sans">
             منصة الألعاب التفاعلية ⚡
           </p>
-        </div>
-
-        {/* Stats Section */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5 hover:shadow-primary/40 transition-all duration-300 hover:scale-105">
-            <CardContent className="p-4 text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Gamepad2 className="w-5 h-5 text-primary animate-bounce" />
-                <span className="font-medium text-card-foreground">ألعاب اليوم</span>
-              </div>
-              <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent" data-testid="games-today">
-                {stats?.gamesPlayedToday || 0}
-              </div>
-              <p className="text-xs text-muted-foreground">Games Today</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-accent/30 shadow-lg shadow-accent/20 bg-gradient-to-br from-card to-accent/5 hover:shadow-accent/40 transition-all duration-300 hover:scale-105">
-            <CardContent className="p-4 text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Users className="w-5 h-5 text-accent animate-bounce" style={{ animationDelay: '0.5s' }} />
-                <span className="font-medium text-card-foreground">اللاعبون</span>
-              </div>
-              <div className="text-2xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent" data-testid="total-players">
-                {stats?.totalPlayers || 0}
-              </div>
-              <p className="text-xs text-muted-foreground">Total Players</p>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Main Action Buttons */}
