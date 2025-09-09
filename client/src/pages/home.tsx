@@ -27,7 +27,12 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
         {/* Header */}
         <div className="text-center mb-16 mt-12" data-testid="header-title">
-          <h1 className="text-7xl font-bold font-arabic bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-4 drop-shadow-lg animate-pulse">
+          <h1 className="text-7xl font-bold font-arabic text-primary mb-4 drop-shadow-lg animate-pulse" style={{ 
+            background: 'linear-gradient(45deg, hsl(280 100% 70%), hsl(320 100% 75%), hsl(280 100% 70%))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
             فزه
           </h1>
           <p className="text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-2">Fazzah</p>
