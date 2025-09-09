@@ -7,8 +7,6 @@ export const games = pgTable("games", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   code: varchar("code", { length: 6 }).notNull().unique(),
   name: text("name").notNull(),
-  category: text("category").notNull(),
-  questionCount: integer("question_count").notNull().default(10),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   isActive: boolean("is_active").notNull().default(true),
 });
@@ -27,19 +25,13 @@ export const players = pgTable("players", {
 
 export const questions = pgTable("questions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  gameId: varchar("game_id").references(() => games.id).notNull(),
   text: text("text").notNull(),
   options: text("options").array().notNull(),
   correctAnswer: integer("correct_answer").notNull(),
-  category: text("category").notNull(),
-  difficulty: text("difficulty").notNull().default("medium"),
-});
-
-export const gameQuestions = pgTable("game_questions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  gameId: varchar("game_id").references(() => games.id).notNull(),
-  questionId: varchar("question_id").references(() => questions.id).notNull(),
   order: integer("order").notNull(),
 });
+
 
 export const playerAnswers = pgTable("player_answers", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -81,7 +73,6 @@ export const insertPlayerAnswerSchema = createInsertSchema(playerAnswers).omit({
 export type Game = typeof games.$inferSelect;
 export type Player = typeof players.$inferSelect;
 export type Question = typeof questions.$inferSelect;
-export type GameQuestion = typeof gameQuestions.$inferSelect;
 export type PlayerAnswer = typeof playerAnswers.$inferSelect;
 
 export type InsertGame = z.infer<typeof insertGameSchema>;
