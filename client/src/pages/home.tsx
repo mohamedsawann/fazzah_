@@ -122,7 +122,7 @@ export default function Home() {
             <p className="text-sm text-muted-foreground mb-1">
               طُور بواسطة / Developed by
             </p>
-            <p className="font-medium bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <p className="font-medium text-primary">
               GDG Tech and Innovation Team 💜
             </p>
           </div>
