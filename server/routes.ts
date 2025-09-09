@@ -162,6 +162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Count games and players created today
       const allGames = await storage.getAllGames();
       const allPlayers = await storage.getAllPlayers();
+      const winnersCount = await storage.getWinnersCount();
       
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -176,7 +177,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         gamesPlayedToday,
-        totalPlayers
+        totalPlayers,
+        winnersToday: winnersCount
       });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });

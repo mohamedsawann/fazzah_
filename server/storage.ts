@@ -13,6 +13,7 @@ export interface IStorage {
   getPlayer(id: string): Promise<Player | undefined>;
   getPlayersByGame(gameId: string): Promise<Player[]>;
   getAllPlayers(): Promise<Player[]>;
+  getWinnersCount(): Promise<number>;
   updatePlayerScore(playerId: string, score: number, correctAnswers: number, totalAnswers: number, averageTime: number): Promise<void>;
   completePlayer(playerId: string): Promise<void>;
   
@@ -113,6 +114,24 @@ export class MemStorage implements IStorage {
 
   async getAllPlayers(): Promise<Player[]> {
     return Array.from(this.players.values());
+  }
+
+  async getWinnersCount(): Promise<number> {
+    const allGames = await this.getAllGames();
+    let winnersCount = 0;
+    
+    for (const game of allGames) {
+      const players = await this.getPlayersByGame(game.id);
+      // Count completed players (those who finished the game)
+      const completedPlayers = players.filter(p => p.completedAt !== null);
+      
+      // If there are completed players, the top scorer is the winner
+      if (completedPlayers.length > 0) {
+        winnersCount += 1; // One winner per game
+      }
+    }
+    
+    return winnersCount;
   }
 
   async updatePlayerScore(playerId: string, score: number, correctAnswers: number, totalAnswers: number, averageTime: number): Promise<void> {
