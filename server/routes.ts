@@ -19,7 +19,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const { name, questions } = requestSchema.parse(req.body);
-      const game = await storage.createGame({ name }, questions);
+      
+      // Transform questions to match storage interface
+      const questionsForStorage = questions.map((q, index) => ({
+        text: q.text,
+        options: q.options,
+        correctAnswer: q.correctAnswer,
+        gameId: "", // Will be set by storage
+        order: index + 1
+      }));
+      
+      const game = await storage.createGame({ name }, questionsForStorage);
       
       res.json(game);
     } catch (error) {
