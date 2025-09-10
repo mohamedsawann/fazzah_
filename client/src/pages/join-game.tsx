@@ -8,6 +8,7 @@ import { Link, useLocation } from "wouter";
 import { ArrowRight } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { playSound } from "@/lib/soundUtils";
 
 export default function JoinGame() {
   const [gameCode, setGameCode] = useState("");
@@ -94,6 +95,7 @@ export default function JoinGame() {
               <Button
                 type="submit"
                 disabled={validateGameMutation.isPending || gameCode.length !== 6}
+                onClick={playSound.buttonClick}
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-lg shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 hover:scale-[1.02] hover:-rotate-1"
                 data-testid="button-continue"
               >

@@ -9,6 +9,7 @@ import { Link, useLocation } from "wouter";
 import { ArrowRight, Plus, Trash2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { playSound } from "@/lib/soundUtils";
 
 interface Question {
   text: string;
@@ -223,7 +224,10 @@ export default function CreateGame() {
           <Button
             type="button"
             variant="outline"
-            onClick={addQuestion}
+            onClick={() => {
+              playSound.buttonClick();
+              addQuestion();
+            }}
             className="w-full bg-amber-500 hover:bg-amber-600 border border-amber-400 text-white font-medium py-3 px-6 rounded-lg shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all duration-300 hover:scale-[1.02] hover:rotate-1"
             data-testid="button-add-question"
           >
@@ -235,6 +239,7 @@ export default function CreateGame() {
           <Button
             type="submit"
             disabled={createGameMutation.isPending || !gameName.trim() || !validateQuestions()}
+            onClick={playSound.buttonClick}
             className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-lg shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 hover:scale-[1.02] hover:-rotate-1"
             data-testid="button-create-game"
           >

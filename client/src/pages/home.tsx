@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { PlayCircle, PlusCircle } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
 import logoImage from "@assets/Untitled_design_no_bg_1757455327542.png";
+import { playSound } from "@/lib/soundUtils";
 
 export default function Home() {
   return (
@@ -34,6 +35,7 @@ export default function Home() {
         <div className="space-y-4 mb-6">
           <Link href="/join-game">
             <Button
+              onClick={playSound.buttonClick}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-6 px-8 rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-[1.02] hover:-rotate-1 text-xl h-auto"
               data-testid="button-join-game"
             >
@@ -51,6 +53,7 @@ export default function Home() {
 
           <Link href="/create-game">
             <Button
+              onClick={playSound.buttonClick}
               variant="secondary"
               className="w-full bg-amber-500 hover:bg-amber-600 border border-amber-400 text-white font-medium py-6 px-8 rounded-xl shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all duration-300 transform hover:scale-[1.02] hover:rotate-1 text-xl h-auto"
               data-testid="button-create-game"
