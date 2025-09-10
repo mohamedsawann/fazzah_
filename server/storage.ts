@@ -1,8 +1,8 @@
-import { type Game, type Player, type Question, type PlayerAnswer, type SiteStats, type InsertGame, type InsertPlayer, type InsertQuestion, type InsertPlayerAnswer, siteStats } from "@shared/schema";
+import { type Game, type Player, type Question, type PlayerAnswer, type SiteStats, type InsertGame, type InsertPlayer, type InsertQuestion, type InsertPlayerAnswer, siteStats, games, players, questions, playerAnswers } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, desc, lt, and } from "drizzle-orm";
 
 export interface IStorage {
   // Games
@@ -41,17 +41,10 @@ if (!dbUrl) {
 const sql_client = neon(dbUrl);
 const db = drizzle(sql_client);
 
-export class MemStorage implements IStorage {
-  private games: Map<string, Game>;
-  private players: Map<string, Player>;
-  private questions: Map<string, Question>;
-  private playerAnswers: Map<string, PlayerAnswer>;
-
+export class DatabaseStorage implements IStorage {
   constructor() {
-    this.games = new Map();
-    this.players = new Map();
-    this.questions = new Map();
-    this.playerAnswers = new Map();
+    // Initialize cleanup job that runs every hour
+    this.startCleanupJob();
   }
 
   private generateGameCode(): string {
@@ -63,72 +56,162 @@ export class MemStorage implements IStorage {
     return result;
   }
 
-  async createGame(insertGame: InsertGame, questions: InsertQuestion[]): Promise<Game> {
-    const id = randomUUID();
-    const code = this.generateGameCode();
-    const game: Game = {
-      ...insertGame,
-      id,
-      code,
-      createdAt: new Date(),
-      isActive: true,
-    };
-    this.games.set(id, game);
+  private async generateUniqueGameCode(): Promise<string> {
+    let code: string;
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    do {
+      code = this.generateGameCode();
+      const existingGame = await this.getGameByCode(code);
+      if (!existingGame) {
+        return code;
+      }
+      attempts++;
+    } while (attempts < maxAttempts);
+    
+    // If we can't generate a unique code after 10 attempts, add timestamp
+    return this.generateGameCode() + Date.now().toString().slice(-2);
+  }
 
-    // Create questions for this game
-    questions.forEach((questionData, index) => {
-      const questionId = randomUUID();
-      const question: Question = {
+  private startCleanupJob(): void {
+    // Run cleanup every hour
+    setInterval(async () => {
+      try {
+        await this.cleanupOldGames();
+      } catch (error) {
+        console.error('Cleanup job error:', error);
+      }
+    }, 60 * 60 * 1000); // 1 hour in milliseconds
+    
+    // Run initial cleanup
+    this.cleanupOldGames().catch(console.error);
+  }
+
+  private async cleanupOldGames(): Promise<void> {
+    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+    
+    try {
+      // Get games older than 48 hours
+      const oldGames = await db
+        .select({ id: games.id })
+        .from(games)
+        .where(lt(games.createdAt, fortyEightHoursAgo));
+
+      if (oldGames.length > 0) {
+        const gameIds = oldGames.map(game => game.id);
+        
+        // Delete in correct order due to foreign key constraints
+        // 1. Delete player answers first
+        for (const gameId of gameIds) {
+          await db.delete(playerAnswers)
+            .where(sql`${playerAnswers.playerId} IN (SELECT id FROM ${players} WHERE ${players.gameId} = ${gameId})`);
+        }
+        
+        // 2. Delete players
+        for (const gameId of gameIds) {
+          await db.delete(players)
+            .where(eq(players.gameId, gameId));
+        }
+        
+        // 3. Delete questions
+        for (const gameId of gameIds) {
+          await db.delete(questions)
+            .where(eq(questions.gameId, gameId));
+        }
+        
+        // 4. Finally delete games
+        for (const gameId of gameIds) {
+          await db.delete(games)
+            .where(eq(games.id, gameId));
+        }
+        
+        console.log(`Cleaned up ${oldGames.length} games older than 48 hours`);
+      }
+    } catch (error) {
+      console.error('Error during cleanup:', error);
+    }
+  }
+
+  async createGame(insertGame: InsertGame, questionsList: InsertQuestion[]): Promise<Game> {
+    const code = await this.generateUniqueGameCode();
+    
+    // Insert game
+    const [game] = await db
+      .insert(games)
+      .values({
+        ...insertGame,
+        code,
+      })
+      .returning();
+
+    // Insert questions for this game
+    if (questionsList.length > 0) {
+      const questionsToInsert = questionsList.map((questionData, index) => ({
         ...questionData,
-        id: questionId,
-        gameId: id,
+        gameId: game.id,
         order: index + 1,
-      };
-      this.questions.set(questionId, question);
-    });
+      }));
+
+      await db.insert(questions).values(questionsToInsert);
+    }
 
     return game;
   }
 
   async getGameByCode(code: string): Promise<Game | undefined> {
-    return Array.from(this.games.values()).find(game => game.code === code);
+    const result = await db
+      .select()
+      .from(games)
+      .where(eq(games.code, code))
+      .limit(1);
+    
+    return result[0];
   }
 
   async getGame(id: string): Promise<Game | undefined> {
-    return this.games.get(id);
+    const result = await db
+      .select()
+      .from(games)
+      .where(eq(games.id, id))
+      .limit(1);
+    
+    return result[0];
   }
 
   async getAllGames(): Promise<Game[]> {
-    return Array.from(this.games.values());
+    return await db.select().from(games).orderBy(desc(games.createdAt));
   }
 
   async createPlayer(insertPlayer: InsertPlayer): Promise<Player> {
-    const id = randomUUID();
-    const player: Player = {
-      ...insertPlayer,
-      id,
-      score: 0,
-      correctAnswers: 0,
-      totalAnswers: 0,
-      averageTime: 0,
-      completedAt: null,
-    };
-    this.players.set(id, player);
+    const [player] = await db
+      .insert(players)
+      .values(insertPlayer)
+      .returning();
+    
     return player;
   }
 
   async getPlayer(id: string): Promise<Player | undefined> {
-    return this.players.get(id);
+    const result = await db
+      .select()
+      .from(players)
+      .where(eq(players.id, id))
+      .limit(1);
+    
+    return result[0];
   }
 
   async getPlayersByGame(gameId: string): Promise<Player[]> {
-    return Array.from(this.players.values())
-      .filter(player => player.gameId === gameId)
-      .sort((a, b) => b.score - a.score);
+    return await db
+      .select()
+      .from(players)
+      .where(eq(players.gameId, gameId))
+      .orderBy(desc(players.score));
   }
 
   async getAllPlayers(): Promise<Player[]> {
-    return Array.from(this.players.values());
+    return await db.select().from(players);
   }
 
   async getWinnersCount(): Promise<number> {
@@ -136,9 +219,9 @@ export class MemStorage implements IStorage {
     let winnersCount = 0;
     
     for (const game of allGames) {
-      const players = await this.getPlayersByGame(game.id);
+      const gamePlayers = await this.getPlayersByGame(game.id);
       // Count completed players (those who finished the game)
-      const completedPlayers = players.filter(p => p.completedAt !== null);
+      const completedPlayers = gamePlayers.filter(p => p.completedAt !== null);
       
       // If there are completed players, the top scorer is the winner
       if (completedPlayers.length > 0) {
@@ -150,31 +233,35 @@ export class MemStorage implements IStorage {
   }
 
   async updatePlayerScore(playerId: string, score: number, correctAnswers: number, totalAnswers: number, averageTime: number): Promise<void> {
-    const player = this.players.get(playerId);
-    if (player) {
-      player.score = score;
-      player.correctAnswers = correctAnswers;
-      player.totalAnswers = totalAnswers;
-      player.averageTime = averageTime;
-      this.players.set(playerId, player);
-    }
+    await db
+      .update(players)
+      .set({
+        score,
+        correctAnswers,
+        totalAnswers,
+        averageTime,
+      })
+      .where(eq(players.id, playerId));
   }
 
   async completePlayer(playerId: string): Promise<void> {
-    const player = this.players.get(playerId);
-    if (player) {
-      player.completedAt = new Date();
-      this.players.set(playerId, player);
-    }
+    await db
+      .update(players)
+      .set({
+        completedAt: new Date(),
+      })
+      .where(eq(players.id, playerId));
   }
 
   async getGameQuestions(gameId: string): Promise<Question[]> {
-    const questions = Array.from(this.questions.values())
-      .filter(q => q.gameId === gameId)
-      .sort((a, b) => a.order - b.order);
+    const gameQuestions = await db
+      .select()
+      .from(questions)
+      .where(eq(questions.gameId, gameId))
+      .orderBy(questions.order);
     
     // Randomize question order
-    const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+    const shuffledQuestions = [...gameQuestions].sort(() => Math.random() - 0.5);
     
     // Randomize answer options for each question and update correct answer index
     return shuffledQuestions.map(question => {
@@ -198,12 +285,16 @@ export class MemStorage implements IStorage {
   }
 
   async getQuestion(id: string): Promise<Question | undefined> {
-    return this.questions.get(id);
+    const result = await db
+      .select()
+      .from(questions)
+      .where(eq(questions.id, id))
+      .limit(1);
+    
+    return result[0];
   }
 
   async createPlayerAnswer(insertAnswer: InsertPlayerAnswer): Promise<PlayerAnswer> {
-    const id = randomUUID();
-    
     // Calculate points based on correctness and speed
     let points = 0;
     if (insertAnswer.isCorrect) {
@@ -214,18 +305,22 @@ export class MemStorage implements IStorage {
       points = Math.round(basePoints + speedBonus);
     }
 
-    const playerAnswer: PlayerAnswer = {
-      ...insertAnswer,
-      id,
-      points,
-    };
-    this.playerAnswers.set(id, playerAnswer);
+    const [playerAnswer] = await db
+      .insert(playerAnswers)
+      .values({
+        ...insertAnswer,
+        points,
+      })
+      .returning();
+    
     return playerAnswer;
   }
 
   async getPlayerAnswers(playerId: string): Promise<PlayerAnswer[]> {
-    return Array.from(this.playerAnswers.values())
-      .filter(answer => answer.playerId === playerId);
+    return await db
+      .select()
+      .from(playerAnswers)
+      .where(eq(playerAnswers.playerId, playerId));
   }
 
   async incrementVisitors(): Promise<number> {
@@ -251,4 +346,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
