@@ -43,6 +43,12 @@ export const playerAnswers = pgTable("player_answers", {
   points: integer("points").notNull().default(0),
 });
 
+export const siteStats = pgTable("site_stats", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  visitors: integer("visitors").notNull().default(0),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertGameSchema = createInsertSchema(games).omit({
   id: true,
@@ -74,6 +80,7 @@ export type Game = typeof games.$inferSelect;
 export type Player = typeof players.$inferSelect;
 export type Question = typeof questions.$inferSelect;
 export type PlayerAnswer = typeof playerAnswers.$inferSelect;
+export type SiteStats = typeof siteStats.$inferSelect;
 
 export type InsertGame = z.infer<typeof insertGameSchema>;
 export type InsertPlayer = z.infer<typeof insertPlayerSchema>;

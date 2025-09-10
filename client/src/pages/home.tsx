@@ -1,11 +1,32 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { PlayCircle, PlusCircle } from "lucide-react";
+import { PlayCircle, PlusCircle, Users } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
 import logoImage from "@assets/Untitled_design_no_bg_1757455327542.png";
 import { playSound } from "@/lib/soundUtils";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export default function Home() {
+  // Track visitor when component mounts
+  const trackVisitorMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/visitors/track', { method: 'POST' });
+      return response.json();
+    }
+  });
+
+  // Get visitor count
+  const { data: visitorData } = useQuery({
+    queryKey: ['/api/visitors/count'],
+    refetchOnMount: true,
+  });
+
+  useEffect(() => {
+    // Track visitor only once when page loads
+    trackVisitorMutation.mutate();
+  }, []);
+
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(0 0% 12%) 0%, hsl(25 60% 20%) 25%, hsl(35 50% 25%) 50%, hsl(25 60% 20%) 75%, hsl(0 0% 12%) 100%)' }}>
       {/* Animated background elements */}
@@ -93,6 +114,15 @@ export default function Home() {
             <p className="font-medium text-primary">
               GDG Mohamed Sawan 🧡
             </p>
+            
+            {visitorData && (
+              <div className="flex items-center justify-center gap-2 mt-3 text-xs text-muted-foreground" data-testid="visitor-count">
+                <Users className="w-3 h-3" />
+                <span>
+                  {visitorData.count.toLocaleString()} زائر / Total Visitors
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

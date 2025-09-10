@@ -1,4 +1,4 @@
-import { type Game, type Player, type Question, type PlayerAnswer, type InsertGame, type InsertPlayer, type InsertQuestion, type InsertPlayerAnswer } from "@shared/schema";
+import { type Game, type Player, type Question, type PlayerAnswer, type SiteStats, type InsertGame, type InsertPlayer, type InsertQuestion, type InsertPlayerAnswer } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -24,6 +24,10 @@ export interface IStorage {
   // Player Answers
   createPlayerAnswer(answer: InsertPlayerAnswer): Promise<PlayerAnswer>;
   getPlayerAnswers(playerId: string): Promise<PlayerAnswer[]>;
+  
+  // Site Stats
+  incrementVisitors(): Promise<number>;
+  getVisitorCount(): Promise<number>;
 }
 
 export class MemStorage implements IStorage {
@@ -31,12 +35,14 @@ export class MemStorage implements IStorage {
   private players: Map<string, Player>;
   private questions: Map<string, Question>;
   private playerAnswers: Map<string, PlayerAnswer>;
+  private visitorCount: number;
 
   constructor() {
     this.games = new Map();
     this.players = new Map();
     this.questions = new Map();
     this.playerAnswers = new Map();
+    this.visitorCount = 0;
   }
 
   private generateGameCode(): string {
@@ -211,6 +217,15 @@ export class MemStorage implements IStorage {
   async getPlayerAnswers(playerId: string): Promise<PlayerAnswer[]> {
     return Array.from(this.playerAnswers.values())
       .filter(answer => answer.playerId === playerId);
+  }
+
+  async incrementVisitors(): Promise<number> {
+    this.visitorCount++;
+    return this.visitorCount;
+  }
+
+  async getVisitorCount(): Promise<number> {
+    return this.visitorCount;
   }
 }
 

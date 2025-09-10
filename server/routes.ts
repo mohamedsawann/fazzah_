@@ -234,6 +234,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Track visitor
+  app.post("/api/visitors/track", async (req, res) => {
+    try {
+      const newCount = await storage.incrementVisitors();
+      res.json({ count: newCount });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get visitor count
+  app.get("/api/visitors/count", async (req, res) => {
+    try {
+      const count = await storage.getVisitorCount();
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
