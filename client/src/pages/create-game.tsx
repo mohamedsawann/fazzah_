@@ -224,7 +224,7 @@ export default function CreateGame() {
             type="button"
             variant="outline"
             onClick={addQuestion}
-            className="w-full bg-gradient-to-r from-accent/20 to-primary/20 border border-accent/50 hover:bg-gradient-to-r hover:from-accent/30 hover:to-primary/30 text-card-foreground font-medium py-3 px-6 rounded-lg shadow-lg shadow-accent/20 hover:shadow-accent/40 transition-all duration-300 hover:scale-[1.02] hover:rotate-1"
+            className="w-full animate-color-shift border border-accent/50 text-card-foreground font-medium py-3 px-6 rounded-lg shadow-lg shadow-accent/20 hover:shadow-accent/40 transition-all duration-300 hover:scale-[1.02] hover:rotate-1"
             data-testid="button-add-question"
           >
             <Plus className="w-5 h-5 mr-2 animate-bounce" />
@@ -235,7 +235,7 @@ export default function CreateGame() {
           <Button
             type="submit"
             disabled={createGameMutation.isPending || !gameName.trim() || !validateQuestions()}
-            className="w-full bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-[1.02] hover:-rotate-1 animate-pulse"
+            className="w-full animate-color-shift text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-[1.02] hover:-rotate-1"
             data-testid="button-create-game"
           >
             {createGameMutation.isPending ? "جارٍ الإنشاء... ⚡" : "إنشاء اللعبة 🎮"}

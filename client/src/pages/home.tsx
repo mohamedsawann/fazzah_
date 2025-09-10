@@ -34,7 +34,7 @@ export default function Home() {
         <div className="space-y-4 mb-6">
           <Link href="/join-game">
             <Button
-              className="w-full bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 text-primary-foreground font-medium py-6 px-8 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.02] hover:-rotate-1 text-xl h-auto animate-pulse"
+              className="w-full animate-color-shift text-primary-foreground font-medium py-6 px-8 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.02] hover:-rotate-1 text-xl h-auto"
               data-testid="button-join-game"
             >
               <div className="flex flex-col items-center justify-center gap-2">
@@ -52,7 +52,7 @@ export default function Home() {
           <Link href="/create-game">
             <Button
               variant="secondary"
-              className="w-full bg-gradient-to-r from-accent/20 to-primary/20 border border-accent/50 hover:bg-gradient-to-r hover:from-accent/30 hover:to-primary/30 text-card-foreground font-medium py-6 px-8 rounded-xl shadow-lg shadow-accent/20 hover:shadow-accent/40 transition-all duration-300 transform hover:scale-[1.02] hover:rotate-1 text-xl h-auto"
+              className="w-full animate-color-shift border border-accent/50 text-card-foreground font-medium py-6 px-8 rounded-xl shadow-lg shadow-accent/20 hover:shadow-accent/40 transition-all duration-300 transform hover:scale-[1.02] hover:rotate-1 text-xl h-auto"
               data-testid="button-create-game"
             >
               <div className="flex flex-col items-center justify-center gap-2">
