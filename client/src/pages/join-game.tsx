@@ -94,7 +94,7 @@ export default function JoinGame() {
               <Button
                 type="submit"
                 disabled={validateGameMutation.isPending || gameCode.length !== 6}
-                className="w-full animate-color-shift text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-[1.02] hover:-rotate-1"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-[1.02] hover:-rotate-1"
                 data-testid="button-continue"
               >
                 {validateGameMutation.isPending ? "جارٍ التحقق... ⏳" : "متابعة 🎯"}
