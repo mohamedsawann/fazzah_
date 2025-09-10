@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useLocation, useSearch } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { playSound } from "@/lib/soundUtils";
 
 interface Question {
   id: string;
@@ -63,11 +64,24 @@ export default function GamePlay() {
     },
   });
 
-  // Timer countdown
+  // Timer countdown with sound effects
   useEffect(() => {
     if (timeRemaining > 0 && !isAnswered) {
       const timer = setTimeout(() => {
-        setTimeRemaining(timeRemaining - 1);
+        const newTime = timeRemaining - 1;
+        setTimeRemaining(newTime);
+        
+        // Play sound effects based on time remaining
+        if (newTime <= 5 && newTime > 0) {
+          playSound.warningTick(); // Warning sound for last 5 seconds
+        } else if (newTime > 5) {
+          playSound.countdownTick(); // Regular tick sound
+        }
+        
+        // Time warning sound at 10 seconds
+        if (newTime === 10) {
+          playSound.timeWarning();
+        }
       }, 1000);
       return () => clearTimeout(timer);
     } else if (timeRemaining === 0 && !isAnswered) {
@@ -81,6 +95,11 @@ export default function GamePlay() {
     setTimeRemaining(20);
     setIsAnswered(false);
     setSelectedAnswer(null);
+    
+    // Play game start sound for first question
+    if (currentQuestionIndex === 0) {
+      playSound.gameStart();
+    }
   }, [currentQuestionIndex]);
 
   const currentQuestion = questions?.[currentQuestionIndex];
@@ -103,6 +122,13 @@ export default function GamePlay() {
 
     setAnswers(prev => [...prev, answerData]);
 
+    // Play sound based on answer correctness
+    if (isCorrect) {
+      playSound.correctAnswer();
+    } else {
+      playSound.wrongAnswer();
+    }
+
     // Submit answer to backend
     try {
       const result = await submitAnswerMutation.mutateAsync(answerData);
@@ -116,7 +142,8 @@ export default function GamePlay() {
       if (currentQuestionIndex < (questions?.length || 0) - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
-        // Game complete
+        // Game complete - play completion sound
+        playSound.gameComplete();
         completeGameMutation.mutate();
       }
     }, 2000);
@@ -134,6 +161,17 @@ export default function GamePlay() {
   }
 
   const progressPercentage = ((20 - timeRemaining) / 20) * 100;
+  
+  // Dynamic timer bar colors based on time remaining
+  const getTimerBarClass = () => {
+    if (timeRemaining <= 5) {
+      return "bg-gradient-to-r from-red-500 to-red-600 animate-pulse";
+    } else if (timeRemaining <= 10) {
+      return "bg-gradient-to-r from-yellow-500 to-orange-500";
+    } else {
+      return "bg-gradient-to-r from-green-500 to-blue-500";
+    }
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(0 0% 12%) 0%, hsl(25 60% 20%) 25%, hsl(35 50% 25%) 50%, hsl(25 60% 20%) 75%, hsl(0 0% 12%) 100%)' }}>
@@ -160,21 +198,55 @@ export default function GamePlay() {
           </div>
         </div>
 
-        {/* Timer */}
+        {/* Enhanced Visual Timer */}
         <div className="mb-6" data-testid="timer-section">
-          <div className="flex justify-between items-center mb-2">
+          <div className="flex justify-between items-center mb-3">
             <span className="text-sm text-muted-foreground">الوقت المتبقي</span>
-            <span className="text-lg font-bold text-primary" data-testid="time-remaining">
+            <span 
+              className={`text-xl font-bold transition-all duration-300 ${
+                timeRemaining <= 5 ? 'text-red-400 animate-bounce' : 
+                timeRemaining <= 10 ? 'text-yellow-400' : 'text-green-400'
+              }`} 
+              data-testid="time-remaining"
+            >
               {timeRemaining}s
             </span>
           </div>
-          <div className="w-full bg-muted rounded-full h-2">
-            <div
-              className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-1000"
-              style={{ width: `${progressPercentage}%` }}
-              data-testid="timer-progress"
-            ></div>
+          
+          {/* Progress Bar Container */}
+          <div className="relative">
+            <div className="w-full bg-gray-700/50 rounded-full h-4 shadow-inner">
+              <div
+                className={`h-4 rounded-full transition-all duration-300 ease-out ${getTimerBarClass()}`}
+                style={{ width: `${Math.max(0, 100 - progressPercentage)}%` }}
+                data-testid="timer-progress"
+              >
+                {/* Glowing effect for low time */}
+                {timeRemaining <= 5 && (
+                  <div className="absolute inset-0 rounded-full bg-red-400/30 blur-sm animate-pulse"></div>
+                )}
+              </div>
+            </div>
+            
+            {/* Tick marks for visual reference */}
+            <div className="absolute top-0 w-full h-4 flex justify-between items-center px-1">
+              {[...Array(4)].map((_, i) => (
+                <div 
+                  key={i} 
+                  className="w-0.5 h-2 bg-white/30 rounded-full"
+                ></div>
+              ))}
+            </div>
           </div>
+          
+          {/* Warning message for low time */}
+          {timeRemaining <= 5 && timeRemaining > 0 && (
+            <div className="text-center mt-2">
+              <span className="text-red-400 text-sm font-medium animate-pulse">
+                ⏰ الوقت ينفد! 
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Question */}
@@ -191,7 +263,10 @@ export default function GamePlay() {
                   key={index}
                   variant="secondary"
                   disabled={isAnswered}
-                  onClick={() => handleAnswerSelect(index)}
+                  onClick={() => {
+                    playSound.buttonClick();
+                    handleAnswerSelect(index);
+                  }}
                   className={`w-full bg-gradient-to-r from-accent/10 to-primary/10 hover:from-primary hover:to-accent hover:text-primary-foreground border border-accent/30 rounded-lg p-4 text-right transition-all duration-300 transform hover:scale-[1.02] hover:-rotate-1 shadow-lg hover:shadow-accent/30 h-auto ${
                     isAnswered
                       ? selectedAnswer === index
