@@ -1,20 +1,41 @@
 // Sound utility functions for game interactions
 class GameAudio {
   private audioContext: AudioContext | null = null;
+  private isAudioAvailable: boolean = false;
 
   constructor() {
-    // Initialize audio context on user interaction
-    if (typeof window !== 'undefined') {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
+    // Don't initialize audio context immediately - wait for user interaction
+    this.isAudioAvailable = typeof window !== 'undefined' && 
+      (window.AudioContext || (window as any).webkitAudioContext);
   }
 
   private async ensureAudioContext() {
-    if (!this.audioContext) return;
+    // Return early if audio is not available
+    if (!this.isAudioAvailable) return false;
     
-    if (this.audioContext.state === 'suspended') {
-      await this.audioContext.resume();
+    // Create audio context if it doesn't exist
+    if (!this.audioContext) {
+      try {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        this.audioContext = new AudioContext();
+      } catch (error) {
+        console.warn('Failed to create AudioContext:', error);
+        this.isAudioAvailable = false;
+        return false;
+      }
     }
+    
+    // Resume context if suspended
+    if (this.audioContext.state === 'suspended') {
+      try {
+        await this.audioContext.resume();
+      } catch (error) {
+        console.warn('Failed to resume AudioContext:', error);
+        return false;
+      }
+    }
+    
+    return this.audioContext.state === 'running';
   }
 
   private createBeep(frequency: number, duration: number, volume: number = 0.3) {
@@ -61,62 +82,78 @@ class GameAudio {
 
   // Button click sound
   async playButtonClick() {
-    await this.ensureAudioContext();
-    this.createBeep(800, 0.1, 0.2);
+    const isReady = await this.ensureAudioContext();
+    if (isReady) {
+      this.createBeep(800, 0.1, 0.2);
+    }
   }
 
   // Correct answer sound - happy chord
   async playCorrectAnswer() {
-    await this.ensureAudioContext();
-    this.createMultiToneBeep([523, 659, 784], 0.4, 0.3); // C-E-G major chord
+    const isReady = await this.ensureAudioContext();
+    if (isReady) {
+      this.createMultiToneBeep([523, 659, 784], 0.4, 0.3); // C-E-G major chord
+    }
   }
 
   // Wrong answer sound - sad tone
   async playWrongAnswer() {
-    await this.ensureAudioContext();
-    this.createBeep(220, 0.6, 0.4); // Low A note
+    const isReady = await this.ensureAudioContext();
+    if (isReady) {
+      this.createBeep(220, 0.6, 0.4); // Low A note
+    }
   }
 
   // Countdown tick sound
   async playCountdownTick() {
-    await this.ensureAudioContext();
-    this.createBeep(600, 0.1, 0.15);
+    const isReady = await this.ensureAudioContext();
+    if (isReady) {
+      this.createBeep(600, 0.1, 0.15);
+    }
   }
 
   // Final countdown warning (last 5 seconds)
   async playWarningTick() {
-    await this.ensureAudioContext();
-    this.createBeep(900, 0.15, 0.25);
+    const isReady = await this.ensureAudioContext();
+    if (isReady) {
+      this.createBeep(900, 0.15, 0.25);
+    }
   }
 
   // Game start sound
   async playGameStart() {
-    await this.ensureAudioContext();
-    // Ascending scale
-    const notes = [262, 330, 392, 523]; // C-E-G-C
-    notes.forEach((freq, index) => {
-      setTimeout(() => {
-        this.createBeep(freq, 0.2, 0.2);
-      }, index * 100);
-    });
+    const isReady = await this.ensureAudioContext();
+    if (isReady) {
+      // Ascending scale
+      const notes = [262, 330, 392, 523]; // C-E-G-C
+      notes.forEach((freq, index) => {
+        setTimeout(() => {
+          this.createBeep(freq, 0.2, 0.2);
+        }, index * 100);
+      });
+    }
   }
 
   // Game complete sound
   async playGameComplete() {
-    await this.ensureAudioContext();
-    // Victory fanfare
-    const melody = [523, 523, 659, 784, 659, 523, 392, 523];
-    melody.forEach((freq, index) => {
-      setTimeout(() => {
-        this.createBeep(freq, 0.15, 0.25);
-      }, index * 150);
-    });
+    const isReady = await this.ensureAudioContext();
+    if (isReady) {
+      // Victory fanfare
+      const melody = [523, 523, 659, 784, 659, 523, 392, 523];
+      melody.forEach((freq, index) => {
+        setTimeout(() => {
+          this.createBeep(freq, 0.15, 0.25);
+        }, index * 150);
+      });
+    }
   }
 
   // Time running out warning
   async playTimeWarning() {
-    await this.ensureAudioContext();
-    this.createMultiToneBeep([440, 554], 0.2, 0.3); // Dissonant warning
+    const isReady = await this.ensureAudioContext();
+    if (isReady) {
+      this.createMultiToneBeep([440, 554], 0.2, 0.3); // Dissonant warning
+    }
   }
 }
 
