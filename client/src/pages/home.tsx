@@ -6,6 +6,7 @@ import logoImage from "@assets/Untitled_design_no_bg_1757455327542.png";
 import { playSound } from "@/lib/soundUtils";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { queryClient } from "@/lib/queryClient";
 
 export default function Home() {
   // Track visitor when component mounts
@@ -13,6 +14,10 @@ export default function Home() {
     mutationFn: async () => {
       const response = await fetch('/api/visitors/track', { method: 'POST' });
       return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate visitor count query to show updated count
+      queryClient.invalidateQueries({ queryKey: ['/api/visitors/count'] });
     }
   });
 
