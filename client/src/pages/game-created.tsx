@@ -3,8 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link, useSearch, useLocation } from "wouter";
-import { Copy, Share2, Play } from "lucide-react";
+import { Copy, Share2, Play, BarChart3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { playSound } from "@/lib/soundUtils";
 
 interface Game {
   id: string;
@@ -109,7 +110,10 @@ export default function GameCreated() {
 
               <div className="flex gap-2">
                 <Button
-                  onClick={copyGameCode}
+                  onClick={() => {
+                    playSound.buttonClick();
+                    copyGameCode();
+                  }}
                   variant="outline"
                   className="flex-1 bg-card border border-border hover:bg-muted text-card-foreground"
                   data-testid="button-copy-code"
@@ -119,7 +123,10 @@ export default function GameCreated() {
                 </Button>
                 
                 <Button
-                  onClick={shareGame}
+                  onClick={() => {
+                    playSound.buttonClick();
+                    shareGame();
+                  }}
                   variant="outline"
                   className="flex-1 bg-card border border-border hover:bg-muted text-card-foreground"
                   data-testid="button-share-code"
@@ -135,16 +142,32 @@ export default function GameCreated() {
         {/* Action Buttons */}
         <div className="space-y-4">
           <Button
-            onClick={startGame}
-            className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-medium py-4 px-6 rounded-xl shadow-lg hover:shadow-primary/25 transition-all duration-300"
+            onClick={() => {
+              playSound.buttonClick();
+              startGame();
+            }}
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-4 px-6 rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-[1.02]"
             data-testid="button-start-playing"
           >
             <Play className="w-5 h-5 mr-2" />
             ابدأ اللعب الآن / Start Playing Now
           </Button>
 
+          <Link href={`/leaderboard-view?gameId=${gameId}`}>
+            <Button
+              onClick={playSound.buttonClick}
+              variant="outline"
+              className="w-full bg-amber-500 hover:bg-amber-600 border border-amber-400 text-white font-medium py-3 px-6 rounded-lg shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all duration-300 transform hover:scale-[1.02]"
+              data-testid="button-view-leaderboard"
+            >
+              <BarChart3 className="w-5 h-5 mr-2" />
+              عرض النتائج / View Leaderboard
+            </Button>
+          </Link>
+
           <Link href="/">
             <Button
+              onClick={playSound.buttonClick}
               variant="outline"
               className="w-full bg-card border border-border hover:bg-muted text-card-foreground font-medium py-3 px-6 rounded-lg shadow-lg transition-all duration-300"
               data-testid="button-home"
