@@ -158,7 +158,7 @@ export default function GameResults() {
         <div className="space-y-3">
           <Link href={`/game-play?playerId=${playerId}&gameId=${gameId}`}>
             <Button
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-[1.02] hover:-rotate-1"
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-lg shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 hover:scale-[1.02] hover:-rotate-1"
               data-testid="button-play-again"
             >
               العب مرة أخرى 🔄
@@ -168,7 +168,7 @@ export default function GameResults() {
           <Link href="/">
             <Button
               variant="secondary"
-              className="w-full bg-accent hover:bg-accent/90 border border-accent/50 text-accent-foreground font-medium py-3 px-6 rounded-lg shadow-lg shadow-accent/20 hover:shadow-accent/40 transition-all duration-300 hover:scale-[1.02] hover:rotate-1"
+              className="w-full bg-amber-500 hover:bg-amber-600 border border-amber-400 text-white font-medium py-3 px-6 rounded-lg shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all duration-300 hover:scale-[1.02] hover:rotate-1"
               data-testid="button-home"
             >
               العودة للصفحة الرئيسية 🏠
