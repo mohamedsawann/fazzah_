@@ -88,7 +88,7 @@ export default function Home() {
               طُور بواسطة / Developed by
             </p>
             <p className="font-medium text-primary">
-              GDG Mohamed Sawan 💜
+              GDG Mohamed Sawan 🧡
             </p>
           </div>
         </div>
