@@ -44,7 +44,7 @@ export const playerAnswers = pgTable("player_answers", {
 });
 
 export const siteStats = pgTable("site_stats", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey(),
   visitors: integer("visitors").notNull().default(0),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

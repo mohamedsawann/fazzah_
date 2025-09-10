@@ -1,5 +1,8 @@
-import { type Game, type Player, type Question, type PlayerAnswer, type SiteStats, type InsertGame, type InsertPlayer, type InsertQuestion, type InsertPlayerAnswer } from "@shared/schema";
+import { type Game, type Player, type Question, type PlayerAnswer, type SiteStats, type InsertGame, type InsertPlayer, type InsertQuestion, type InsertPlayerAnswer, siteStats } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
+import { eq, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Games
@@ -30,19 +33,25 @@ export interface IStorage {
   getVisitorCount(): Promise<number>;
 }
 
+// Database connection
+const dbUrl = process.env.DATABASE_URL;
+if (!dbUrl) {
+  throw new Error("DATABASE_URL is not set");
+}
+const sql_client = neon(dbUrl);
+const db = drizzle(sql_client);
+
 export class MemStorage implements IStorage {
   private games: Map<string, Game>;
   private players: Map<string, Player>;
   private questions: Map<string, Question>;
   private playerAnswers: Map<string, PlayerAnswer>;
-  private visitorCount: number;
 
   constructor() {
     this.games = new Map();
     this.players = new Map();
     this.questions = new Map();
     this.playerAnswers = new Map();
-    this.visitorCount = 0;
   }
 
   private generateGameCode(): string {
@@ -220,12 +229,25 @@ export class MemStorage implements IStorage {
   }
 
   async incrementVisitors(): Promise<number> {
-    this.visitorCount++;
-    return this.visitorCount;
+    // Atomic increment with upsert to handle concurrent visitors properly
+    const result = await db
+      .insert(siteStats)
+      .values({ id: 'main', visitors: 1 })
+      .onConflictDoUpdate({
+        target: siteStats.id,
+        set: {
+          visitors: sql`${siteStats.visitors} + 1`,
+          updatedAt: new Date()
+        }
+      })
+      .returning();
+    
+    return result[0].visitors;
   }
 
   async getVisitorCount(): Promise<number> {
-    return this.visitorCount;
+    const stats = await db.select().from(siteStats).where(eq(siteStats.id, 'main'));
+    return stats.length > 0 ? stats[0].visitors : 0;
   }
 }
 
