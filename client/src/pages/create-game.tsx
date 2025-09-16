@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, Plus, Trash2 } from "lucide-react";
+import { ArrowRight, Plus, Trash2, Upload, FileSpreadsheet } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { playSound } from "@/lib/soundUtils";
+import * as XLSX from 'xlsx';
 
 interface Question {
   text: string;
@@ -24,6 +25,12 @@ export default function CreateGame() {
   ]);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  
+  // Excel import states
+  const [isImporting, setIsImporting] = useState(false);
+  const [importedQuestions, setImportedQuestions] = useState<Question[]>([]);
+  const [questionCount, setQuestionCount] = useState(10);
+  const [importMode, setImportMode] = useState<'replace' | 'append'>('replace');
 
   const createGameMutation = useMutation({
     mutationFn: async (gameData: { name: string; questions: Question[] }) => {
@@ -73,6 +80,179 @@ export default function CreateGame() {
     );
   };
 
+  // Fisher-Yates shuffle for random question selection
+  const shuffleArray = function<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  // Parse Excel file and extract questions
+  const parseExcelFile = async (file: File): Promise<Question[]> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+          const parsedQuestions: Question[] = [];
+          
+          jsonData.forEach((row: any, index) => {
+            try {
+              // Support both Arabic and English headers
+              const questionText = row['Question'] || row['السؤال'] || row['question'] || '';
+              const option1 = row['Option1'] || row['الخيار 1'] || row['option1'] || '';
+              const option2 = row['Option2'] || row['الخيار 2'] || row['option2'] || '';
+              const option3 = row['Option3'] || row['الخيار 3'] || row['option3'] || '';
+              const option4 = row['Option4'] || row['الخيار 4'] || row['option4'] || '';
+              const option5 = row['Option5'] || row['الخيار 5'] || row['option5'] || '';
+              const option6 = row['Option6'] || row['الخيار 6'] || row['option6'] || '';
+              
+              let correctAnswer = row['Correct'] || row['الإجابة الصحيحة'] || row['correct'] || 1;
+              
+              // Handle different correct answer formats
+              if (typeof correctAnswer === 'string') {
+                if (correctAnswer.match(/^[A-F]$/i)) {
+                  // Letter format (A-F)
+                  correctAnswer = correctAnswer.toUpperCase().charCodeAt(0) - 65;
+                } else {
+                  // Number format
+                  correctAnswer = parseInt(correctAnswer) - 1; // Convert to 0-based
+                }
+              } else {
+                correctAnswer = correctAnswer - 1; // Convert to 0-based
+              }
+              
+              // Collect all non-empty options
+              const options = [option1, option2, option3, option4, option5, option6]
+                .map(opt => (opt || '').toString().trim())
+                .filter(opt => opt !== '');
+              
+              // Validate question
+              if (questionText.trim() && options.length >= 2 && 
+                  correctAnswer >= 0 && correctAnswer < options.length) {
+                parsedQuestions.push({
+                  text: questionText.trim(),
+                  options: options.slice(0, 6), // Max 6 options
+                  correctAnswer
+                });
+              }
+            } catch (error) {
+              console.warn(`Error parsing row ${index + 1}:`, error);
+            }
+          });
+          
+          resolve(parsedQuestions);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  // Handle Excel file upload
+  const handleExcelUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "خطأ",
+        description: "حجم الملف كبير جداً. الحد الأقصى 5 ميجابايت.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate file type
+    if (!file.name.match(/\.(xlsx|xls)$/i)) {
+      toast({
+        title: "خطأ",
+        description: "نوع الملف غير مدعوم. يرجى استخدام ملفات Excel (.xlsx أو .xls).",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsImporting(true);
+    
+    try {
+      const parsedQuestions = await parseExcelFile(file);
+      
+      if (parsedQuestions.length === 0) {
+        toast({
+          title: "تحذير",
+          description: "لم يتم العثور على أسئلة صالحة في الملف. تأكد من تنسيق البيانات.",
+          variant: "destructive",
+        });
+        setIsImporting(false);
+        return;
+      }
+      
+      setImportedQuestions(parsedQuestions);
+      
+      // Limit question count to available questions
+      const maxQuestions = Math.min(questionCount, parsedQuestions.length);
+      setQuestionCount(maxQuestions);
+      
+      toast({
+        title: "تم بنجاح!",
+        description: `تم استيراد ${parsedQuestions.length} سؤال من الملف.`,
+        variant: "default",
+      });
+      
+    } catch (error) {
+      console.error('Excel parsing error:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في قراءة الملف. تأكد من تنسيق البيانات.",
+        variant: "destructive",
+      });
+    }
+    
+    setIsImporting(false);
+    // Clear the input
+    event.target.value = '';
+  };
+
+  // Apply imported questions to the form
+  const applyImportedQuestions = () => {
+    if (importedQuestions.length === 0) return;
+    
+    // Randomly select questions
+    const shuffled = shuffleArray(importedQuestions);
+    const selectedQuestions = shuffled.slice(0, questionCount);
+    
+    if (importMode === 'replace') {
+      setQuestions(selectedQuestions);
+      toast({
+        title: "تم التطبيق!",
+        description: `تم استبدال الأسئلة بـ ${selectedQuestions.length} سؤال عشوائي.`,
+        variant: "default",
+      });
+    } else {
+      setQuestions(prev => [...prev, ...selectedQuestions]);
+      toast({
+        title: "تم التطبيق!",
+        description: `تم إضافة ${selectedQuestions.length} سؤال عشوائي.`,
+        variant: "default",
+      });
+    }
+    
+    // Clear imported questions after applying
+    setImportedQuestions([]);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!gameName.trim()) {
@@ -107,7 +287,7 @@ export default function CreateGame() {
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-2xl animate-ping" style={{ animationDuration: '4s' }}></div>
       </div>
-      <div className="container mx-auto px-4 py-8 max-w-2xl relative z-10">
+      <div className="container mx-auto px-4 py-8 max-w-4xl relative z-10">
         <div className="mb-6">
           <Link href="/">
             <Button
@@ -144,6 +324,101 @@ export default function CreateGame() {
                 className="w-full bg-muted border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                 data-testid="input-game-name"
               />
+            </CardContent>
+          </Card>
+
+          {/* Excel Import Section */}
+          <Card className="border border-blue-500/30 shadow-lg shadow-blue-500/20 bg-gradient-to-br from-card to-blue-500/5 hover:shadow-blue-500/40 transition-all duration-300 hover:scale-[1.02]">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-blue-600">
+                <FileSpreadsheet className="w-5 h-5" />
+                استيراد من Excel / Import from Excel
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="block text-sm font-medium mb-2">
+                    اختر ملف Excel / Choose Excel File
+                  </Label>
+                  <Input
+                    type="file"
+                    accept=".xlsx,.xls"
+                    onChange={handleExcelUpload}
+                    disabled={isImporting}
+                    className="cursor-pointer"
+                    data-testid="input-excel-file"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    يدعم .xlsx و .xls (الحد الأقصى 5 ميجابايت)
+                  </p>
+                </div>
+                
+                <div>
+                  <Label htmlFor="questionCount" className="block text-sm font-medium mb-2">
+                    عدد الأسئلة / Question Count
+                  </Label>
+                  <Input
+                    id="questionCount"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={questionCount}
+                    onChange={(e) => setQuestionCount(Math.max(1, Math.min(100, parseInt(e.target.value) || 10)))}
+                    className="w-full"
+                    data-testid="input-question-count"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="block text-sm font-medium mb-2">
+                  وضع الاستيراد / Import Mode
+                </Label>
+                <Select value={importMode} onValueChange={(value: 'replace' | 'append') => setImportMode(value)}>
+                  <SelectTrigger data-testid="select-import-mode">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="replace">استبدال الأسئلة الحالية / Replace Current</SelectItem>
+                    <SelectItem value="append">إضافة للأسئلة الحالية / Append to Current</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {importedQuestions.length > 0 && (
+                <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                  <p className="text-green-700 dark:text-green-300 text-sm font-medium mb-2">
+                    ✅ تم استيراد {importedQuestions.length} سؤال بنجاح
+                  </p>
+                  <Button
+                    type="button"
+                    onClick={applyImportedQuestions}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    data-testid="button-apply-imported"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    تطبيق الأسئلة المستوردة / Apply Imported
+                  </Button>
+                </div>
+              )}
+
+              {isImporting && (
+                <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="text-blue-700 dark:text-blue-300 text-sm">
+                    ⚡ جارٍ معالجة الملف... / Processing file...
+                  </p>
+                </div>
+              )}
+              
+              <div className="text-xs text-muted-foreground bg-muted p-3 rounded-lg">
+                <p className="font-medium mb-2">تنسيق ملف Excel المطلوب / Required Excel Format:</p>
+                <ul className="space-y-1">
+                  <li>• Question/السؤال: نص السؤال</li>
+                  <li>• Option1-Option6/الخيار 1-6: الخيارات (على الأقل خياران)</li>
+                  <li>• Correct/الإجابة الصحيحة: رقم الإجابة (1-6) أو حرف (A-F)</li>
+                </ul>
+              </div>
             </CardContent>
           </Card>
 
