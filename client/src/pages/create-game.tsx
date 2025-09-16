@@ -315,11 +315,20 @@ export default function CreateGame() {
       return;
     }
 
-    // Filter out empty options before submitting
-    const cleanedQuestions = questions.map(q => ({
-      ...q,
-      options: q.options.filter(opt => opt.trim() !== "")
-    }));
+    // Filter out empty options and remap correct answer index
+    const cleanedQuestions = questions.map(q => {
+      const validOptions = q.options.map((opt, index) => ({ opt: opt.trim(), originalIndex: index }))
+                                   .filter(({ opt }) => opt !== "");
+      
+      // Find the new index of the correct answer after filtering
+      const newCorrectAnswerIndex = validOptions.findIndex(({ originalIndex }) => originalIndex === q.correctAnswer);
+      
+      return {
+        ...q,
+        options: validOptions.map(({ opt }) => opt),
+        correctAnswer: Math.max(0, newCorrectAnswerIndex) // Fallback to 0 if not found
+      };
+    });
 
     createGameMutation.mutate({
       name: gameName,
