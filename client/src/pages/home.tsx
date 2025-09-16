@@ -95,6 +95,25 @@ export default function Home() {
               </div>
             </Button>
           </Link>
+
+          <Link href="/view-leaderboard">
+            <Button
+              onClick={playSound.buttonClick}
+              variant="outline"
+              className="w-full bg-slate-600 hover:bg-slate-700 border border-slate-500 text-white font-medium py-6 px-8 rounded-xl shadow-lg shadow-slate-600/20 hover:shadow-slate-600/40 transition-all duration-300 transform hover:scale-[1.02] hover:-rotate-1 text-xl h-auto"
+              data-testid="button-view-leaderboard"
+            >
+              <div className="flex flex-col items-center justify-center gap-2">
+                <div className="flex items-center gap-3">
+                  <Users className="w-7 h-7 animate-bounce" style={{ animationDuration: '2s' }} />
+                  <span>عرض المتصدرين 🏆</span>
+                </div>
+                <p className="text-base text-muted-foreground">
+                  View Leaderboard
+                </p>
+              </div>
+            </Button>
+          </Link>
         </div>
 
         {/* Footer */}

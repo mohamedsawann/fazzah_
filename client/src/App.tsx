@@ -8,6 +8,7 @@ import JoinGame from "@/pages/join-game";
 import CreateGame from "@/pages/create-game";
 import GameCreated from "@/pages/game-created";
 import LeaderboardView from "@/pages/leaderboard-view";
+import ViewLeaderboard from "@/pages/view-leaderboard";
 import Registration from "@/pages/registration";
 import GamePlay from "@/pages/game-play";
 import GameResults from "@/pages/game-results";
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/create-game" component={CreateGame} />
       <Route path="/game-created" component={GameCreated} />
       <Route path="/leaderboard-view" component={LeaderboardView} />
+      <Route path="/view-leaderboard" component={ViewLeaderboard} />
       <Route path="/registration" component={Registration} />
       <Route path="/game-play" component={GamePlay} />
       <Route path="/game-results" component={GameResults} />
