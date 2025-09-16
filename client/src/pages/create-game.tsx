@@ -4,12 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, Plus, Trash2, Upload, FileSpreadsheet } from "lucide-react";
+import { ArrowRight, Plus, Trash2, Upload, FileSpreadsheet, Eye, CheckCircle2, AlertCircle, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { playSound } from "@/lib/soundUtils";
 import * as XLSX from 'xlsx';
 
 interface Question {
@@ -51,7 +57,7 @@ export default function CreateGame() {
   });
 
   const addQuestion = () => {
-    setQuestions([...questions, { text: "", options: ["", "", "", ""], correctAnswer: 0 }]);
+    setQuestions([...questions, { text: "", options: ["", ""], correctAnswer: 0 }]);
   };
 
   const removeQuestion = (index: number) => {
@@ -72,16 +78,52 @@ export default function CreateGame() {
     setQuestions(updatedQuestions);
   };
 
+  const addOption = (questionIndex: number) => {
+    const updatedQuestions = [...questions];
+    if (updatedQuestions[questionIndex].options.length < 6) {
+      updatedQuestions[questionIndex].options.push("");
+      setQuestions(updatedQuestions);
+    }
+  };
+
+  const removeOption = (questionIndex: number, optionIndex: number) => {
+    const updatedQuestions = [...questions];
+    if (updatedQuestions[questionIndex].options.length > 2) {
+      updatedQuestions[questionIndex].options.splice(optionIndex, 1);
+      // Adjust correct answer if needed
+      if (updatedQuestions[questionIndex].correctAnswer >= optionIndex) {
+        updatedQuestions[questionIndex].correctAnswer = Math.max(0, updatedQuestions[questionIndex].correctAnswer - 1);
+      }
+      setQuestions(updatedQuestions);
+    }
+  };
+
   const validateQuestions = () => {
-    return questions.every(q => 
-      q.text.trim() !== "" && 
-      q.options.every(opt => opt.trim() !== "") &&
-      q.correctAnswer >= 0 && q.correctAnswer < q.options.length
-    );
+    return questions.every(q => {
+      const validOptions = q.options.filter(opt => opt.trim() !== "");
+      return q.text.trim() !== "" && 
+             validOptions.length >= 2 &&
+             q.correctAnswer >= 0 && 
+             q.correctAnswer < validOptions.length;
+    });
+  };
+
+  const getQuestionStatus = (question: Question) => {
+    const validOptions = question.options.filter(opt => opt.trim() !== "");
+    const isValid = question.text.trim() !== "" && 
+                    validOptions.length >= 2 &&
+                    question.correctAnswer >= 0 && 
+                    question.correctAnswer < validOptions.length;
+    return isValid;
+  };
+
+  const getCompletionProgress = () => {
+    const completedQuestions = questions.filter(getQuestionStatus).length;
+    return (completedQuestions / questions.length) * 100;
   };
 
   // Fisher-Yates shuffle for random question selection
-  const shuffleArray = function<T>(array: T[]): T[] {
+  const shuffleArray = <T,>(array: T[]): T[] => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -267,79 +309,263 @@ export default function CreateGame() {
     if (!validateQuestions()) {
       toast({
         title: "خطأ",
-        description: "يرجى التأكد من ملء جميع الأسئلة والخيارات بشكل صحيح.",
+        description: "يرجى التأكد من إكمال جميع الأسئلة بشكل صحيح.",
         variant: "destructive",
       });
       return;
     }
 
+    // Filter out empty options before submitting
+    const cleanedQuestions = questions.map(q => ({
+      ...q,
+      options: q.options.filter(opt => opt.trim() !== "")
+    }));
+
     createGameMutation.mutate({
       name: gameName,
-      questions,
+      questions: cleanedQuestions,
     });
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(0 0% 12%) 0%, hsl(25 60% 20%) 25%, hsl(35 50% 25%) 50%, hsl(25 60% 20%) 75%, hsl(0 0% 12%) 100%)' }}>
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-2xl animate-ping" style={{ animationDuration: '4s' }}></div>
-      </div>
-      <div className="container mx-auto px-4 py-8 max-w-4xl relative z-10">
-        <div className="mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/5" dir="rtl">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
           <Link href="/">
             <Button
               variant="ghost"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-0"
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
               data-testid="button-back"
             >
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4" />
               <span>العودة</span>
             </Button>
           </Link>
         </div>
 
+        {/* Title */}
         <div className="text-center mb-8" data-testid="header-create-game">
-          <h2 className="text-3xl font-bold font-arabic text-primary mb-2 animate-pulse">
-            إنشاء لعبة ✨
-          </h2>
-          <p className="text-muted-foreground">Create New Game</p>
+          <h1 className="text-4xl font-bold text-primary mb-2">
+            إنشاء لعبة جديدة
+          </h1>
+          <p className="text-muted-foreground">Create New Trivia Game</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Game Name */}
-          <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5 hover:shadow-primary/40 transition-all duration-300 hover:scale-[1.02]">
-            <CardContent className="p-6">
-              <Label htmlFor="gameName" className="block text-sm font-medium mb-2">
-                اسم اللعبة / Game Name
-              </Label>
-              <Input
-                id="gameName"
-                type="text"
-                placeholder="أدخل اسم اللعبة"
-                value={gameName}
-                onChange={(e) => setGameName(e.target.value)}
-                className="w-full bg-muted border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                data-testid="input-game-name"
-              />
-            </CardContent>
-          </Card>
+        {/* Game Name */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <Label htmlFor="gameName" className="text-base font-medium mb-3 block">
+              اسم اللعبة / Game Name
+            </Label>
+            <Input
+              id="gameName"
+              type="text"
+              placeholder="أدخل اسم اللعبة"
+              value={gameName}
+              onChange={(e) => setGameName(e.target.value)}
+              className="text-lg py-3"
+              data-testid="input-game-name"
+            />
+          </CardContent>
+        </Card>
 
-          {/* Excel Import Section */}
-          <Card className="border border-blue-500/30 shadow-lg shadow-blue-500/20 bg-gradient-to-br from-card to-blue-500/5 hover:shadow-blue-500/40 transition-all duration-300 hover:scale-[1.02]">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-blue-600">
-                <FileSpreadsheet className="w-5 h-5" />
-                استيراد من Excel / Import from Excel
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="manual" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="manual" className="text-base">
+              الإنشاء اليدوي
+            </TabsTrigger>
+            <TabsTrigger value="excel" className="text-base">
+              الاستيراد من Excel
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Manual Creation Tab */}
+          <TabsContent value="manual" className="space-y-6">
+            {/* Progress Summary */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-4">
+                    <Badge variant={questions.length > 0 ? "default" : "secondary"}>
+                      {questions.length} سؤال
+                    </Badge>
+                    <Badge variant={getCompletionProgress() === 100 ? "default" : "secondary"}>
+                      {questions.filter(getQuestionStatus).length} مكتمل
+                    </Badge>
+                  </div>
+                  <Button onClick={addQuestion} variant="outline" size="sm" data-testid="button-add-question">
+                    <Plus className="w-4 h-4 ml-2" />
+                    إضافة سؤال
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>التقدم</span>
+                    <span>{Math.round(getCompletionProgress())}%</span>
+                  </div>
+                  <Progress value={getCompletionProgress()} className="h-2" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Questions Accordion */}
+            <Accordion type="multiple" className="space-y-4" defaultValue={["item-0"]}>
+              {questions.map((question, questionIndex) => (
+                <AccordionItem
+                  key={questionIndex}
+                  value={`item-${questionIndex}`}
+                  className="border rounded-lg shadow-sm"
+                >
+                  <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="flex items-center gap-2">
+                        {getQuestionStatus(question) ? (
+                          <CheckCircle2 className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <AlertCircle className="w-5 h-5 text-amber-500" />
+                        )}
+                        <span className="font-medium">
+                          السؤال {questionIndex + 1}
+                        </span>
+                      </div>
+                      <div className="flex-1 text-right">
+                        {question.text ? (
+                          <p className="text-sm text-muted-foreground truncate">
+                            {question.text}
+                          </p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground italic">
+                            اكتب سؤالك هنا...
+                          </p>
+                        )}
+                      </div>
+                      <Badge variant="outline" className="ml-2">
+                        {question.options.filter(opt => opt.trim()).length} خيار
+                      </Badge>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-6 pb-6 pt-2">
+                    <div className="space-y-6">
+                      {/* Question Text */}
+                      <div>
+                        <Label className="text-base font-medium mb-2 block">
+                          نص السؤال
+                        </Label>
+                        <Textarea
+                          placeholder="اكتب سؤالك هنا... يُنصح بسؤال قصير وواضح"
+                          value={question.text}
+                          onChange={(e) =>
+                            updateQuestion(questionIndex, "text", e.target.value)
+                          }
+                          className="min-h-[80px]"
+                          data-testid={`textarea-question-${questionIndex}`}
+                        />
+                      </div>
+
+                      {/* Options with Radio Selection */}
+                      <div>
+                        <Label className="text-base font-medium mb-3 block">
+                          الخيارات المتاحة
+                        </Label>
+                        <RadioGroup
+                          value={question.correctAnswer.toString()}
+                          onValueChange={(value) =>
+                            updateQuestion(questionIndex, "correctAnswer", parseInt(value))
+                          }
+                          className="space-y-3"
+                        >
+                          {question.options.map((option, optionIndex) => (
+                            <div
+                              key={optionIndex}
+                              className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                            >
+                              <RadioGroupItem
+                                value={optionIndex.toString()}
+                                id={`q${questionIndex}-o${optionIndex}`}
+                              />
+                              <Label
+                                htmlFor={`q${questionIndex}-o${optionIndex}`}
+                                className="text-sm font-medium text-muted-foreground ml-2"
+                              >
+                                {String.fromCharCode(65 + optionIndex)}
+                              </Label>
+                              <Input
+                                placeholder={`الخيار ${optionIndex + 1}`}
+                                value={option}
+                                onChange={(e) =>
+                                  updateQuestionOption(questionIndex, optionIndex, e.target.value)
+                                }
+                                className="flex-1"
+                                data-testid={`input-option-${questionIndex}-${optionIndex}`}
+                              />
+                              {question.options.length > 2 && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeOption(questionIndex, optionIndex)}
+                                  className="text-destructive hover:text-destructive"
+                                  data-testid={`button-remove-option-${questionIndex}-${optionIndex}`}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                          ))}
+                        </RadioGroup>
+
+                        {/* Add/Remove Options */}
+                        <div className="flex gap-2 mt-4">
+                          {question.options.length < 6 && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => addOption(questionIndex)}
+                              data-testid={`button-add-option-${questionIndex}`}
+                            >
+                              <Plus className="w-4 h-4 ml-1" />
+                              إضافة خيار
+                            </Button>
+                          )}
+                          {questions.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeQuestion(questionIndex)}
+                              className="text-destructive hover:text-destructive"
+                              data-testid={`button-remove-question-${questionIndex}`}
+                            >
+                              <Trash2 className="w-4 h-4 ml-1" />
+                              حذف السؤال
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </TabsContent>
+
+          {/* Excel Import Tab */}
+          <TabsContent value="excel" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-600">
+                  <FileSpreadsheet className="w-5 h-5" />
+                  استيراد الأسئلة من Excel
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* File Upload */}
                 <div>
-                  <Label className="block text-sm font-medium mb-2">
-                    اختر ملف Excel / Choose Excel File
+                  <Label className="text-base font-medium mb-3 block">
+                    اختر ملف Excel
                   </Label>
                   <Input
                     type="file"
@@ -349,178 +575,174 @@ export default function CreateGame() {
                     className="cursor-pointer"
                     data-testid="input-excel-file"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-sm text-muted-foreground mt-2">
                     يدعم .xlsx و .xls (الحد الأقصى 5 ميجابايت)
                   </p>
                 </div>
-                
-                <div>
-                  <Label htmlFor="questionCount" className="block text-sm font-medium mb-2">
-                    عدد الأسئلة / Question Count
-                  </Label>
-                  <Input
-                    id="questionCount"
-                    type="number"
-                    min="1"
-                    max="100"
-                    value={questionCount}
-                    onChange={(e) => setQuestionCount(Math.max(1, Math.min(100, parseInt(e.target.value) || 10)))}
-                    className="w-full"
-                    data-testid="input-question-count"
-                  />
-                </div>
-              </div>
 
-              <div>
-                <Label className="block text-sm font-medium mb-2">
-                  وضع الاستيراد / Import Mode
-                </Label>
-                <Select value={importMode} onValueChange={(value: 'replace' | 'append') => setImportMode(value)}>
-                  <SelectTrigger data-testid="select-import-mode">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="replace">استبدال الأسئلة الحالية / Replace Current</SelectItem>
-                    <SelectItem value="append">إضافة للأسئلة الحالية / Append to Current</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {importedQuestions.length > 0 && (
-                <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
-                  <p className="text-green-700 dark:text-green-300 text-sm font-medium mb-2">
-                    ✅ تم استيراد {importedQuestions.length} سؤال بنجاح
-                  </p>
-                  <Button
-                    type="button"
-                    onClick={applyImportedQuestions}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    data-testid="button-apply-imported"
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    تطبيق الأسئلة المستوردة / Apply Imported
-                  </Button>
-                </div>
-              )}
-
-              {isImporting && (
-                <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <p className="text-blue-700 dark:text-blue-300 text-sm">
-                    ⚡ جارٍ معالجة الملف... / Processing file...
-                  </p>
-                </div>
-              )}
-              
-              <div className="text-xs text-muted-foreground bg-muted p-3 rounded-lg">
-                <p className="font-medium mb-2">تنسيق ملف Excel المطلوب / Required Excel Format:</p>
-                <ul className="space-y-1">
-                  <li>• Question/السؤال: نص السؤال</li>
-                  <li>• Option1-Option6/الخيار 1-6: الخيارات (على الأقل خياران)</li>
-                  <li>• Correct/الإجابة الصحيحة: رقم الإجابة (1-6) أو حرف (A-F)</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Questions */}
-          <div className="space-y-4">
-            {questions.map((question, questionIndex) => (
-              <Card key={questionIndex} className="border border-accent/30 shadow-lg shadow-accent/20 bg-gradient-to-br from-card to-accent/5 hover:shadow-accent/40 transition-all duration-300 hover:scale-[1.01]">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-medium">
-                      السؤال {questionIndex + 1} / Question {questionIndex + 1}
-                    </h3>
-                    {questions.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeQuestion(questionIndex)}
-                        className="text-destructive hover:text-destructive"
-                        data-testid={`button-remove-question-${questionIndex}`}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
+                {/* Import Settings */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-base font-medium mb-3 block">
+                      عدد الأسئلة المطلوبة
+                    </Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={questionCount}
+                      onChange={(e) => setQuestionCount(Math.max(1, Math.min(100, parseInt(e.target.value) || 10)))}
+                      data-testid="input-question-count"
+                    />
                   </div>
+                  <div>
+                    <Label className="text-base font-medium mb-3 block">
+                      طريقة الاستيراد
+                    </Label>
+                    <Select value={importMode} onValueChange={(value: 'replace' | 'append') => setImportMode(value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="replace">استبدال الأسئلة الحالية</SelectItem>
+                        <SelectItem value="append">إضافة إلى الأسئلة الحالية</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="block text-sm font-medium mb-2">
-                        نص السؤال / Question Text
-                      </Label>
-                      <Input
-                        type="text"
-                        placeholder="اكتب السؤال هنا..."
-                        value={question.text}
-                        onChange={(e) => updateQuestion(questionIndex, 'text', e.target.value)}
-                        className="w-full bg-muted border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                        data-testid={`input-question-text-${questionIndex}`}
-                      />
-                    </div>
-
-                    <div>
-                      <Label className="block text-sm font-medium mb-2">
-                        الخيارات / Options
-                      </Label>
-                      <div className="space-y-2">
-                        {question.options.map((option, optionIndex) => (
-                          <div key={optionIndex} className="flex gap-2 items-center">
-                            <Input
-                              type="text"
-                              placeholder={`الخيار ${optionIndex + 1}`}
-                              value={option}
-                              onChange={(e) => updateQuestionOption(questionIndex, optionIndex, e.target.value)}
-                              className="flex-1 bg-muted border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                              data-testid={`input-option-${questionIndex}-${optionIndex}`}
-                            />
-                            <Button
-                              type="button"
-                              variant={question.correctAnswer === optionIndex ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => updateQuestion(questionIndex, 'correctAnswer', optionIndex)}
-                              className="min-w-[80px]"
-                              data-testid={`button-correct-answer-${questionIndex}-${optionIndex}`}
-                            >
-                              {question.correctAnswer === optionIndex ? "صحيح" : "اختر"}
-                            </Button>
-                          </div>
-                        ))}
+                {/* Import Status */}
+                {importedQuestions.length > 0 && (
+                  <div className="p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-green-800 dark:text-green-200">
+                          تم استيراد {importedQuestions.length} سؤال بنجاح!
+                        </p>
+                        <p className="text-sm text-green-600 dark:text-green-300 mt-1">
+                          سيتم اختيار {Math.min(questionCount, importedQuestions.length)} سؤال عشوائياً
+                        </p>
                       </div>
+                      <Button 
+                        onClick={applyImportedQuestions}
+                        className="bg-green-600 hover:bg-green-700"
+                        data-testid="button-apply-questions"
+                      >
+                        <Upload className="w-4 h-4 ml-2" />
+                        تطبيق الأسئلة
+                      </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                )}
+
+                {/* Loading State */}
+                {isImporting && (
+                  <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-blue-800 dark:text-blue-200">جاري معالجة الملف...</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Format Guide */}
+                <div className="p-4 bg-muted rounded-lg">
+                  <h4 className="font-medium mb-2">تنسيق الملف المطلوب:</h4>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p>• العمود الأول: السؤال أو Question</p>
+                    <p>• العمود الثاني: الخيار 1 أو Option1</p>
+                    <p>• العمود الثالث: الخيار 2 أو Option2</p>
+                    <p>• العمود الرابع: الخيار 3 أو Option3 (اختياري)</p>
+                    <p>• العمود الخامس: الخيار 4 أو Option4 (اختياري)</p>
+                    <p>• العمود الأخير: الإجابة الصحيحة أو Correct (رقم 1-6 أو حرف A-F)</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Sticky Action Bar */}
+        <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-4 z-40">
+          <div className="container mx-auto max-w-4xl">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span>{questions.length} سؤال</span>
+                <span>•</span>
+                <span>{questions.filter(getQuestionStatus).length} مكتمل</span>
+              </div>
+              <div className="flex gap-3">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" disabled={!validateQuestions()} data-testid="button-preview">
+                      <Eye className="w-4 h-4 ml-2" />
+                      معاينة
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>معاينة اللعبة</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="p-4 bg-muted rounded-lg">
+                        <h3 className="font-semibold text-lg mb-2">{gameName || "لعبة جديدة"}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {questions.length} سؤال • {questions.filter(getQuestionStatus).length} مكتمل
+                        </p>
+                      </div>
+                      {questions.filter(getQuestionStatus).map((question, index) => (
+                        <Card key={index}>
+                          <CardContent className="pt-4">
+                            <h4 className="font-medium mb-3">السؤال {index + 1}</h4>
+                            <p className="mb-3">{question.text}</p>
+                            <div className="space-y-2">
+                              {question.options.filter(opt => opt.trim()).map((option, optIndex) => (
+                                <div 
+                                  key={optIndex}
+                                  className={`p-2 rounded border ${
+                                    optIndex === question.correctAnswer 
+                                      ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800' 
+                                      : 'bg-muted'
+                                  }`}
+                                >
+                                  <span className="font-medium ml-2">{String.fromCharCode(65 + optIndex)}</span>
+                                  {option}
+                                  {optIndex === question.correctAnswer && (
+                                    <span className="text-green-600 dark:text-green-400 mr-2">✓</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={!gameName.trim() || !validateQuestions() || createGameMutation.isPending}
+                  data-testid="button-create-game"
+                >
+                  {createGameMutation.isPending ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div>
+                      جاري الإنشاء...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 ml-2" />
+                      إنشاء اللعبة
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
           </div>
+        </div>
 
-          {/* Add Question Button */}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              playSound.buttonClick();
-              addQuestion();
-            }}
-            className="w-full bg-amber-500 hover:bg-amber-600 border border-amber-400 text-white font-medium py-3 px-6 rounded-lg shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all duration-300 hover:scale-[1.02] hover:rotate-1"
-            data-testid="button-add-question"
-          >
-            <Plus className="w-5 h-5 mr-2 animate-bounce" />
-            إضافة سؤال جديد ➕ / Add New Question
-          </Button>
-
-          {/* Create Game Button */}
-          <Button
-            type="submit"
-            disabled={createGameMutation.isPending || !gameName.trim() || !validateQuestions()}
-            onClick={playSound.buttonClick}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-lg shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 hover:scale-[1.02] hover:-rotate-1"
-            data-testid="button-create-game"
-          >
-            {createGameMutation.isPending ? "جارٍ الإنشاء... ⚡" : "إنشاء اللعبة 🎮"}
-          </Button>
-        </form>
+        {/* Bottom Padding for Sticky Bar */}
+        <div className="h-20"></div>
       </div>
     </div>
   );
