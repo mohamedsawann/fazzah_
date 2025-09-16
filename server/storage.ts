@@ -12,6 +12,7 @@ export interface IStorage {
   getAllGames(): Promise<Game[]>;
   
   // Players
+  findExistingPlayer(name: string, phone: string, gameId: string): Promise<Player | undefined>;
   createPlayer(player: InsertPlayer): Promise<Player>;
   getPlayer(id: string): Promise<Player | undefined>;
   getPlayersByGame(gameId: string): Promise<Player[]>;
@@ -181,6 +182,20 @@ export class DatabaseStorage implements IStorage {
 
   async getAllGames(): Promise<Game[]> {
     return await db.select().from(games).orderBy(desc(games.createdAt));
+  }
+
+  async findExistingPlayer(name: string, phone: string, gameId: string): Promise<Player | undefined> {
+    const result = await db
+      .select()
+      .from(players)
+      .where(and(
+        eq(players.name, name),
+        eq(players.phone, phone),
+        eq(players.gameId, gameId)
+      ))
+      .limit(1);
+    
+    return result[0];
   }
 
   async createPlayer(insertPlayer: InsertPlayer): Promise<Player> {

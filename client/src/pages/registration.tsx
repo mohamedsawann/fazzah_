@@ -26,7 +26,28 @@ export default function Registration() {
       return response.json();
     },
     onSuccess: (player) => {
-      setLocation(`/game-play?playerId=${player.id}&gameId=${gameId}`);
+      if (player.isExisting) {
+        if (player.hasCompleted) {
+          // Player already completed this game - redirect to results
+          toast({
+            title: "لقد لعبت هذه اللعبة من قبل",
+            description: "سيتم نقلك إلى نتائج اللعبة السابقة.",
+            variant: "default",
+          });
+          setLocation(`/game-results?playerId=${player.id}&gameId=${gameId}`);
+        } else {
+          // Player exists but hasn't completed - let them continue
+          toast({
+            title: "مرحباً بعودتك!",
+            description: "يمكنك متابعة اللعبة من حيث توقفت.",
+            variant: "default",
+          });
+          setLocation(`/game-play?playerId=${player.id}&gameId=${gameId}`);
+        }
+      } else {
+        // New player - proceed to game
+        setLocation(`/game-play?playerId=${player.id}&gameId=${gameId}`);
+      }
     },
     onError: () => {
       toast({

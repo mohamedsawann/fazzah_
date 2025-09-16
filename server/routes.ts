@@ -84,8 +84,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/players", async (req, res) => {
     try {
       const playerData = insertPlayerSchema.parse(req.body);
+      
+      // Check if player already exists for this game
+      const existingPlayer = await storage.findExistingPlayer(
+        playerData.name,
+        playerData.phone,
+        playerData.gameId
+      );
+      
+      if (existingPlayer) {
+        // Player already exists - return existing player info
+        res.json({ 
+          ...existingPlayer, 
+          isExisting: true,
+          hasCompleted: !!existingPlayer.completedAt 
+        });
+        return;
+      }
+      
+      // Create new player if doesn't exist
       const player = await storage.createPlayer(playerData);
-      res.json(player);
+      res.json({ ...player, isExisting: false, hasCompleted: false });
     } catch (error) {
       res.status(400).json({ message: error instanceof Error ? error.message : "Invalid player data" });
     }
