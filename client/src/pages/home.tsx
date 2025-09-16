@@ -7,8 +7,11 @@ import { playSound } from "@/lib/soundUtils";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { queryClient } from "@/lib/queryClient";
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
+  const { t } = useTranslation('home');
+  
   // Track visitor when component mounts
   const trackVisitorMutation = useMutation({
     mutationFn: async () => {
@@ -51,9 +54,9 @@ export default function Home() {
               style={{ filter: 'brightness(0) saturate(100%) invert(47%) sepia(89%) saturate(6000%) hue-rotate(15deg) brightness(130%) contrast(106%)' }}
             />
           </div>
-          <p className="text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-1">Fazzah</p>
+          <p className="text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-1">{t('title')}</p>
           <p className="text-base text-muted-foreground font-sans">
-            منصة الألعاب التفاعلية ⚡
+            {t('subtitle')}
           </p>
         </div>
 
@@ -68,10 +71,10 @@ export default function Home() {
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="flex items-center gap-3">
                   <PlayCircle className="w-7 h-7 animate-spin" style={{ animationDuration: '3s' }} />
-                  <span>الانضمام للعبة برمز 🚀</span>
+                  <span>{t('joinGame')}</span>
                 </div>
                 <p className="text-base text-primary-foreground/80">
-                  Join Game by Code
+                  {t('joinGameDesc')}
                 </p>
               </div>
             </Button>
@@ -87,10 +90,10 @@ export default function Home() {
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="flex items-center gap-3">
                   <PlusCircle className="w-7 h-7 animate-pulse" />
-                  <span>إنشاء لعبة جديدة ✨</span>
+                  <span>{t('createGame')}</span>
                 </div>
                 <p className="text-base text-muted-foreground">
-                  Create New Game
+                  {t('createGameDesc')}
                 </p>
               </div>
             </Button>
@@ -106,10 +109,10 @@ export default function Home() {
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="flex items-center gap-3">
                   <Users className="w-7 h-7 animate-bounce" style={{ animationDuration: '2s' }} />
-                  <span>عرض المتصدرين 🏆</span>
+                  <span>{t('viewLeaderboard')}</span>
                 </div>
                 <p className="text-base text-muted-foreground">
-                  View Leaderboard
+                  {t('viewLeaderboardDesc')}
                 </p>
               </div>
             </Button>
@@ -133,17 +136,17 @@ export default function Home() {
           
           <div className="text-center">
             <p className="text-sm text-muted-foreground mb-1">
-              طُور بواسطة / Developed by
+              {t('poweredBy')}
             </p>
             <p className="font-medium text-primary">
-              GDG Mohamed Sawan 🧡
+              {t('brandText')} 🧡
             </p>
             
             {visitorData && (
               <div className="flex items-center justify-center gap-2 mt-3 text-xs text-muted-foreground" data-testid="visitor-count">
                 <Users className="w-3 h-3" />
                 <span>
-                  {visitorData.count.toLocaleString()} زائر / Total Visitors
+                  {visitorData.count.toLocaleString()} {t('visitors')}
                 </span>
               </div>
             )}
