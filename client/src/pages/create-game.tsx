@@ -337,8 +337,14 @@ export default function CreateGame() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/5" dir="rtl">
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
+    <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(0 0% 12%) 0%, hsl(25 60% 20%) 25%, hsl(35 50% 25%) 50%, hsl(25 60% 20%) 75%, hsl(0 0% 12%) 100%)' }} dir="rtl">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-2xl animate-ping" style={{ animationDuration: '4s' }}></div>
+      </div>
+      <div className="container mx-auto px-4 py-6 max-w-4xl relative z-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <Link href="/">
@@ -355,14 +361,14 @@ export default function CreateGame() {
 
         {/* Title */}
         <div className="text-center mb-8" data-testid="header-create-game">
-          <h1 className="text-4xl font-bold text-primary mb-2">
-            إنشاء لعبة جديدة
+          <h1 className="text-4xl font-bold font-arabic text-transparent bg-gradient-to-r from-primary to-accent bg-clip-text mb-2 animate-pulse">
+            إنشاء لعبة جديدة ✨
           </h1>
           <p className="text-muted-foreground">Create New Trivia Game</p>
         </div>
 
         {/* Game Name */}
-        <Card className="mb-6">
+        <Card className="mb-6 border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5 hover:shadow-primary/40 transition-all duration-300">
           <CardContent className="pt-6">
             <Label htmlFor="gameName" className="text-base font-medium mb-3 block">
               اسم اللعبة / Game Name
@@ -393,7 +399,7 @@ export default function CreateGame() {
           {/* Manual Creation Tab */}
           <TabsContent value="manual" className="space-y-6">
             {/* Progress Summary */}
-            <Card>
+            <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-4">
@@ -425,7 +431,7 @@ export default function CreateGame() {
                 <AccordionItem
                   key={questionIndex}
                   value={`item-${questionIndex}`}
-                  className="border rounded-lg shadow-sm"
+                  className="border border-primary/20 rounded-lg shadow-md bg-gradient-to-br from-card to-accent/5 hover:shadow-primary/30 transition-all duration-300"
                 >
                   <AccordionTrigger className="px-6 py-4 hover:no-underline">
                     <div className="flex items-center gap-3 flex-1">
@@ -563,9 +569,9 @@ export default function CreateGame() {
 
           {/* Excel Import Tab */}
           <TabsContent value="excel" className="space-y-6">
-            <Card>
+            <Card className="border border-accent/30 shadow-lg shadow-accent/20 bg-gradient-to-br from-card to-accent/5">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-blue-600">
+                <CardTitle className="flex items-center gap-2 text-accent">
                   <FileSpreadsheet className="w-5 h-5" />
                   استيراد الأسئلة من Excel
                 </CardTitle>
@@ -622,19 +628,19 @@ export default function CreateGame() {
 
                 {/* Import Status */}
                 {importedQuestions.length > 0 && (
-                  <div className="p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
+                  <div className="p-4 bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/30 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-green-800 dark:text-green-200">
+                        <p className="font-medium text-primary">
                           تم استيراد {importedQuestions.length} سؤال بنجاح!
                         </p>
-                        <p className="text-sm text-green-600 dark:text-green-300 mt-1">
+                        <p className="text-sm text-accent mt-1">
                           سيتم اختيار {Math.min(questionCount, importedQuestions.length)} سؤال عشوائياً
                         </p>
                       </div>
                       <Button 
                         onClick={applyImportedQuestions}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
                         data-testid="button-apply-questions"
                       >
                         <Upload className="w-4 h-4 ml-2" />
@@ -717,7 +723,7 @@ export default function CreateGame() {
                                   <span className="font-medium ml-2">{String.fromCharCode(65 + optIndex)}</span>
                                   {option}
                                   {optIndex === question.correctAnswer && (
-                                    <span className="text-green-600 dark:text-green-400 mr-2">✓</span>
+                                    <CheckCircle2 className="w-4 h-4 text-primary mr-2" />
                                   )}
                                 </div>
                               ))}
