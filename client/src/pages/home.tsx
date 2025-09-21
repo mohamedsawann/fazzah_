@@ -43,7 +43,7 @@ export default function Home() {
             <img 
               src={logoImage} 
               alt="فزه Logo" 
-              className="w-80 h-80 mx-auto animate-logo-color-shift drop-shadow-lg"
+              className="w-80 h-80 mx-auto drop-shadow-lg"
             />
           </div>
           <p className="text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-1">Fazzah</p>
