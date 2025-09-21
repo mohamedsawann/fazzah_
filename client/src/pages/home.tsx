@@ -43,7 +43,7 @@ export default function Home() {
             <img 
               src={logoImage} 
               alt="فزه Logo" 
-              className="w-80 h-80 mx-auto animate-pulse drop-shadow-lg"
+              className="w-80 h-80 mx-auto animate-bounce drop-shadow-lg"
               style={{ filter: 'brightness(0) saturate(100%) invert(47%) sepia(89%) saturate(6000%) hue-rotate(15deg) brightness(130%) contrast(106%)' }}
             />
           </div>
