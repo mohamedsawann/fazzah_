@@ -229,6 +229,9 @@
 .animate-color-shift {
   animation: color-shift 4s ease-in-out infinite;
   background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 @layer base {
