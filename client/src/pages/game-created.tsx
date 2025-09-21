@@ -68,8 +68,9 @@ export default function GameCreated() {
 
   if (isLoading || !game) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-purple-950/10 to-background flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen trivia-background relative overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 bg-background/30"></div>
+        <div className="text-center relative z-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">جارٍ تحميل اللعبة...</p>
         </div>
@@ -78,8 +79,10 @@ export default function GameCreated() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900" style={{ background: 'linear-gradient(135deg, hsl(240 20% 4%) 0%, hsl(262 30% 10%) 50%, hsl(240 20% 4%) 100%)' }}>
-      <div className="container mx-auto px-4 py-8 max-w-md">
+    <div className="min-h-screen trivia-background relative overflow-hidden">
+      {/* Subtle overlay for content readability */}
+      <div className="absolute inset-0 bg-background/30"></div>
+      <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
         <div className="text-center mb-8" data-testid="header-game-created">
           <div className="text-6xl mb-4">🎉</div>
           <h2 className="text-3xl font-bold font-arabic text-primary mb-2">

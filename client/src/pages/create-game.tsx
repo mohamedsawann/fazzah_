@@ -337,13 +337,9 @@ export default function CreateGame() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(0 0% 12%) 0%, hsl(25 60% 20%) 25%, hsl(35 50% 25%) 50%, hsl(25 60% 20%) 75%, hsl(0 0% 12%) 100%)' }} dir="rtl">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-2xl animate-ping" style={{ animationDuration: '4s' }}></div>
-      </div>
+    <div className="min-h-screen relative overflow-hidden trivia-background" dir="rtl">
+      {/* Subtle overlay for content readability */}
+      <div className="absolute inset-0 bg-background/40"></div>
       <div className="container mx-auto px-4 py-6 max-w-4xl relative z-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

@@ -48,8 +48,9 @@ export default function LeaderboardView() {
 
   if (gameLoading || leaderboardLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-purple-950/10 to-background flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen trivia-background relative overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 bg-background/30"></div>
+        <div className="text-center relative z-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">جارٍ تحميل النتائج...</p>
         </div>
@@ -59,8 +60,9 @@ export default function LeaderboardView() {
 
   if (!game) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-purple-950/10 to-background flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen trivia-background relative overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 bg-background/30"></div>
+        <div className="text-center relative z-10">
           <p className="text-destructive mb-4">لم يتم العثور على اللعبة</p>
           <Link href="/">
             <Button onClick={playSound.buttonClick}>العودة للصفحة الرئيسية</Button>
@@ -74,13 +76,9 @@ export default function LeaderboardView() {
   const totalPlayers = leaderboard?.length || 0;
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(0 0% 12%) 0%, hsl(25 60% 20%) 25%, hsl(35 50% 25%) 50%, hsl(25 60% 20%) 75%, hsl(0 0% 12%) 100%)' }}>
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-2xl animate-ping" style={{ animationDuration: '4s' }}></div>
-      </div>
+    <div className="min-h-screen trivia-background relative overflow-hidden">
+      {/* Subtle overlay for content readability */}
+      <div className="absolute inset-0 bg-background/30"></div>
 
       <div className="container mx-auto px-4 py-8 max-w-2xl relative z-10">
         {/* Header */}

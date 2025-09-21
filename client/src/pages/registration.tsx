@@ -96,8 +96,10 @@ export default function Registration() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900" style={{ background: 'linear-gradient(135deg, hsl(240 20% 4%) 0%, hsl(262 30% 10%) 50%, hsl(240 20% 4%) 100%)' }}>
-      <div className="container mx-auto px-4 py-8 max-w-md">
+    <div className="min-h-screen trivia-background relative overflow-hidden">
+      {/* Subtle overlay for content readability */}
+      <div className="absolute inset-0 bg-background/30"></div>
+      <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
         <div className="mb-6">
           <Button
             variant="ghost"

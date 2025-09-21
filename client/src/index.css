@@ -247,6 +247,14 @@
     color: hsl(0 0% 98%);
   }
 
+  .trivia-background {
+    background-image: url('@assets/f54bfadb-6dde-4771-9e68-bc6f8e61081f_1758489262168.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
   .font-arabic {
     font-family: var(--font-arabic);
   }
