@@ -52,7 +52,7 @@ export default function LeaderboardView() {
         <div className="absolute inset-0 bg-background/30"></div>
         <div className="text-center relative z-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">جارٍ تحميل النتائج...</p>
+          <p className="text-primary">جارٍ تحميل النتائج...</p>
         </div>
       </div>
     );
@@ -90,10 +90,10 @@ export default function LeaderboardView() {
             </h2>
             <Trophy className="w-8 h-8 text-primary animate-pulse" />
           </div>
-          <p className="text-xl text-card-foreground font-medium mb-2" data-testid="game-name">
+          <p className="text-xl text-primary font-medium mb-2" data-testid="game-name">
             {game.name}
           </p>
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-sm text-primary mb-4">
             رمز اللعبة: <span className="font-mono text-primary">{game.code}</span>
           </p>
         </div>
@@ -106,7 +106,7 @@ export default function LeaderboardView() {
               <div className="text-2xl font-bold text-primary" data-testid="total-players">
                 {totalPlayers}
               </div>
-              <div className="text-sm text-muted-foreground">إجمالي اللاعبين</div>
+              <div className="text-sm text-primary">إجمالي اللاعبين</div>
             </CardContent>
           </Card>
           
@@ -116,7 +116,7 @@ export default function LeaderboardView() {
               <div className="text-2xl font-bold text-green-400" data-testid="completed-players">
                 {activePlayers.length}
               </div>
-              <div className="text-sm text-muted-foreground">أنهوا اللعبة</div>
+              <div className="text-sm text-primary">أنهوا اللعبة</div>
             </CardContent>
           </Card>
         </div>
@@ -154,11 +154,11 @@ export default function LeaderboardView() {
           <CardContent className="p-4">
             {activePlayers.length === 0 ? (
               <div className="text-center py-8">
-                <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground text-lg mb-2">
+                <Clock className="w-12 h-12 text-primary mx-auto mb-4" />
+                <p className="text-primary text-lg mb-2">
                   لا يوجد لاعبون أنهوا اللعبة بعد
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-primary">
                   سيتم تحديث النتائج تلقائياً عند انتهاء اللاعبين
                 </p>
               </div>
@@ -184,7 +184,7 @@ export default function LeaderboardView() {
                       <div className={`text-2xl font-bold ${
                         index === 0 ? "text-yellow-400" : 
                         index === 1 ? "text-gray-400" : 
-                        index === 2 ? "text-orange-600" : "text-muted-foreground"
+                        index === 2 ? "text-orange-600" : "text-primary"
                       }`}>
                         {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}
                       </div>
@@ -194,7 +194,7 @@ export default function LeaderboardView() {
                         <div className="font-medium text-card-foreground text-lg mb-1" data-testid={`player-name-${index}`}>
                           {player.name}
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-4 text-sm text-primary">
                           <span>📞 {player.phone}</span>
                           <span>✅ {player.correctAnswers}/{player.totalAnswers}</span>
                           <span>⏱️ {player.averageTime.toFixed(1)}s</span>
@@ -208,7 +208,7 @@ export default function LeaderboardView() {
                         }`} data-testid={`player-score-${index}`}>
                           {player.score.toLocaleString()}
                         </div>
-                        <div className="text-sm text-muted-foreground">نقطة</div>
+                        <div className="text-sm text-primary">نقطة</div>
                       </div>
                     </div>
                   ))}

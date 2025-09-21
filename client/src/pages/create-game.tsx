@@ -346,7 +346,7 @@ export default function CreateGame() {
           <Link href="/">
             <Button
               variant="ghost"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
               data-testid="button-back"
             >
               <ArrowRight className="w-4 h-4" />
@@ -360,7 +360,7 @@ export default function CreateGame() {
           <h1 className="text-4xl font-bold font-arabic text-transparent bg-gradient-to-r from-primary to-accent bg-clip-text mb-2 animate-pulse">
             إنشاء لعبة جديدة ✨
           </h1>
-          <p className="text-muted-foreground">Create New Trivia Game</p>
+          <p className="text-primary">Create New Trivia Game</p>
         </div>
 
         {/* Game Name */}
@@ -412,7 +412,7 @@ export default function CreateGame() {
                   </Button>
                 </div>
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm text-muted-foreground">
+                  <div className="flex justify-between text-sm text-primary">
                     <span>التقدم</span>
                     <span>{Math.round(getCompletionProgress())}%</span>
                   </div>
@@ -443,11 +443,11 @@ export default function CreateGame() {
                       </div>
                       <div className="flex-1 text-right">
                         {question.text ? (
-                          <p className="text-sm text-muted-foreground truncate">
+                          <p className="text-sm text-primary truncate">
                             {question.text}
                           </p>
                         ) : (
-                          <p className="text-sm text-muted-foreground italic">
+                          <p className="text-sm text-primary italic">
                             اكتب سؤالك هنا...
                           </p>
                         )}
@@ -498,7 +498,7 @@ export default function CreateGame() {
                               />
                               <Label
                                 htmlFor={`q${questionIndex}-o${optionIndex}`}
-                                className="text-sm font-medium text-muted-foreground ml-2"
+                                className="text-sm font-medium text-primary ml-2"
                               >
                                 {String.fromCharCode(65 + optionIndex)}
                               </Label>
@@ -586,7 +586,7 @@ export default function CreateGame() {
                     className="cursor-pointer"
                     data-testid="input-excel-file"
                   />
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <p className="text-sm text-primary mt-2">
                     يدعم .xlsx و .xls (الحد الأقصى 5 ميجابايت)
                   </p>
                 </div>
@@ -659,7 +659,7 @@ export default function CreateGame() {
                 {/* Format Guide */}
                 <div className="p-4 bg-muted rounded-lg">
                   <h4 className="font-medium mb-2">تنسيق الملف المطلوب:</h4>
-                  <div className="text-sm text-muted-foreground space-y-1">
+                  <div className="text-sm text-primary space-y-1">
                     <p>• العمود الأول: السؤال أو Question</p>
                     <p>• العمود الثاني: الخيار 1 أو Option1</p>
                     <p>• العمود الثالث: الخيار 2 أو Option2</p>
@@ -677,7 +677,7 @@ export default function CreateGame() {
         <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-4 z-40">
           <div className="container mx-auto max-w-4xl">
             <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-4 text-sm text-primary">
                 <span>{questions.length} سؤال</span>
                 <span>•</span>
                 <span>{questions.filter(getQuestionStatus).length} مكتمل</span>
@@ -697,7 +697,7 @@ export default function CreateGame() {
                     <div className="space-y-4">
                       <div className="p-4 bg-muted rounded-lg">
                         <h3 className="font-semibold text-lg mb-2">{gameName || "لعبة جديدة"}</h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-primary">
                           {questions.length} سؤال • {questions.filter(getQuestionStatus).length} مكتمل
                         </p>
                       </div>

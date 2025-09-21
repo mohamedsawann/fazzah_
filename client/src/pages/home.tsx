@@ -43,12 +43,12 @@ export default function Home() {
             <img 
               src={logoImage} 
               alt="فزه Logo" 
-              className="w-80 h-80 mx-auto animate-pulse drop-shadow-lg"
+              className="w-80 h-80 mx-auto animate-color-shift drop-shadow-lg"
               style={{ filter: 'brightness(0) saturate(100%) invert(47%) sepia(89%) saturate(6000%) hue-rotate(15deg) brightness(130%) contrast(106%)' }}
             />
           </div>
           <p className="text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-1">Fazzah</p>
-          <p className="text-base text-muted-foreground font-sans">
+          <p className="text-base text-primary font-sans">
             منصة الألعاب التفاعلية ⚡
           </p>
         </div>
@@ -85,7 +85,7 @@ export default function Home() {
                   <PlusCircle className="w-7 h-7 animate-pulse" />
                   <span>إنشاء لعبة جديدة ✨</span>
                 </div>
-                <p className="text-base text-muted-foreground">
+                <p className="text-base text-primary">
                   Create New Game
                 </p>
               </div>
@@ -104,7 +104,7 @@ export default function Home() {
                   <Users className="w-7 h-7 animate-bounce" style={{ animationDuration: '2s' }} />
                   <span>عرض المتصدرين 🏆</span>
                 </div>
-                <p className="text-base text-muted-foreground">
+                <p className="text-base text-primary">
                   View Leaderboard
                 </p>
               </div>
@@ -119,7 +119,7 @@ export default function Home() {
               href="https://www.linkedin.com/in/mohammed-sawan-56ba6b251/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-110"
+              className="flex items-center gap-2 text-primary hover:text-primary/80 transition-all duration-300 hover:scale-110"
               data-testid="linkedin-link"
             >
               <FaLinkedin className="w-5 h-5 hover:animate-bounce" />
@@ -128,7 +128,7 @@ export default function Home() {
           </div>
           
           <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-1">
+            <p className="text-sm text-primary mb-1">
               طُور بواسطة / Developed by
             </p>
             <p className="font-medium text-primary">
@@ -136,7 +136,7 @@ export default function Home() {
             </p>
             
             {visitorData && (
-              <div className="flex items-center justify-center gap-2 mt-3 text-xs text-muted-foreground" data-testid="visitor-count">
+              <div className="flex items-center justify-center gap-2 mt-3 text-xs text-primary" data-testid="visitor-count">
                 <Users className="w-3 h-3" />
                 <span>
                   {visitorData.count.toLocaleString()} زائر / Total Visitors
