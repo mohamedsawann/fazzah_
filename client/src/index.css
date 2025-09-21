@@ -226,6 +226,28 @@
   }
 }
 
+@keyframes logo-color-shift {
+  0% { 
+    filter: brightness(0) saturate(100%) invert(47%) sepia(89%) saturate(6000%) hue-rotate(15deg) brightness(130%) contrast(106%);
+  }
+  25% { 
+    filter: brightness(0) saturate(100%) invert(60%) sepia(90%) saturate(4000%) hue-rotate(45deg) brightness(140%) contrast(110%);
+  }
+  50% { 
+    filter: brightness(0) saturate(100%) invert(55%) sepia(95%) saturate(5000%) hue-rotate(25deg) brightness(135%) contrast(108%);
+  }
+  75% { 
+    filter: brightness(0) saturate(100%) invert(65%) sepia(85%) saturate(3500%) hue-rotate(50deg) brightness(145%) contrast(115%);
+  }
+  100% { 
+    filter: brightness(0) saturate(100%) invert(47%) sepia(89%) saturate(6000%) hue-rotate(15deg) brightness(130%) contrast(106%);
+  }
+}
+
+.animate-logo-color-shift {
+  animation: logo-color-shift 4s ease-in-out infinite;
+}
+
 .animate-color-shift {
   animation: color-shift 4s ease-in-out infinite;
   background-size: 200% 200%;
