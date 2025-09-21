@@ -43,7 +43,7 @@ export default function Home() {
             <img 
               src={logoImage} 
               alt="فزه Logo" 
-              className="w-80 h-80 mx-auto animate-color-shift drop-shadow-lg"
+              className="w-80 h-80 mx-auto animate-pulse drop-shadow-lg"
               style={{ filter: 'brightness(0) saturate(100%) invert(47%) sepia(89%) saturate(6000%) hue-rotate(15deg) brightness(130%) contrast(106%)' }}
             />
           </div>
@@ -135,11 +135,11 @@ export default function Home() {
               GDG Mohamed Sawan 🧡
             </p>
             
-            {visitorData && (
+            {visitorData && typeof visitorData === 'object' && 'count' in visitorData && (
               <div className="flex items-center justify-center gap-2 mt-3 text-xs text-primary" data-testid="visitor-count">
                 <Users className="w-3 h-3" />
                 <span>
-                  {visitorData.count.toLocaleString()} زائر / Total Visitors
+                  {(visitorData as { count: number }).count.toLocaleString()} زائر / Total Visitors
                 </span>
               </div>
             )}
