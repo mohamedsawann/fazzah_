@@ -357,7 +357,7 @@ export default function CreateGame() {
 
         {/* Title */}
         <div className="text-center mb-8" data-testid="header-create-game">
-          <h1 className="text-4xl font-bold font-arabic text-transparent bg-gradient-to-r from-primary to-accent bg-clip-text mb-2 animate-pulse">
+          <h1 className="text-4xl font-bold font-arabic text-primary mb-2 animate-color-shift">
             إنشاء لعبة جديدة ✨
           </h1>
           <p className="text-primary">Create New Trivia Game</p>
