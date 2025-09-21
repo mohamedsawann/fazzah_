@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { PlayCircle, PlusCircle, Users } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
-import logoImage from "@assets/Untitled_design_no_bg_1757455327542.png";
+import logoImage from "@assets/e884b9cb-4af4-47f0-b6bc-69c2b1482d3c_1758492259936.png";
 import { playSound } from "@/lib/soundUtils";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
