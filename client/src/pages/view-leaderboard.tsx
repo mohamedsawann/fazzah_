@@ -54,7 +54,7 @@ export default function ViewLeaderboard() {
           <Link href="/">
             <Button
               variant="ghost"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-0"
+              className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors p-0"
               data-testid="button-back"
             >
               <ArrowRight className="w-5 h-5" />
@@ -67,7 +67,7 @@ export default function ViewLeaderboard() {
           <h2 className="text-3xl font-bold font-arabic text-primary mb-2 animate-pulse">
             عرض المتصدرين 🏆
           </h2>
-          <p className="text-muted-foreground">View Leaderboard</p>
+          <p className="text-primary">View Leaderboard</p>
         </div>
 
         <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5 hover:shadow-primary/40 transition-all duration-300 hover:scale-[1.02]">
@@ -83,7 +83,7 @@ export default function ViewLeaderboard() {
                   placeholder="أدخل رمز اللعبة"
                   value={gameCode}
                   onChange={(e) => setGameCode(e.target.value.toUpperCase())}
-                  className="w-full bg-muted border border-border rounded-lg px-4 py-3 text-center text-2xl font-bold focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                  className="w-full bg-muted border border-primary/30 rounded-lg px-4 py-3 text-center text-2xl font-bold focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                   maxLength={6}
                   data-testid="input-game-code"
                 />

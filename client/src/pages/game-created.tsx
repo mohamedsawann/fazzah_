@@ -72,7 +72,7 @@ export default function GameCreated() {
         <div className="absolute inset-0 bg-background/30"></div>
         <div className="text-center relative z-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">جارٍ تحميل اللعبة...</p>
+          <p className="text-primary">جارٍ تحميل اللعبة...</p>
         </div>
       </div>
     );
@@ -88,11 +88,11 @@ export default function GameCreated() {
           <h2 className="text-3xl font-bold font-arabic text-primary mb-2">
             تم إنشاء اللعبة!
           </h2>
-          <p className="text-muted-foreground">Game Created Successfully</p>
+          <p className="text-primary">Game Created Successfully</p>
         </div>
 
         {/* Game Info */}
-        <Card className="border border-border shadow-lg mb-6">
+        <Card className="border border-primary/30 shadow-lg mb-6">
           <CardContent className="p-6">
             <div className="text-center" data-testid="game-info">
               <h3 className="text-xl font-medium mb-4" data-testid="game-name">
@@ -100,13 +100,13 @@ export default function GameCreated() {
               </h3>
               
               <div className="bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 rounded-xl p-6 mb-6">
-                <p className="text-sm text-muted-foreground mb-2">
+                <p className="text-sm text-primary mb-2">
                   رمز اللعبة / Game Code
                 </p>
                 <div className="text-4xl font-bold font-mono text-primary mb-4" data-testid="game-code">
                   {game.code}
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-primary">
                   شارك هذا الرمز مع الأصدقاء للانضمام
                 </p>
               </div>
@@ -118,7 +118,7 @@ export default function GameCreated() {
                     copyGameCode();
                   }}
                   variant="outline"
-                  className="flex-1 bg-card border border-border hover:bg-muted text-card-foreground"
+                  className="flex-1 bg-card border border-primary/30 hover:bg-muted text-card-foreground"
                   data-testid="button-copy-code"
                 >
                   <Copy className="w-4 h-4 mr-2" />
@@ -131,7 +131,7 @@ export default function GameCreated() {
                     shareGame();
                   }}
                   variant="outline"
-                  className="flex-1 bg-card border border-border hover:bg-muted text-card-foreground"
+                  className="flex-1 bg-card border border-primary/30 hover:bg-muted text-card-foreground"
                   data-testid="button-share-code"
                 >
                   <Share2 className="w-4 h-4 mr-2" />
@@ -172,7 +172,7 @@ export default function GameCreated() {
             <Button
               onClick={playSound.buttonClick}
               variant="outline"
-              className="w-full bg-card border border-border hover:bg-muted text-card-foreground font-medium py-3 px-6 rounded-lg shadow-lg transition-all duration-300"
+              className="w-full bg-card border border-primary/30 hover:bg-muted text-card-foreground font-medium py-3 px-6 rounded-lg shadow-lg transition-all duration-300"
               data-testid="button-home"
             >
               العودة للصفحة الرئيسية / Back to Home
