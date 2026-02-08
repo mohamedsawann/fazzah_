@@ -4,3 +4,11 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Env and secrets (do not commit)
+.env
+.env.local
+.env.*.local
+
+# Netlify function build output (built at deploy time)
+netlify/functions/server.js

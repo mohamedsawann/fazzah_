@@ -1,0 +1,12 @@
+# Build the client (Vite) + server bundle + Netlify function; publish static files from dist/public
+[build]
+  command = "npm run build"
+  publish = "dist/public"
+  functions = "netlify/functions"
+
+# Use Node 20 and skip Netlify's own function build (we ship pre-built server.js)
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Netlify: Site settings → Environment variables

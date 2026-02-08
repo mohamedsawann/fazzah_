@@ -1,0 +1,5 @@
+# API requests go to the serverless function
+/api/*  /.netlify/functions/server  200
+
+# SPA: all other paths serve index.html so client-side routing works
+/*  /index.html  200
