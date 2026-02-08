@@ -1,0 +1,632 @@
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fazzah - فزه | Quiz Game Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                }
+            }
+        }
+    };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --background: hsl(250 20% 97%);
+            --foreground: hsl(250 20% 10%);
+            --card: hsl(250 20% 99%);
+            --card-foreground: hsl(250 20% 15%);
+            --primary: hsl(262 83% 58%);
+            --primary-foreground: hsl(250 100% 100%);
+            --secondary: hsl(268 71% 67%);
+            --secondary-foreground: hsl(250 20% 10%);
+            --muted: hsl(250 20% 96%);
+            --muted-foreground: hsl(250 10% 40%);
+            --accent: hsl(277 60% 78%);
+            --accent-foreground: hsl(250 20% 10%);
+            --border: hsl(250 20% 90%);
+            --input: hsl(250 20% 96%);
+            --ring: hsl(262 83% 58%);
+            --radius: 0.75rem;
+            --font-sans: 'Inter', sans-serif;
+            --font-arabic: 'Amiri', serif;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: linear-gradient(135deg, hsl(262 83% 95%) 0%, hsl(277 60% 95%) 100%);
+        }
+        
+        .arabic-text {
+            font-family: var(--font-arabic);
+            direction: rtl;
+        }
+        
+        .gradient-purple {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        .gradient-light {
+            background: linear-gradient(135deg, hsl(262 83% 98%) 0%, hsl(277 60% 98%) 100%);
+        }
+        
+        .pulse-purple {
+            animation: pulse-purple 2s infinite;
+        }
+        
+        @keyframes pulse-purple {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+            50% { box-shadow: 0 0 0 20px rgba(139, 92, 246, 0); }
+        }
+        
+        .answer-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+        
+        .answer-correct {
+            background: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 76% 46%) 100%);
+            color: white;
+        }
+        
+        .answer-incorrect {
+            background: linear-gradient(135deg, hsl(0 84% 60%) 0%, hsl(0 84% 70%) 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-background text-foreground">
+    <!-- @COMPONENT: App [main application wrapper] -->
+    <div id="app" class="min-h-screen">
+        
+        <!-- @COMPONENT: MainPage [landing page with game options] -->
+        <div id="main-page" class="min-h-screen flex flex-col items-center justify-center p-4">
+            <div class="w-full max-w-md mx-auto text-center space-y-8">
+                <!-- Logo and Title -->
+                <div class="space-y-4">
+                    <div class="arabic-text text-6xl font-bold text-primary mb-2">فزه</div>
+                    <div class="text-2xl font-semibold text-secondary">Fazzah</div>
+                    <div class="text-muted-foreground text-lg">Test your knowledge, climb the leaderboard!</div>
+                </div>
+                
+                <!-- Main Action Buttons -->
+                <div class="space-y-4">
+                    <button 
+                        onclick="showJoinGame()" 
+                        class="w-full gradient-purple text-primary-foreground py-4 px-6 rounded-lg text-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                        data-event="click:handleJoinGame"
+                        data-implementation="Navigate to join game flow">
+                        <i class="fas fa-users mr-3"></i>
+                        Join Game by Code
+                    </button>
+                    
+                    <button 
+                        onclick="showCreateGame()" 
+                        class="w-full bg-card border-2 border-primary text-primary py-4 px-6 rounded-lg text-xl font-semibold shadow-lg hover:shadow-xl hover:bg-primary hover:text-primary-foreground transition-all duration-300 transform hover:scale-105"
+                        data-event="click:handleCreateGame"
+                        data-implementation="Navigate to create game flow">
+                        <i class="fas fa-plus mr-3"></i>
+                        Create Game
+                    </button>
+                </div>
+                
+                <!-- Stats Preview -->
+                <div class="grid grid-cols-2 gap-4 mt-8">
+                    <div class="gradient-light p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-primary" data-bind="stats.activeGames">127</div>
+                        <div class="text-sm text-muted-foreground">Active Games</div>
+                    </div>
+                    <div class="gradient-light p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-primary" data-bind="stats.playersOnline">1,543</div>
+                        <div class="text-sm text-muted-foreground">Players Online</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: MainPage -->
+        
+        <!-- @COMPONENT: JoinGamePage [join existing game interface] -->
+        <div id="join-game-page" class="min-h-screen flex flex-col items-center justify-center p-4 hidden">
+            <div class="w-full max-w-md mx-auto">
+                <div class="bg-card rounded-xl shadow-xl p-6 space-y-6">
+                    <div class="text-center">
+                        <div class="arabic-text text-4xl font-bold text-primary mb-2">فزه</div>
+                        <h2 class="text-2xl font-semibold">Join Game</h2>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Game Code</label>
+                            <input 
+                                type="text" 
+                                placeholder="Enter 6-digit code" 
+                                class="w-full px-4 py-3 bg-input border border-border rounded-lg text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-ring focus:border-transparent"
+                                maxlength="6"
+                                data-implementation="Validate game code format and existence">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Your Name</label>
+                            <input 
+                                type="text" 
+                                placeholder="Enter your name" 
+                                class="w-full px-4 py-3 bg-input border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+                                data-implementation="Store player name for game session">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Phone Number</label>
+                            <input 
+                                type="tel" 
+                                placeholder="+1 (555) 000-0000" 
+                                class="w-full px-4 py-3 bg-input border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+                                data-implementation="Validate phone number format">
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <button 
+                            onclick="startSoloGame()" 
+                            class="w-full gradient-purple text-primary-foreground py-3 px-6 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                            data-event="click:handleJoinGame"
+                            data-implementation="Validate inputs and join game">
+                            <i class="fas fa-play mr-2"></i>
+                            Join & Play Solo
+                        </button>
+                        
+                        <button 
+                            onclick="showMainPage()" 
+                            class="w-full bg-muted text-muted-foreground py-3 px-6 rounded-lg font-semibold hover:bg-secondary hover:text-secondary-foreground transition-all duration-300"
+                            data-event="click:handleBack">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Back
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: JoinGamePage -->
+        
+        <!-- @COMPONENT: CreateGamePage [create new game interface] -->
+        <div id="create-game-page" class="min-h-screen flex flex-col items-center justify-center p-4 hidden">
+            <div class="w-full max-w-md mx-auto">
+                <div class="bg-card rounded-xl shadow-xl p-6 space-y-6">
+                    <div class="text-center">
+                        <div class="arabic-text text-4xl font-bold text-primary mb-2">فزه</div>
+                        <h2 class="text-2xl font-semibold">Create Game</h2>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Your Name</label>
+                            <input 
+                                type="text" 
+                                placeholder="Enter your name" 
+                                class="w-full px-4 py-3 bg-input border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+                                data-implementation="Store creator name">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Phone Number</label>
+                            <input 
+                                type="tel" 
+                                placeholder="+1 (555) 000-0000" 
+                                class="w-full px-4 py-3 bg-input border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+                                data-implementation="Validate phone number format">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Question Category</label>
+                            <select class="w-full px-4 py-3 bg-input border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+                                data-implementation="Load available question categories">
+                                <option>General Knowledge</option>
+                                <option>Science & Technology</option>
+                                <option>History & Geography</option>
+                                <option>Sports & Entertainment</option>
+                                <option>Mixed Categories</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Number of Questions</label>
+                            <select class="w-full px-4 py-3 bg-input border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent">
+                                <option>10 Questions</option>
+                                <option>15 Questions</option>
+                                <option>20 Questions</option>
+                                <option>25 Questions</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <button 
+                            onclick="generateGameCode()" 
+                            class="w-full gradient-purple text-primary-foreground py-3 px-6 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                            data-event="click:handleCreateGame"
+                            data-implementation="Generate game code and create game session">
+                            <i class="fas fa-rocket mr-2"></i>
+                            Create Game
+                        </button>
+                        
+                        <button 
+                            onclick="showMainPage()" 
+                            class="w-full bg-muted text-muted-foreground py-3 px-6 rounded-lg font-semibold hover:bg-secondary hover:text-secondary-foreground transition-all duration-300"
+                            data-event="click:handleBack">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Back
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: CreateGamePage -->
+        
+        <!-- @COMPONENT: GameCodePage [display generated game code] -->
+        <div id="game-code-page" class="min-h-screen flex flex-col items-center justify-center p-4 hidden">
+            <div class="w-full max-w-md mx-auto">
+                <div class="bg-card rounded-xl shadow-xl p-6 space-y-6 text-center">
+                    <div>
+                        <div class="arabic-text text-4xl font-bold text-primary mb-2">فزه</div>
+                        <h2 class="text-2xl font-semibold">Game Created!</h2>
+                    </div>
+                    
+                    <div class="gradient-light p-6 rounded-xl">
+                        <div class="text-sm text-muted-foreground mb-2">Your Game Code</div>
+                        <div class="text-4xl font-bold text-primary tracking-widest pulse-purple" data-bind="gameCode">ABC123</div>
+                        <button 
+                            onclick="copyGameCode()" 
+                            class="mt-3 text-sm text-primary hover:text-secondary transition-colors"
+                            data-implementation="Copy game code to clipboard">
+                            <i class="fas fa-copy mr-1"></i>
+                            Copy Code
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <button 
+                            onclick="startSoloGame()" 
+                            class="w-full gradient-purple text-primary-foreground py-3 px-6 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                            data-event="click:handleStartGame"
+                            data-implementation="Start solo gameplay">
+                            <i class="fas fa-play mr-2"></i>
+                            Start Playing Solo
+                        </button>
+                        
+                        <div class="text-sm text-muted-foreground">
+                            Share this code with others to let them join your game!
+                        </div>
+                        
+                        <button 
+                            onclick="showMainPage()" 
+                            class="w-full bg-muted text-muted-foreground py-3 px-6 rounded-lg font-semibold hover:bg-secondary hover:text-secondary-foreground transition-all duration-300"
+                            data-event="click:handleBack">
+                            <i class="fas fa-home mr-2"></i>
+                            Back to Home
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: GameCodePage -->
+        
+        <!-- @COMPONENT: GameplayPage [solo quiz gameplay interface] -->
+        <div id="gameplay-page" class="min-h-screen bg-gradient-to-br from-primary to-secondary hidden">
+            <div class="min-h-screen flex flex-col">
+                <!-- Game Header -->
+                <div class="bg-black/20 text-white p-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <div class="arabic-text text-2xl font-bold">فزه</div>
+                            <div class="text-sm opacity-80">Game: <span data-bind="currentGame.code">ABC123</span></div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold" data-bind="currentPlayer.score">1,250</div>
+                            <div class="text-xs opacity-80">Points</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Question Progress -->
+                <div class="bg-white/10 text-white p-3">
+                    <div class="flex justify-between items-center text-sm">
+                        <span>Question <span data-bind="currentQuestion.number">5</span> of <span data-bind="totalQuestions">20</span></span>
+                        <span>Time: <span data-bind="timeRemaining" class="font-bold">15s</span></span>
+                    </div>
+                    <div class="w-full bg-white/20 rounded-full h-2 mt-2">
+                        <div class="bg-white h-2 rounded-full transition-all duration-1000" style="width: 25%" data-implementation="Progress bar based on questions answered"></div>
+                    </div>
+                </div>
+                
+                <!-- Timer Circle -->
+                <div class="flex-1 flex flex-col items-center justify-center p-4 relative">
+                    <div class="absolute top-4 right-4 w-16 h-16 rounded-full border-4 border-white/30 flex items-center justify-center">
+                        <div class="text-2xl font-bold text-white" data-bind="timer">15</div>
+                    </div>
+                    
+                    <!-- Question -->
+                    <div class="w-full max-w-2xl mx-auto mb-8">
+                        <div class="bg-white rounded-xl p-6 shadow-2xl">
+                            <h2 class="text-xl md:text-2xl font-bold text-center text-gray-800" data-bind="currentQuestion.text">
+                                What is the capital city of France?
+                            </h2>
+                        </div>
+                    </div>
+                    
+                    <!-- Answer Options -->
+                    <div class="w-full max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- @MAP: currentQuestion.options.map((option, index) => ( -->
+                        <button 
+                            onclick="selectAnswer(0)" 
+                            class="answer-option bg-white hover:bg-gray-50 p-4 rounded-xl shadow-lg transition-all duration-300 text-left"
+                            data-event="click:handleAnswerSelect"
+                            data-implementation="Handle answer selection and show feedback">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold">A</div>
+                                <span class="text-lg font-medium" data-bind="option.text">Paris</span>
+                            </div>
+                        </button>
+                        
+                        <button 
+                            onclick="selectAnswer(1)" 
+                            class="answer-option bg-white hover:bg-gray-50 p-4 rounded-xl shadow-lg transition-all duration-300 text-left">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">B</div>
+                                <span class="text-lg font-medium" data-bind="option.text">London</span>
+                            </div>
+                        </button>
+                        
+                        <button 
+                            onclick="selectAnswer(2)" 
+                            class="answer-option bg-white hover:bg-gray-50 p-4 rounded-xl shadow-lg transition-all duration-300 text-left">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center font-bold">C</div>
+                                <span class="text-lg font-medium" data-bind="option.text">Berlin</span>
+                            </div>
+                        </button>
+                        
+                        <button 
+                            onclick="selectAnswer(3)" 
+                            class="answer-option bg-white hover:bg-gray-50 p-4 rounded-xl shadow-lg transition-all duration-300 text-left">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold">D</div>
+                                <span class="text-lg font-medium" data-bind="option.text">Madrid</span>
+                            </div>
+                        </button>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: GameplayPage -->
+        
+        <!-- @COMPONENT: ResultsPage [game results and leaderboard] -->
+        <div id="results-page" class="min-h-screen bg-background p-4 hidden">
+            <div class="max-w-4xl mx-auto py-8">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <div class="arabic-text text-5xl font-bold text-primary mb-2">فزه</div>
+                    <h1 class="text-3xl font-bold">Game Complete!</h1>
+                </div>
+                
+                <!-- Player Results -->
+                <div class="bg-card rounded-xl shadow-xl p-6 mb-8">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🎉</div>
+                        <h2 class="text-2xl font-bold mb-2" data-bind="playerName">Ahmed Ali</h2>
+                        <div class="text-4xl font-bold text-primary mb-2" data-bind="finalScore">1,875</div>
+                        <div class="text-muted-foreground">Final Score</div>
+                        
+                        <div class="grid grid-cols-3 gap-4 mt-6">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-primary" data-bind="correctAnswers">15</div>
+                                <div class="text-sm text-muted-foreground">Correct</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-secondary" data-bind="accuracy">75%</div>
+                                <div class="text-sm text-muted-foreground">Accuracy</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-accent" data-bind="rank">#3</div>
+                                <div class="text-sm text-muted-foreground">Rank</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Leaderboard -->
+                <div class="bg-card rounded-xl shadow-xl p-6">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                        Today's Leaderboard
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <!-- @MAP: leaderboard.map((player, index) => ( -->
+                        <div class="flex items-center justify-between p-3 bg-gradient-light rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
+                                    1
+                                </div>
+                                <div>
+                                    <div class="font-semibold" data-bind="player.name">Sara Mohammed</div>
+                                    <div class="text-sm text-muted-foreground" data-bind="player.phone">+966 55 123 4567</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-bold text-primary" data-bind="player.score">2,450</div>
+                                <div class="text-xs text-muted-foreground" data-bind="player.gamesPlayed">12 games</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gradient-light rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center font-bold text-sm">
+                                    2
+                                </div>
+                                <div>
+                                    <div class="font-semibold" data-bind="player.name">Omar Hassan</div>
+                                    <div class="text-sm text-muted-foreground" data-bind="player.phone">+966 50 987 6543</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-bold text-primary" data-bind="player.score">2,125</div>
+                                <div class="text-xs text-muted-foreground" data-bind="player.gamesPlayed">8 games</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-primary/10 rounded-lg border-2 border-primary">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-bold text-sm">
+                                    3
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-primary" data-bind="currentPlayer.name">Ahmed Ali</div>
+                                    <div class="text-sm text-primary/70" data-bind="currentPlayer.phone">+966 55 555 1234</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-bold text-primary" data-bind="currentPlayer.score">1,875</div>
+                                <div class="text-xs text-primary/70" data-bind="currentPlayer.gamesPlayed">3 games</div>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                        
+                        <div class="text-center pt-4">
+                            <button class="text-primary hover:text-secondary transition-colors text-sm font-medium">
+                                View Full Leaderboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                    <button 
+                        onclick="playAgain()" 
+                        class="w-full gradient-purple text-primary-foreground py-3 px-6 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                        data-event="click:handlePlayAgain"
+                        data-implementation="Start new game with same settings">
+                        <i class="fas fa-redo mr-2"></i>
+                        Play Again
+                    </button>
+                    
+                    <button 
+                        onclick="showMainPage()" 
+                        class="w-full bg-card border-2 border-primary text-primary py-3 px-6 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                        data-event="click:handleBackToHome">
+                        <i class="fas fa-home mr-2"></i>
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ResultsPage -->
+        
+    </div>
+    <!-- @END_COMPONENT: App -->
+    
+    <script>
+        (function() {
+            // Page navigation functions
+            function showPage(pageId) {
+                const pages = ['main-page', 'join-game-page', 'create-game-page', 'game-code-page', 'gameplay-page', 'results-page'];
+                pages.forEach(page => {
+                    document.getElementById(page).classList.add('hidden');
+                });
+                document.getElementById(pageId).classList.remove('hidden');
+            }
+            
+            // Navigation functions
+            window.showMainPage = () => showPage('main-page');
+            window.showJoinGame = () => showPage('join-game-page');
+            window.showCreateGame = () => showPage('create-game-page');
+            window.showGameCode = () => showPage('game-code-page');
+            window.showGameplay = () => showPage('gameplay-page');
+            window.showResults = () => showPage('results-page');
+            
+            // Game functions
+            window.generateGameCode = function() {
+                // TODO: Implement game code generation and validation
+                const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+                showPage('game-code-page');
+            };
+            
+            window.copyGameCode = function() {
+                // TODO: Implement clipboard copy functionality
+                alert('Game code copied to clipboard!');
+            };
+            
+            window.startSoloGame = function() {
+                // TODO: Implement game initialization and question loading
+                showPage('gameplay-page');
+                startGameTimer();
+            };
+            
+            window.selectAnswer = function(answerIndex) {
+                // TODO: Implement answer validation and scoring
+                console.log('Selected answer:', answerIndex);
+                // Simulate next question or end game
+                setTimeout(() => {
+                    showPage('results-page');
+                }, 1500);
+            };
+            
+            window.playAgain = function() {
+                // TODO: Implement replay functionality
+                showPage('gameplay-page');
+            };
+            
+            function startGameTimer() {
+                // TODO: Implement actual game timer logic
+                let timeLeft = 15;
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        // Auto-proceed to next question or end game
+                    }
+                }, 1000);
+            }
+            
+            // Initialize app
+            showPage('main-page');
+        })();
+    </script>
+</body>
+</html>

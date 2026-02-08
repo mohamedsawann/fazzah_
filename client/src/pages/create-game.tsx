@@ -338,15 +338,15 @@ export default function CreateGame() {
 
   return (
     <div className="min-h-screen relative overflow-hidden trivia-background" dir="rtl">
-      {/* Subtle overlay for content readability */}
-      <div className="absolute inset-0 bg-background/40"></div>
+      {/* Stronger overlay for better content readability */}
+      <div className="absolute inset-0 bg-background/85 backdrop-blur-sm"></div>
       <div className="container mx-auto px-4 py-6 max-w-4xl relative z-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <Link href="/">
             <Button
               variant="ghost"
-              className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+              className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors bg-background/60 backdrop-blur-sm"
               data-testid="button-back"
             >
               <ArrowRight className="w-4 h-4" />
@@ -357,16 +357,16 @@ export default function CreateGame() {
 
         {/* Title */}
         <div className="text-center mb-8" data-testid="header-create-game">
-          <h1 className="text-4xl font-bold font-arabic text-primary mb-2">
+          <h1 className="text-5xl md:text-6xl font-bold font-arabic text-primary mb-3 drop-shadow-lg">
             إنشاء لعبة جديدة ✨
           </h1>
-          <p className="text-primary">Create New Trivia Game</p>
+          <p className="text-lg text-primary font-medium">Create New Trivia Game</p>
         </div>
 
         {/* Game Name */}
-        <Card className="mb-6 border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5 hover:shadow-primary/40 transition-all duration-300">
+        <Card className="mb-6 border-2 border-primary/50 shadow-2xl shadow-primary/40 bg-gradient-to-br from-card/95 to-primary/10 backdrop-blur-md hover:shadow-primary/60 transition-all duration-300">
           <CardContent className="pt-6">
-            <Label htmlFor="gameName" className="text-base font-medium mb-3 block">
+            <Label htmlFor="gameName" className="text-lg font-semibold mb-4 block text-primary">
               اسم اللعبة / Game Name
             </Label>
             <Input
@@ -375,7 +375,7 @@ export default function CreateGame() {
               placeholder="أدخل اسم اللعبة"
               value={gameName}
               onChange={(e) => setGameName(e.target.value)}
-              className="text-lg py-3"
+              className="text-lg py-4 bg-background/90 border-2 border-primary/50 focus:ring-4 focus:ring-primary/50 shadow-lg"
               data-testid="input-game-name"
             />
           </CardContent>
@@ -395,7 +395,7 @@ export default function CreateGame() {
           {/* Manual Creation Tab */}
           <TabsContent value="manual" className="space-y-6">
             {/* Progress Summary */}
-            <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5">
+            <Card className="border-2 border-primary/50 shadow-2xl shadow-primary/40 bg-gradient-to-br from-card/95 to-primary/10 backdrop-blur-md">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-4">
@@ -427,7 +427,7 @@ export default function CreateGame() {
                 <AccordionItem
                   key={questionIndex}
                   value={`item-${questionIndex}`}
-                  className="border border-primary/20 rounded-lg shadow-md bg-gradient-to-br from-card to-accent/5 hover:shadow-primary/30 transition-all duration-300"
+                  className="border-2 border-primary/40 rounded-lg shadow-xl bg-gradient-to-br from-card/95 to-accent/10 backdrop-blur-sm hover:shadow-primary/50 transition-all duration-300"
                 >
                   <AccordionTrigger className="px-6 py-4 hover:no-underline">
                     <div className="flex items-center gap-3 flex-1">
@@ -565,7 +565,7 @@ export default function CreateGame() {
 
           {/* Excel Import Tab */}
           <TabsContent value="excel" className="space-y-6">
-            <Card className="border border-accent/30 shadow-lg shadow-accent/20 bg-gradient-to-br from-card to-accent/5">
+            <Card className="border-2 border-accent/50 shadow-2xl shadow-accent/40 bg-gradient-to-br from-card/95 to-accent/10 backdrop-blur-md">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-accent">
                   <FileSpreadsheet className="w-5 h-5" />
@@ -674,7 +674,7 @@ export default function CreateGame() {
         </Tabs>
 
         {/* Sticky Action Bar */}
-        <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-4 z-40">
+        <div className="fixed bottom-0 left-0 right-0 bg-background/98 backdrop-blur-md border-t-2 border-primary/50 shadow-2xl p-4 z-40">
           <div className="container mx-auto max-w-4xl">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4 text-sm text-primary">

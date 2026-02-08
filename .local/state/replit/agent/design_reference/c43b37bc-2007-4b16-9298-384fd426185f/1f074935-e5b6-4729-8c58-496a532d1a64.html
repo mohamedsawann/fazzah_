@@ -1,0 +1,450 @@
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فزه - Fazzah | Quiz Gaming Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    border: "var(--border)",
+                    ring: "var(--ring)",
+                },
+                fontFamily: {
+                    arabic: ['Amiri', 'serif'],
+                    sans: ['Inter', 'sans-serif'],
+                }
+            },
+        }
+    };
+    </script>
+    <style>
+        :root {
+            --background: hsl(240 10% 6%);
+            --foreground: hsl(0 0% 98%);
+            --card: hsl(240 10% 8%);
+            --card-foreground: hsl(0 0% 95%);
+            --primary: hsl(262 83% 68%);
+            --primary-foreground: hsl(0 0% 98%);
+            --secondary: hsl(240 4% 16%);
+            --secondary-foreground: hsl(0 0% 90%);
+            --muted: hsl(240 4% 16%);
+            --muted-foreground: hsl(240 5% 65%);
+            --accent: hsl(262 70% 75%);
+            --accent-foreground: hsl(0 0% 98%);
+            --border: hsl(240 6% 20%);
+            --ring: hsl(262 83% 68%);
+            --radius: 12px;
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground font-sans min-h-screen">
+    <!-- Main Container -->
+    <div class="min-h-screen bg-gradient-to-br from-background via-purple-950/10 to-background">
+        
+        <!-- Home Page -->
+        <div id="homePage" class="container mx-auto px-4 py-8 max-w-md">
+            <!-- Header -->
+            <div class="text-center mb-12 mt-8">
+                <h1 class="text-6xl font-bold font-arabic text-primary mb-2 drop-shadow-lg">فزه</h1>
+                <p class="text-xl text-muted-foreground font-sans">Fazzah</p>
+                <p class="text-sm text-muted-foreground mt-2 font-sans">منصة الألعاب التفاعلية</p>
+            </div>
+
+            <!-- Main Action Buttons -->
+            <div class="space-y-4 mb-8">
+                <button onclick="showJoinGame()" class="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-medium py-4 px-6 rounded-xl shadow-lg hover:shadow-primary/25 transition-all duration-300 transform hover:scale-[1.02] text-lg">
+                    <div class="flex items-center justify-center gap-3">
+                        <i data-lucide="play-circle" class="w-6 h-6"></i>
+                        <span>الانضمام للعبة برمز</span>
+                    </div>
+                    <p class="text-sm text-primary-foreground/80 mt-1">Join Game by Code</p>
+                </button>
+
+                <button onclick="showCreateGame()" class="w-full bg-card border border-border hover:bg-muted text-card-foreground font-medium py-4 px-6 rounded-xl shadow-lg hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] text-lg">
+                    <div class="flex items-center justify-center gap-3">
+                        <i data-lucide="plus-circle" class="w-6 h-6"></i>
+                        <span>إنشاء لعبة جديدة</span>
+                    </div>
+                    <p class="text-sm text-muted-foreground mt-1">Create New Game</p>
+                </button>
+            </div>
+
+            <!-- Today's Winners -->
+            <div class="bg-card border border-border rounded-xl p-4 shadow-lg">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="trophy" class="w-5 h-5 text-primary"></i>
+                    <h3 class="font-medium text-card-foreground">أبطال اليوم</h3>
+                    <span class="text-sm text-muted-foreground">Today's Champions</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center py-2 px-3 bg-muted/50 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="text-primary font-bold">1.</span>
+                            <span class="font-medium" data-mock="true">أحمد محمد</span>
+                        </div>
+                        <span class="text-primary font-bold" data-mock="true">2,580 نقطة</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 px-3 bg-muted/30 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="text-accent font-bold">2.</span>
+                            <span class="font-medium" data-mock="true">سارة علي</span>
+                        </div>
+                        <span class="text-accent font-bold" data-mock="true">2,340 نقطة</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 px-3 bg-muted/20 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="text-muted-foreground font-bold">3.</span>
+                            <span class="font-medium" data-mock="true">محمد خالد</span>
+                        </div>
+                        <span class="text-muted-foreground font-bold" data-mock="true">2,180 نقطة</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Join Game Page -->
+        <div id="joinGamePage" class="hidden container mx-auto px-4 py-8 max-w-md">
+            <div class="mb-6">
+                <button onclick="showHomePage()" class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    <span>العودة</span>
+                </button>
+            </div>
+
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold font-arabic text-primary mb-2">الانضمام للعبة</h2>
+                <p class="text-muted-foreground">Join Game</p>
+            </div>
+
+            <div class="bg-card border border-border rounded-xl p-6 shadow-lg">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">رمز اللعبة / Game Code</label>
+                        <input type="text" placeholder="أدخل رمز اللعبة" class="w-full bg-muted border border-border rounded-lg px-4 py-3 text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-primary focus:border-transparent transition-colors" maxlength="6">
+                    </div>
+                    <button onclick="showRegistration()" class="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg hover:shadow-primary/25 transition-all duration-300">
+                        متابعة
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Game Page -->
+        <div id="createGamePage" class="hidden container mx-auto px-4 py-8 max-w-md">
+            <div class="mb-6">
+                <button onclick="showHomePage()" class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    <span>العودة</span>
+                </button>
+            </div>
+
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold font-arabic text-primary mb-2">إنشاء لعبة</h2>
+                <p class="text-muted-foreground">Create New Game</p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-card border border-border rounded-xl p-6 shadow-lg">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">اسم اللعبة / Game Name</label>
+                            <input type="text" placeholder="أدخل اسم اللعبة" class="w-full bg-muted border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors" data-mock="true">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">عدد الأسئلة / Number of Questions</label>
+                            <select class="w-full bg-muted border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors">
+                                <option data-mock="true">10 أسئلة</option>
+                                <option data-mock="true">15 سؤال</option>
+                                <option data-mock="true">20 سؤال</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">الفئة / Category</label>
+                            <select class="w-full bg-muted border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors">
+                                <option data-mock="true">ثقافة عامة</option>
+                                <option data-mock="true">رياضة</option>
+                                <option data-mock="true">تاريخ</option>
+                                <option data-mock="true">علوم</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="showRegistration()" class="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg hover:shadow-primary/25 transition-all duration-300">
+                    إنشاء اللعبة
+                </button>
+            </div>
+        </div>
+
+        <!-- Registration Page -->
+        <div id="registrationPage" class="hidden container mx-auto px-4 py-8 max-w-md">
+            <div class="mb-6">
+                <button onclick="goBack()" class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    <span>العودة</span>
+                </button>
+            </div>
+
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold font-arabic text-primary mb-2">التسجيل</h2>
+                <p class="text-muted-foreground">Registration</p>
+            </div>
+
+            <div class="bg-card border border-border rounded-xl p-6 shadow-lg">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">الاسم / Name</label>
+                        <input type="text" placeholder="أدخل اسمك" class="w-full bg-muted border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors" data-mock="true">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">رقم الهاتف / Phone Number</label>
+                        <input type="tel" placeholder="05xxxxxxxx" class="w-full bg-muted border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors" data-mock="true">
+                    </div>
+                    <button onclick="startGame()" class="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg hover:shadow-primary/25 transition-all duration-300">
+                        ابدأ اللعب
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Play Page -->
+        <div id="gamePlayPage" class="hidden container mx-auto px-4 py-8 max-w-md">
+            <!-- Game Header -->
+            <div class="flex justify-between items-center mb-6">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-primary" data-bind="currentScore" data-mock="true">1,250</div>
+                    <div class="text-sm text-muted-foreground">نقطة</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-lg font-medium" data-bind="questionNumber" data-mock="true">5 / 10</div>
+                    <div class="text-sm text-muted-foreground">سؤال</div>
+                </div>
+            </div>
+
+            <!-- Timer -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm text-muted-foreground">الوقت المتبقي</span>
+                    <span class="text-lg font-bold text-primary" data-bind="timeRemaining" data-mock="true">12s</span>
+                </div>
+                <div class="w-full bg-muted rounded-full h-2">
+                    <div class="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-1000" style="width: 60%" data-bind="timeProgress"></div>
+                </div>
+            </div>
+
+            <!-- Question -->
+            <div class="bg-card border border-border rounded-xl p-6 shadow-lg mb-6">
+                <h3 class="text-xl font-medium text-center mb-6" data-bind="question.text" data-mock="true">ما هي عاصمة المملكة العربية السعودية؟</h3>
+                
+                <!-- Answer Options -->
+                <div class="space-y-3">
+                    <button class="w-full bg-muted hover:bg-primary hover:text-primary-foreground border border-border rounded-lg p-4 text-right transition-all duration-300 transform hover:scale-[1.02]" data-bind="answer[0]" data-mock="true">
+                        الرياض
+                    </button>
+                    <button class="w-full bg-muted hover:bg-primary hover:text-primary-foreground border border-border rounded-lg p-4 text-right transition-all duration-300 transform hover:scale-[1.02]" data-bind="answer[1]" data-mock="true">
+                        جدة
+                    </button>
+                    <button class="w-full bg-muted hover:bg-primary hover:text-primary-foreground border border-border rounded-lg p-4 text-right transition-all duration-300 transform hover:scale-[1.02]" data-bind="answer[2]" data-mock="true">
+                        الدمام
+                    </button>
+                    <button class="w-full bg-muted hover:bg-primary hover:text-primary-foreground border border-border rounded-lg p-4 text-right transition-all duration-300 transform hover:scale-[1.02]" data-bind="answer[3]" data-mock="true">
+                        مكة المكرمة
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Results Page -->
+        <div id="gameResultsPage" class="hidden container mx-auto px-4 py-8 max-w-md">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🎉</div>
+                <h2 class="text-3xl font-bold font-arabic text-primary mb-2">انتهت اللعبة!</h2>
+                <p class="text-muted-foreground">Game Completed</p>
+            </div>
+
+            <!-- Player Score -->
+            <div class="bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 rounded-xl p-6 shadow-lg mb-6">
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-primary mb-2" data-bind="finalScore" data-mock="true">2,580</div>
+                    <div class="text-muted-foreground mb-4">نقطتك النهائية</div>
+                    <div class="flex justify-around text-sm">
+                        <div>
+                            <div class="font-bold" data-bind="correctAnswers" data-mock="true">8</div>
+                            <div class="text-muted-foreground">صحيح</div>
+                        </div>
+                        <div>
+                            <div class="font-bold" data-bind="incorrectAnswers" data-mock="true">2</div>
+                            <div class="text-muted-foreground">خطأ</div>
+                        </div>
+                        <div>
+                            <div class="font-bold" data-bind="averageTime" data-mock="true">8.5s</div>
+                            <div class="text-muted-foreground">متوسط الوقت</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="bg-card border border-border rounded-xl p-6 shadow-lg mb-6">
+                <h3 class="font-medium text-center mb-4 flex items-center justify-center gap-2">
+                    <i data-lucide="trophy" class="w-5 h-5 text-primary"></i>
+                    <span>ترتيبك في هذه اللعبة</span>
+                </h3>
+                
+                <!-- @MAP: leaderboard.map(player => ( -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center py-2 px-3 bg-primary/20 border border-primary/30 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="text-primary font-bold" data-mock="true">2.</span>
+                            <span class="font-medium" data-mock="true">أنت</span>
+                            <span class="text-xs text-primary bg-primary/20 px-2 py-1 rounded">أنت</span>
+                        </div>
+                        <span class="text-primary font-bold" data-mock="true">2,580</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 px-3 bg-muted/30 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="text-accent font-bold" data-mock="true">1.</span>
+                            <span class="font-medium" data-mock="true">أحمد محمد</span>
+                        </div>
+                        <span class="text-accent font-bold" data-mock="true">2,650</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 px-3 bg-muted/20 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="text-muted-foreground font-bold" data-mock="true">3.</span>
+                            <span class="font-medium" data-mock="true">سارة علي</span>
+                        </div>
+                        <span class="text-muted-foreground font-bold" data-mock="true">2,340</span>
+                    </div>
+                </div>
+                <!-- @END_MAP -->
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <button onclick="startGame()" class="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg hover:shadow-primary/25 transition-all duration-300">
+                    العب مرة أخرى
+                </button>
+                <button onclick="showHomePage()" class="w-full bg-card border border-border hover:bg-muted text-card-foreground font-medium py-3 px-6 rounded-lg shadow-lg transition-all duration-300">
+                    العودة للصفحة الرئيسية
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        let currentPage = 'home';
+        let previousPage = 'home';
+
+        function showHomePage() {
+            hideAllPages();
+            document.getElementById('homePage').classList.remove('hidden');
+            currentPage = 'home';
+        }
+
+        function showJoinGame() {
+            hideAllPages();
+            document.getElementById('joinGamePage').classList.remove('hidden');
+            previousPage = currentPage;
+            currentPage = 'joinGame';
+        }
+
+        function showCreateGame() {
+            hideAllPages();
+            document.getElementById('createGamePage').classList.remove('hidden');
+            previousPage = currentPage;
+            currentPage = 'createGame';
+        }
+
+        function showRegistration() {
+            hideAllPages();
+            document.getElementById('registrationPage').classList.remove('hidden');
+            previousPage = currentPage;
+            currentPage = 'registration';
+        }
+
+        function startGame() {
+            hideAllPages();
+            document.getElementById('gamePlayPage').classList.remove('hidden');
+            currentPage = 'gameplay';
+            
+            // TODO: Initialize game logic, load questions, start timer
+            setTimeout(() => {
+                showResults();
+            }, 10000); // Simulate game completion after 10 seconds
+        }
+
+        function showResults() {
+            hideAllPages();
+            document.getElementById('gameResultsPage').classList.remove('hidden');
+            currentPage = 'results';
+        }
+
+        function goBack() {
+            if (previousPage === 'home') {
+                showHomePage();
+            } else if (previousPage === 'joinGame') {
+                showJoinGame();
+            } else if (previousPage === 'createGame') {
+                showCreateGame();
+            }
+        }
+
+        function hideAllPages() {
+            const pages = ['homePage', 'joinGamePage', 'createGamePage', 'registrationPage', 'gamePlayPage', 'gameResultsPage'];
+            pages.forEach(pageId => {
+                document.getElementById(pageId).classList.add('hidden');
+            });
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            showHomePage();
+            lucide.createIcons();
+        });
+
+        // TODO: Implement real-time game logic
+        // TODO: Add WebSocket connection for multiplayer features  
+        // TODO: Implement timer countdown functionality
+        // TODO: Add score calculation based on speed and accuracy
+        // TODO: Integrate with backend API for questions and leaderboards
+        // TODO: Add form validation for registration
+        // TODO: Implement game code generation and validation
+        // TODO: Add proper error handling and loading states
+    </script>
+</body>
+</html>

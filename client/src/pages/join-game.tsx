@@ -47,14 +47,14 @@ export default function JoinGame() {
 
   return (
     <div className="min-h-screen relative overflow-hidden trivia-background">
-      {/* Subtle overlay for content readability */}
-      <div className="absolute inset-0 bg-background/30"></div>
+      {/* Stronger overlay for better content readability */}
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
       <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
         <div className="mb-6">
           <Link href="/">
             <Button
               variant="ghost"
-              className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors p-0"
+              className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors p-0 bg-background/60 backdrop-blur-sm"
               data-testid="button-back"
             >
               <ArrowRight className="w-5 h-5" />
@@ -64,17 +64,17 @@ export default function JoinGame() {
         </div>
 
         <div className="text-center mb-8" data-testid="header-join-game">
-          <h2 className="text-3xl font-bold font-arabic text-primary mb-2 animate-pulse">
+          <h2 className="text-4xl md:text-5xl font-bold font-arabic text-primary mb-3 drop-shadow-lg">
             الانضمام للعبة 🚀
           </h2>
-          <p className="text-primary">Join Game</p>
+          <p className="text-lg text-primary font-medium">Join Game</p>
         </div>
 
-        <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5 hover:shadow-primary/40 transition-all duration-300 hover:scale-[1.02]">
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
+        <Card className="border-2 border-primary/50 shadow-2xl shadow-primary/40 bg-gradient-to-br from-card/95 to-primary/10 backdrop-blur-md hover:shadow-primary/60 transition-all duration-300 hover:scale-[1.02]">
+          <CardContent className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <Label htmlFor="gameCode" className="block text-sm font-medium mb-2">
+                <Label htmlFor="gameCode" className="block text-lg font-semibold mb-4 text-primary">
                   رمز اللعبة / Game Code
                 </Label>
                 <Input
@@ -83,16 +83,19 @@ export default function JoinGame() {
                   placeholder="أدخل رمز اللعبة"
                   value={gameCode}
                   onChange={(e) => setGameCode(e.target.value.toUpperCase())}
-                  className="w-full bg-muted border border-border rounded-lg px-4 py-3 text-center text-2xl font-bold focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                  className="w-full bg-background/90 border-2 border-primary/50 rounded-xl px-6 py-4 text-center text-3xl font-bold tracking-widest focus:ring-4 focus:ring-primary/50 focus:border-primary transition-all shadow-lg"
                   maxLength={6}
                   data-testid="input-game-code"
                 />
+                <p className="text-sm text-primary/70 mt-3 text-center">
+                  أدخل رمز مكون من 6 أحرف
+                </p>
               </div>
               <Button
                 type="submit"
                 disabled={validateGameMutation.isPending || gameCode.length !== 6}
                 onClick={playSound.buttonClick}
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-lg shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 hover:scale-[1.02] hover:-rotate-1"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-2xl shadow-orange-500/40 hover:shadow-orange-500/60 transition-all duration-300 hover:scale-[1.03] hover:-rotate-1"
                 data-testid="button-continue"
               >
                 {validateGameMutation.isPending ? "جارٍ التحقق... ⏳" : "متابعة 🎯"}

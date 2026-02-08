@@ -1,0 +1,690 @@
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fazzah - فزه | Interactive Quiz Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    popover: {
+                        DEFAULT: "var(--popover)",
+                        foreground: "var(--popover-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    destructive: {
+                        DEFAULT: "var(--destructive)",
+                        foreground: "var(--destructive-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                }
+            }
+        }
+    };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --background: hsl(220 14% 96%);
+            --foreground: hsl(220 9% 9%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(220 9% 9%);
+            --popover: hsl(0 0% 100%);
+            --popover-foreground: hsl(220 9% 9%);
+            --primary: hsl(244 63% 63%);
+            --primary-foreground: hsl(0 0% 100%);
+            --secondary: hsl(220 14% 96%);
+            --secondary-foreground: hsl(220 9% 9%);
+            --muted: hsl(220 14% 96%);
+            --muted-foreground: hsl(220 9% 46%);
+            --accent: hsl(24 95% 53%);
+            --accent-foreground: hsl(0 0% 100%);
+            --destructive: hsl(0 84% 60%);
+            --destructive-foreground: hsl(0 0% 100%);
+            --border: hsl(220 13% 91%);
+            --input: hsl(220 13% 91%);
+            --ring: hsl(244 63% 63%);
+            --radius: 0.75rem;
+            --font-sans: 'Inter', system-ui, sans-serif;
+        }
+
+        * {
+            font-family: var(--font-sans);
+        }
+
+        .game-card {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .game-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .timer-progress {
+            transition: width 1s linear;
+        }
+
+        .answer-btn {
+            transition: all 0.15s ease-in-out;
+        }
+
+        .answer-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .pulse-effect {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, hsl(244 63% 63%) 0%, hsl(24 95% 53%) 100%);
+        }
+
+        .correct-answer {
+            background: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 69% 58%) 100%);
+        }
+
+        .incorrect-answer {
+            background: linear-gradient(135deg, hsl(0 84% 60%) 0%, hsl(0 72% 51%) 100%);
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground min-h-screen">
+    <!-- @COMPONENT: Header -->
+    <header class="bg-card shadow-sm border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                            <i class="fas fa-brain text-primary-foreground text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-primary">Fazzah</h1>
+                            <p class="text-xs text-muted-foreground">فزه</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-muted-foreground hover:text-foreground transition-colors">
+                        <i class="fas fa-globe text-lg"></i>
+                    </button>
+                    <button class="bg-accent text-accent-foreground px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                        <i class="fas fa-trophy mr-2"></i>
+                        Leaderboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <!-- @COMPONENT: MainContent -->
+    <main class="flex-1">
+        <!-- @COMPONENT: WelcomeScreen -->
+        <section id="welcome-screen" class="min-h-screen gradient-bg flex items-center justify-center px-4">
+            <div class="text-center max-w-4xl mx-auto">
+                <div class="mb-8">
+                    <h1 class="text-6xl md:text-8xl font-bold text-white mb-4">Fazzah</h1>
+                    <h2 class="text-3xl md:text-5xl font-bold text-white/90 mb-6">فزه</h2>
+                    <p class="text-xl md:text-2xl text-white/80 mb-8">Interactive Quiz Platform - منصة الألعاب التفاعلية</p>
+                </div>
+
+                <!-- Registration Form -->
+                <div class="bg-card rounded-2xl p-8 md:p-12 shadow-2xl max-w-md mx-auto mb-8">
+                    <h3 class="text-2xl font-bold text-foreground mb-6">Get Started</h3>
+                    <form class="space-y-4">
+                        <div>
+                            <input type="text" placeholder="Your Name / اسمك" 
+                                   class="w-full px-4 py-3 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                        </div>
+                        <div>
+                            <input type="tel" placeholder="Phone Number / رقم الهاتف" 
+                                   class="w-full px-4 py-3 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                        </div>
+                        <button type="submit" class="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                            Continue / متابعة
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Action Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                    <div class="game-card bg-card rounded-2xl p-6 shadow-xl cursor-pointer" onclick="showGameModes()">
+                        <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-plus text-primary-foreground text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-foreground mb-2">Create Game</h3>
+                        <p class="text-muted-foreground">إنشاء لعبة</p>
+                    </div>
+
+                    <div class="game-card bg-card rounded-2xl p-6 shadow-xl cursor-pointer" onclick="showJoinGame()">
+                        <div class="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-users text-accent-foreground text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-foreground mb-2">Join Game</h3>
+                        <p class="text-muted-foreground">انضمام للعبة</p>
+                    </div>
+
+                    <div class="game-card bg-card rounded-2xl p-6 shadow-xl cursor-pointer" onclick="showSoloPlay()">
+                        <div class="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-user text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-foreground mb-2">Solo Play</h3>
+                        <p class="text-muted-foreground">لعب فردي</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: WelcomeScreen -->
+
+        <!-- @COMPONENT: GameModes -->
+        <section id="game-modes" class="hidden min-h-screen bg-background py-12 px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <button onclick="showWelcome()" class="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <h2 class="text-4xl font-bold text-foreground mb-4">Choose Game Mode</h2>
+                    <p class="text-muted-foreground">اختر نمط اللعبة</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Create Custom Game -->
+                    <div class="game-card bg-card rounded-2xl p-8 shadow-lg cursor-pointer" onclick="showCreateGame()">
+                        <div class="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-edit text-primary-foreground text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-foreground mb-4 text-center">Custom Game</h3>
+                        <p class="text-muted-foreground text-center mb-6">Create your own quiz with custom questions</p>
+                        <div class="space-y-2 text-sm text-muted-foreground">
+                            <div class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Add your own questions
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Invite friends with game code
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Real-time multiplayer
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Game from Pool -->
+                    <div class="game-card bg-card rounded-2xl p-8 shadow-lg cursor-pointer" onclick="showQuickGame()">
+                        <div class="w-20 h-20 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-bolt text-accent-foreground text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-foreground mb-4 text-center">Quick Game</h3>
+                        <p class="text-muted-foreground text-center mb-6">Host a game with questions from our pool</p>
+                        <div class="space-y-2 text-sm text-muted-foreground">
+                            <div class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Ready-made questions
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Multiple categories
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Instant game start
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: GameModes -->
+
+        <!-- @COMPONENT: JoinGame -->
+        <section id="join-game" class="hidden min-h-screen bg-background py-12 px-4">
+            <div class="max-w-md mx-auto">
+                <div class="text-center mb-8">
+                    <button onclick="showWelcome()" class="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <h2 class="text-4xl font-bold text-foreground mb-4">Join Game</h2>
+                    <p class="text-muted-foreground">انضمام للعبة</p>
+                </div>
+
+                <div class="bg-card rounded-2xl p-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <div class="w-20 h-20 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-gamepad text-accent-foreground text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-foreground">Enter Game Code</h3>
+                    </div>
+
+                    <form class="space-y-6">
+                        <div>
+                            <input type="text" placeholder="Game Code (e.g., 123456)" 
+                                   class="w-full px-4 py-4 bg-input border border-border rounded-lg text-center text-2xl font-mono focus:outline-none focus:ring-2 focus:ring-ring">
+                        </div>
+                        <button type="submit" class="w-full bg-accent text-accent-foreground py-4 rounded-lg font-semibold text-lg hover:opacity-90 transition-opacity">
+                            Join Game / انضم للعبة
+                        </button>
+                    </form>
+
+                    <div class="mt-8 text-center">
+                        <p class="text-sm text-muted-foreground mb-4">Or scan QR code</p>
+                        <div class="w-32 h-32 bg-muted rounded-lg mx-auto flex items-center justify-center">
+                            <i class="fas fa-qrcode text-muted-foreground text-4xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: JoinGame -->
+
+        <!-- @COMPONENT: SoloPlay -->
+        <section id="solo-play" class="hidden min-h-screen bg-background py-12 px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <button onclick="showWelcome()" class="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <h2 class="text-4xl font-bold text-foreground mb-4">Solo Challenge</h2>
+                    <p class="text-muted-foreground">تحدي فردي</p>
+                </div>
+
+                <!-- Daily Leaderboard Preview -->
+                <div class="bg-card rounded-2xl p-6 shadow-lg mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-foreground">Today's Leaderboard</h3>
+                        <div class="text-sm text-muted-foreground">Resets in 8h 23m</div>
+                    </div>
+                    <div class="space-y-3">
+                        <!-- @MAP: topPlayers.map(player => ( -->
+                        <div class="flex items-center justify-between p-3 bg-muted rounded-lg" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center text-accent-foreground font-bold text-sm">1</div>
+                                <span class="font-medium" data-bind="player.name">Ahmad_K</span>
+                            </div>
+                            <span class="font-bold text-primary" data-bind="player.score">2,450 pts</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-muted rounded-lg" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold text-sm">2</div>
+                                <span class="font-medium" data-bind="player.name">Sarah_M</span>
+                            </div>
+                            <span class="font-bold text-primary" data-bind="player.score">2,380 pts</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-muted rounded-lg" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center text-white font-bold text-sm">3</div>
+                                <span class="font-medium" data-bind="player.name">Omar_H</span>
+                            </div>
+                            <span class="font-bold text-primary" data-bind="player.score">2,210 pts</span>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+
+                <!-- Solo Game Options -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="game-card bg-card rounded-2xl p-6 shadow-lg cursor-pointer" onclick="startSoloGame('quick')">
+                        <div class="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-play text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-foreground mb-2 text-center">Quick Match</h3>
+                        <p class="text-muted-foreground text-center mb-4">10 random questions</p>
+                        <div class="text-sm text-muted-foreground space-y-1">
+                            <div>• Mixed categories</div>
+                            <div>• 15 seconds per question</div>
+                            <div>• Bonus points for speed</div>
+                        </div>
+                    </div>
+
+                    <div class="game-card bg-card rounded-2xl p-6 shadow-lg cursor-pointer">
+                        <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-list text-primary-foreground text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-foreground mb-2 text-center">Category Challenge</h3>
+                        <p class="text-muted-foreground text-center mb-4">Choose your expertise</p>
+                        <div class="space-y-2">
+                            <button class="w-full p-2 bg-muted rounded text-sm hover:bg-muted/80">🧪 Science</button>
+                            <button class="w-full p-2 bg-muted rounded text-sm hover:bg-muted/80">🏛️ History</button>
+                            <button class="w-full p-2 bg-muted rounded text-sm hover:bg-muted/80">⚽ Sports</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: SoloPlay -->
+
+        <!-- @COMPONENT: GamePlay -->
+        <section id="game-play" class="hidden min-h-screen bg-gradient-to-b from-primary to-accent flex items-center justify-center px-4">
+            <div class="max-w-4xl mx-auto w-full">
+                <!-- Game Header -->
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6">
+                    <div class="flex items-center justify-between text-white">
+                        <div class="flex items-center space-x-4">
+                            <div class="bg-white/20 rounded-lg px-3 py-1">
+                                <span class="font-mono font-bold">Q 3/10</span>
+                            </div>
+                            <div class="bg-white/20 rounded-lg px-3 py-1">
+                                <span class="font-bold" data-bind="currentScore">1,250 pts</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm opacity-80">Time Left</div>
+                            <div class="text-2xl font-bold" data-bind="timeLeft">12s</div>
+                        </div>
+                    </div>
+                    <!-- Timer Bar -->
+                    <div class="w-full bg-white/20 rounded-full h-3 mt-4">
+                        <div class="timer-progress bg-white h-3 rounded-full" style="width: 80%"></div>
+                    </div>
+                </div>
+
+                <!-- Question Card -->
+                <div class="bg-card rounded-2xl p-8 shadow-2xl mb-6">
+                    <h2 class="text-2xl md:text-3xl font-bold text-foreground text-center leading-tight" data-bind="question.text" data-mock="true">
+                        What is the capital city of France?
+                    </h2>
+                    <p class="text-center text-muted-foreground mt-2" data-mock="true">ما هي عاصمة فرنسا؟</p>
+                </div>
+
+                <!-- Answer Options -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- @MAP: question.answers.map((answer, index) => ( -->
+                    <button class="answer-btn bg-card text-foreground p-6 rounded-2xl shadow-lg hover:shadow-xl border-2 border-transparent hover:border-primary transition-all text-left" data-mock="true" data-answer-index="0">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center">
+                                <span class="text-white font-bold text-xl">A</span>
+                            </div>
+                            <span class="text-lg font-medium" data-bind="answer.text">Paris</span>
+                        </div>
+                    </button>
+                    <button class="answer-btn bg-card text-foreground p-6 rounded-2xl shadow-lg hover:shadow-xl border-2 border-transparent hover:border-primary transition-all text-left" data-mock="true" data-answer-index="1">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                                <span class="text-white font-bold text-xl">B</span>
+                            </div>
+                            <span class="text-lg font-medium" data-bind="answer.text">London</span>
+                        </div>
+                    </button>
+                    <button class="answer-btn bg-card text-foreground p-6 rounded-2xl shadow-lg hover:shadow-xl border-2 border-transparent hover:border-primary transition-all text-left" data-mock="true" data-answer-index="2">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-accent rounded-xl flex items-center justify-center">
+                                <span class="text-white font-bold text-xl">C</span>
+                            </div>
+                            <span class="text-lg font-medium" data-bind="answer.text">Berlin</span>
+                        </div>
+                    </button>
+                    <button class="answer-btn bg-card text-foreground p-6 rounded-2xl shadow-lg hover:shadow-xl border-2 border-transparent hover:border-primary transition-all text-left" data-mock="true" data-answer-index="3">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                                <span class="text-white font-bold text-xl">D</span>
+                            </div>
+                            <span class="text-lg font-medium" data-bind="answer.text">Madrid</span>
+                        </div>
+                    </button>
+                    <!-- @END_MAP )) -->
+                </div>
+
+                <!-- Players Online (for multiplayer) -->
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mt-6">
+                    <div class="flex items-center justify-between text-white">
+                        <span class="text-sm">Players online:</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="flex -space-x-2">
+                                <div class="w-8 h-8 bg-green-500 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold" data-mock="true">A</div>
+                                <div class="w-8 h-8 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold" data-mock="true">S</div>
+                                <div class="w-8 h-8 bg-purple-500 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold" data-mock="true">M</div>
+                            </div>
+                            <span class="text-sm font-medium" data-bind="playersCount">3 players</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: GamePlay -->
+
+        <!-- @COMPONENT: GameResults -->
+        <section id="game-results" class="hidden min-h-screen bg-background py-12 px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="w-24 h-24 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-trophy text-accent-foreground text-4xl"></i>
+                    </div>
+                    <h2 class="text-4xl font-bold text-foreground mb-2">Game Complete!</h2>
+                    <p class="text-muted-foreground">انتهت اللعبة!</p>
+                </div>
+
+                <!-- Score Card -->
+                <div class="bg-card rounded-2xl p-8 shadow-lg mb-8">
+                    <div class="text-center">
+                        <div class="text-6xl font-bold text-primary mb-4" data-bind="finalScore" data-mock="true">2,450</div>
+                        <p class="text-xl text-muted-foreground mb-6">Your Score / نقاطك</p>
+                        <div class="grid grid-cols-3 gap-6 text-center">
+                            <div>
+                                <div class="text-2xl font-bold text-green-500" data-bind="correctAnswers" data-mock="true">8</div>
+                                <p class="text-sm text-muted-foreground">Correct</p>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-destructive" data-bind="wrongAnswers" data-mock="true">2</div>
+                                <p class="text-sm text-muted-foreground">Wrong</p>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-accent" data-bind="averageTime" data-mock="true">8.5s</div>
+                                <p class="text-sm text-muted-foreground">Avg Time</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Ranking -->
+                <div class="bg-card rounded-2xl p-6 shadow-lg mb-8">
+                    <h3 class="text-xl font-bold text-foreground mb-4 text-center">Today's Ranking</h3>
+                    <div class="bg-accent/10 rounded-lg p-4 mb-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center text-accent-foreground font-bold">4</div>
+                                <span class="font-bold text-foreground" data-bind="playerName" data-mock="true">You (Ahmad_K)</span>
+                            </div>
+                            <span class="font-bold text-primary" data-bind="finalScore" data-mock="true">2,450 pts</span>
+                        </div>
+                    </div>
+                    <div class="text-center text-sm text-muted-foreground">
+                        You moved up 3 positions! 🎉
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="showSoloPlay()" class="bg-primary text-primary-foreground py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                        Play Again
+                    </button>
+                    <button onclick="showLeaderboard()" class="bg-accent text-accent-foreground py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                        Full Leaderboard
+                    </button>
+                    <button onclick="showWelcome()" class="bg-secondary text-secondary-foreground py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                        Home
+                    </button>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: GameResults -->
+
+        <!-- @COMPONENT: Leaderboard -->
+        <section id="leaderboard" class="hidden min-h-screen bg-background py-12 px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-4xl font-bold text-foreground mb-4">Daily Leaderboard</h2>
+                    <p class="text-muted-foreground mb-2">لوحة المتصدرين اليومية</p>
+                    <div class="text-sm text-accent font-semibold">Resets in 8h 23m</div>
+                </div>
+
+                <!-- Top 3 Podium -->
+                <div class="bg-card rounded-2xl p-8 shadow-lg mb-8">
+                    <div class="flex items-end justify-center space-x-8 mb-8">
+                        <!-- 2nd Place -->
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center mb-2">
+                                <span class="text-white font-bold text-xl">2</span>
+                            </div>
+                            <div class="h-20 w-20 bg-gray-400 rounded-t-lg flex items-end justify-center pb-2">
+                                <span class="text-white font-bold">2nd</span>
+                            </div>
+                            <p class="font-semibold mt-2" data-bind="player.name" data-mock="true">Sarah_M</p>
+                            <p class="text-sm text-muted-foreground" data-bind="player.score" data-mock="true">2,380 pts</p>
+                        </div>
+
+                        <!-- 1st Place -->
+                        <div class="text-center">
+                            <div class="w-20 h-20 bg-accent rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-crown text-accent-foreground text-2xl"></i>
+                            </div>
+                            <div class="h-32 w-24 bg-accent rounded-t-lg flex items-end justify-center pb-2">
+                                <span class="text-accent-foreground font-bold text-lg">1st</span>
+                            </div>
+                            <p class="font-bold mt-2 text-lg" data-bind="player.name" data-mock="true">Ahmad_K</p>
+                            <p class="text-sm text-accent font-semibold" data-bind="player.score" data-mock="true">2,450 pts</p>
+                        </div>
+
+                        <!-- 3rd Place -->
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-orange-400 rounded-full flex items-center justify-center mb-2">
+                                <span class="text-white font-bold text-xl">3</span>
+                            </div>
+                            <div class="h-16 w-20 bg-orange-400 rounded-t-lg flex items-end justify-center pb-2">
+                                <span class="text-white font-bold">3rd</span>
+                            </div>
+                            <p class="font-semibold mt-2" data-bind="player.name" data-mock="true">Omar_H</p>
+                            <p class="text-sm text-muted-foreground" data-bind="player.score" data-mock="true">2,210 pts</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rest of Leaderboard -->
+                <div class="bg-card rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-bold text-foreground mb-4">All Players</h3>
+                    <div class="space-y-2">
+                        <!-- @MAP: players.slice(3).map((player, index) => ( -->
+                        <div class="flex items-center justify-between p-3 hover:bg-muted rounded-lg transition-colors" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-muted-foreground rounded-full flex items-center justify-center text-card font-bold text-sm" data-bind="player.rank">4</div>
+                                <span class="font-medium" data-bind="player.name">Fatima_A</span>
+                            </div>
+                            <span class="font-semibold text-primary" data-bind="player.score">2,150 pts</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 hover:bg-muted rounded-lg transition-colors" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-muted-foreground rounded-full flex items-center justify-center text-card font-bold text-sm">5</div>
+                                <span class="font-medium">Mohammed_Z</span>
+                            </div>
+                            <span class="font-semibold text-primary">2,050 pts</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 hover:bg-muted rounded-lg transition-colors" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-muted-foreground rounded-full flex items-center justify-center text-card font-bold text-sm">6</div>
+                                <span class="font-medium">Layla_K</span>
+                            </div>
+                            <span class="font-semibold text-primary">1,980 pts</span>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+
+                <!-- Back Button -->
+                <div class="text-center mt-8">
+                    <button onclick="showWelcome()" class="bg-primary text-primary-foreground py-3 px-8 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: Leaderboard -->
+    </main>
+    <!-- @END_COMPONENT: MainContent -->
+
+    <script>
+        // Simple navigation functions - in real implementation, this would be handled by a proper router
+        (function() {
+            const sections = ['welcome-screen', 'game-modes', 'join-game', 'solo-play', 'game-play', 'game-results', 'leaderboard'];
+            
+            function hideAllSections() {
+                sections.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) element.classList.add('hidden');
+                });
+            }
+            
+            function showSection(sectionId) {
+                hideAllSections();
+                const element = document.getElementById(sectionId);
+                if (element) element.classList.remove('hidden');
+            }
+            
+            // Global functions for navigation
+            window.showWelcome = () => showSection('welcome-screen');
+            window.showGameModes = () => showSection('game-modes');
+            window.showJoinGame = () => showSection('join-game');
+            window.showSoloPlay = () => showSection('solo-play');
+            window.showGamePlay = () => showSection('game-play');
+            window.showGameResults = () => showSection('game-results');
+            window.showLeaderboard = () => showSection('leaderboard');
+            window.showCreateGame = () => showSection('game-modes'); // TODO: Create dedicated create game screen
+            window.showQuickGame = () => showSection('game-modes'); // TODO: Create dedicated quick game screen
+            
+            window.startSoloGame = (type) => {
+                // TODO: Initialize game state and start solo game
+                showSection('game-play');
+            };
+            
+            // TODO: Implement actual game logic
+            // - Real-time timer countdown
+            // - Answer selection and validation
+            // - Score calculation with speed bonuses
+            // - Question progression
+            // - Final score and ranking calculation
+            // - Leaderboard updates
+            // - Phone number verification
+            // - Arabic language toggle
+            // - Question pool management
+            // - Game creation and joining functionality
+        })();
+    </script>
+</body>
+</html>
