@@ -2,11 +2,13 @@
 
 1. **Connect your repo** to Netlify. The build and publish settings are in `netlify.toml`.
 
-2. **Set environment variables** in Netlify:
-   - **Site settings** → **Environment variables** → **Add variable** (or **Import from .env**)
+2. **Set environment variables** in Netlify (required for the API function):
+   - **Site settings** → **Environment variables** → **Add variable** → **Add a single variable**
    - Add:
-     - `SUPABASE_URL` = your Supabase project URL
-     - `SUPABASE_SERVICE_ROLE_KEY` = your Supabase service role key
+     - `SUPABASE_URL` = your Supabase project URL (e.g. `https://xxxx.supabase.co`)
+     - `SUPABASE_SERVICE_ROLE_KEY` = your Supabase **service_role** key (from Supabase → Settings → API → Project API keys → `service_role`, not anon)
+   - For each variable, set **Scope** to **All** (or at least “Production” and “Deploy previews”) so the serverless function can read them at runtime.
+   - **Redeploy** after changing env vars (they apply only to new deploys).
 
 3. **Deploy.** Netlify will run `npm run build`, publish `dist/public`, and deploy the serverless function so `/api/*` works.
 

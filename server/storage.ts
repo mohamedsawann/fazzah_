@@ -38,16 +38,22 @@ export interface IStorage {
   getVisitorCount(): Promise<number>;
 }
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-  throw new Error(
-    "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set. Get them from Supabase Dashboard → Settings → API."
-  );
+function getSupabase(): SupabaseClient {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error(
+      "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set (e.g. in Netlify Environment variables)."
+    );
+  }
+  return createClient(url, key);
 }
 
-const supabase: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+let _supabase: SupabaseClient | null = null;
+function supabase(): SupabaseClient {
+  if (!_supabase) _supabase = getSupabase();
+  return _supabase;
+}
 
 // Supabase returns snake_case; our app uses camelCase. Map row from DB shape to app shape.
 function rowToGame(row: Record<string, unknown>): Game {
@@ -140,7 +146,7 @@ export class SupabaseStorage implements IStorage {
 
   private async cleanupOldGames(): Promise<void> {
     const seventyTwoHoursAgo = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
-    const { data: oldGames, error: listError } = await supabase
+    const { data: oldGames, error: listError } = await supabase()
       .from("games")
       .select("id")
       .lt("created_at", seventyTwoHoursAgo);
@@ -153,15 +159,15 @@ export class SupabaseStorage implements IStorage {
     const gameIds = oldGames.map((g) => g.id);
 
     for (const gameId of gameIds) {
-      const { data: gamePlayers } = await supabase.from("players").select("id").eq("game_id", gameId);
+      const { data: gamePlayers } = await supabase().from("players").select("id").eq("game_id", gameId);
       const playerIds = (gamePlayers ?? []).map((p) => p.id);
 
       for (const playerId of playerIds) {
-        await supabase.from("player_answers").delete().eq("player_id", playerId);
+        await supabase().from("player_answers").delete().eq("player_id", playerId);
       }
-      await supabase.from("players").delete().eq("game_id", gameId);
-      await supabase.from("questions").delete().eq("game_id", gameId);
-      await supabase.from("games").delete().eq("id", gameId);
+      await supabase().from("players").delete().eq("game_id", gameId);
+      await supabase().from("questions").delete().eq("game_id", gameId);
+      await supabase().from("games").delete().eq("id", gameId);
     }
 
     console.log(`Cleaned up ${gameIds.length} games older than 72 hours`);
@@ -169,7 +175,7 @@ export class SupabaseStorage implements IStorage {
 
   async createGame(insertGame: InsertGame, questionsList: InsertQuestion[]): Promise<Game> {
     const code = await this.generateUniqueGameCode();
-    const { data: gameRow, error: gameError } = await supabase
+    const { data: gameRow, error: gameError } = await supabase()
       .from("games")
       .insert({
         code,
@@ -189,32 +195,32 @@ export class SupabaseStorage implements IStorage {
         correct_answer: q.correctAnswer,
         order: i + 1,
       }));
-      await supabase.from("questions").insert(rows);
+      await supabase().from("questions").insert(rows);
     }
 
     return game;
   }
 
   async getGameByCode(code: string): Promise<Game | undefined> {
-    const { data, error } = await supabase.from("games").select("*").eq("code", code).limit(1).maybeSingle();
+    const { data, error } = await supabase().from("games").select("*").eq("code", code).limit(1).maybeSingle();
     if (error || !data) return undefined;
     return rowToGame(data);
   }
 
   async getGame(id: string): Promise<Game | undefined> {
-    const { data, error } = await supabase.from("games").select("*").eq("id", id).maybeSingle();
+    const { data, error } = await supabase().from("games").select("*").eq("id", id).maybeSingle();
     if (error || !data) return undefined;
     return rowToGame(data);
   }
 
   async getAllGames(): Promise<Game[]> {
-    const { data, error } = await supabase.from("games").select("*").order("created_at", { ascending: false });
+    const { data, error } = await supabase().from("games").select("*").order("created_at", { ascending: false });
     if (error) return [];
     return (data ?? []).map(rowToGame);
   }
 
   async findExistingPlayer(name: string, phone: string, gameId: string): Promise<Player | undefined> {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from("players")
       .select("*")
       .eq("name", name)
@@ -227,7 +233,7 @@ export class SupabaseStorage implements IStorage {
   }
 
   async createPlayer(insertPlayer: InsertPlayer): Promise<Player> {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from("players")
       .insert({
         name: insertPlayer.name,
@@ -241,13 +247,13 @@ export class SupabaseStorage implements IStorage {
   }
 
   async getPlayer(id: string): Promise<Player | undefined> {
-    const { data, error } = await supabase.from("players").select("*").eq("id", id).maybeSingle();
+    const { data, error } = await supabase().from("players").select("*").eq("id", id).maybeSingle();
     if (error || !data) return undefined;
     return rowToPlayer(data);
   }
 
   async getPlayersByGame(gameId: string): Promise<Player[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from("players")
       .select("*")
       .eq("game_id", gameId)
@@ -257,7 +263,7 @@ export class SupabaseStorage implements IStorage {
   }
 
   async getAllPlayers(): Promise<Player[]> {
-    const { data, error } = await supabase.from("players").select("*");
+    const { data, error } = await supabase().from("players").select("*");
     if (error) return [];
     return (data ?? []).map(rowToPlayer);
   }
@@ -279,7 +285,7 @@ export class SupabaseStorage implements IStorage {
     totalAnswers: number,
     averageTime: number
   ): Promise<void> {
-    await supabase
+    await supabase()
       .from("players")
       .update({
         score,
@@ -291,11 +297,11 @@ export class SupabaseStorage implements IStorage {
   }
 
   async completePlayer(playerId: string): Promise<void> {
-    await supabase.from("players").update({ completed_at: new Date().toISOString() }).eq("id", playerId);
+    await supabase().from("players").update({ completed_at: new Date().toISOString() }).eq("id", playerId);
   }
 
   async getGameQuestions(gameId: string): Promise<Question[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from("questions")
       .select("*")
       .eq("game_id", gameId)
@@ -317,7 +323,7 @@ export class SupabaseStorage implements IStorage {
   }
 
   async getQuestion(id: string): Promise<Question | undefined> {
-    const { data, error } = await supabase.from("questions").select("*").eq("id", id).maybeSingle();
+    const { data, error } = await supabase().from("questions").select("*").eq("id", id).maybeSingle();
     if (error || !data) return undefined;
     return rowToQuestion(data);
   }
@@ -327,7 +333,7 @@ export class SupabaseStorage implements IStorage {
     if (insertAnswer.isCorrect) {
       points = Math.round(1000 + Math.max(0, 500 - insertAnswer.timeSpent * 25));
     }
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from("player_answers")
       .insert({
         player_id: insertAnswer.playerId,
@@ -344,22 +350,22 @@ export class SupabaseStorage implements IStorage {
   }
 
   async getPlayerAnswers(playerId: string): Promise<PlayerAnswer[]> {
-    const { data, error } = await supabase.from("player_answers").select("*").eq("player_id", playerId);
+    const { data, error } = await supabase().from("player_answers").select("*").eq("player_id", playerId);
     if (error) return [];
     return (data ?? []).map(rowToPlayerAnswer);
   }
 
   async incrementVisitors(): Promise<number> {
-    const { data: existing } = await supabase.from("site_stats").select("visitors").eq("id", "main").maybeSingle();
+    const { data: existing } = await supabase().from("site_stats").select("visitors").eq("id", "main").maybeSingle();
     const next = (existing?.visitors ?? 0) + 1;
-    await supabase
+    await supabase()
       .from("site_stats")
       .upsert({ id: "main", visitors: next, updated_at: new Date().toISOString() }, { onConflict: "id" });
     return next;
   }
 
   async getVisitorCount(): Promise<number> {
-    const { data, error } = await supabase.from("site_stats").select("visitors").eq("id", "main").maybeSingle();
+    const { data, error } = await supabase().from("site_stats").select("visitors").eq("id", "main").maybeSingle();
     if (error || !data) return 0;
     return data.visitors;
   }
