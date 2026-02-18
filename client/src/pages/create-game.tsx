@@ -13,9 +13,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, Plus, Trash2, Upload, FileSpreadsheet, Eye, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Plus, Trash2, Upload, FileSpreadsheet, Eye, CheckCircle2, AlertCircle, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import * as XLSX from 'xlsx';
 
 interface Question {
@@ -25,13 +26,16 @@ interface Question {
 }
 
 export default function CreateGame() {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.dir() === 'rtl';
+
   const [gameName, setGameName] = useState("");
   const [questions, setQuestions] = useState<Question[]>([
     { text: "", options: ["", "", "", ""], correctAnswer: 0 }
   ]);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
+
   // Excel import states
   const [isImporting, setIsImporting] = useState(false);
   const [importedQuestions, setImportedQuestions] = useState<Question[]>([]);
@@ -49,8 +53,8 @@ export default function CreateGame() {
     onError: (error: any) => {
       console.error("Game creation error:", error);
       toast({
-        title: "خطأ",
-        description: "حدث خطأ أثناء إنشاء اللعبة. يرجى المحاولة مرة أخرى.",
+        title: t('common.error'),
+        description: t('createGame.errorCreateGame'),
         variant: "destructive",
       });
     },
@@ -101,19 +105,19 @@ export default function CreateGame() {
   const validateQuestions = () => {
     return questions.every(q => {
       const validOptions = q.options.filter(opt => opt.trim() !== "");
-      return q.text.trim() !== "" && 
-             validOptions.length >= 2 &&
-             q.correctAnswer >= 0 && 
-             q.correctAnswer < validOptions.length;
+      return q.text.trim() !== "" &&
+        validOptions.length >= 2 &&
+        q.correctAnswer >= 0 &&
+        q.correctAnswer < validOptions.length;
     });
   };
 
   const getQuestionStatus = (question: Question) => {
     const validOptions = question.options.filter(opt => opt.trim() !== "");
-    const isValid = question.text.trim() !== "" && 
-                    validOptions.length >= 2 &&
-                    question.correctAnswer >= 0 && 
-                    question.correctAnswer < validOptions.length;
+    const isValid = question.text.trim() !== "" &&
+      validOptions.length >= 2 &&
+      question.correctAnswer >= 0 &&
+      question.correctAnswer < validOptions.length;
     return isValid;
   };
 
@@ -145,7 +149,7 @@ export default function CreateGame() {
           const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
           const parsedQuestions: Question[] = [];
-          
+
           jsonData.forEach((row: any, index) => {
             try {
               // Support both Arabic and English headers
@@ -156,9 +160,9 @@ export default function CreateGame() {
               const option4 = row['Option4'] || row['الخيار 4'] || row['option4'] || '';
               const option5 = row['Option5'] || row['الخيار 5'] || row['option5'] || '';
               const option6 = row['Option6'] || row['الخيار 6'] || row['option6'] || '';
-              
+
               let correctAnswer = row['Correct'] || row['الإجابة الصحيحة'] || row['correct'] || 1;
-              
+
               // Handle different correct answer formats
               if (typeof correctAnswer === 'string') {
                 if (correctAnswer.match(/^[A-F]$/i)) {
@@ -171,15 +175,15 @@ export default function CreateGame() {
               } else {
                 correctAnswer = correctAnswer - 1; // Convert to 0-based
               }
-              
+
               // Collect all non-empty options
               const options = [option1, option2, option3, option4, option5, option6]
                 .map(opt => (opt || '').toString().trim())
                 .filter(opt => opt !== '');
-              
+
               // Validate question
-              if (questionText.trim() && options.length >= 2 && 
-                  correctAnswer >= 0 && correctAnswer < options.length) {
+              if (questionText.trim() && options.length >= 2 &&
+                correctAnswer >= 0 && correctAnswer < options.length) {
                 parsedQuestions.push({
                   text: questionText.trim(),
                   options: options.slice(0, 6), // Max 6 options
@@ -190,7 +194,7 @@ export default function CreateGame() {
               console.warn(`Error parsing row ${index + 1}:`, error);
             }
           });
-          
+
           resolve(parsedQuestions);
         } catch (error) {
           reject(error);
@@ -205,63 +209,63 @@ export default function CreateGame() {
   const handleExcelUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    
+
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: "خطأ",
-        description: "حجم الملف كبير جداً. الحد الأقصى 5 ميجابايت.",
+        title: t('common.error'),
+        description: t('createGame.errorFileTooLarge'),
         variant: "destructive",
       });
       return;
     }
-    
+
     // Validate file type
     if (!file.name.match(/\.(xlsx|xls)$/i)) {
       toast({
-        title: "خطأ",
-        description: "نوع الملف غير مدعوم. يرجى استخدام ملفات Excel (.xlsx أو .xls).",
+        title: t('common.error'),
+        description: t('createGame.errorInvalidFileType'),
         variant: "destructive",
       });
       return;
     }
-    
+
     setIsImporting(true);
-    
+
     try {
       const parsedQuestions = await parseExcelFile(file);
-      
+
       if (parsedQuestions.length === 0) {
         toast({
-          title: "تحذير",
-          description: "لم يتم العثور على أسئلة صالحة في الملف. تأكد من تنسيق البيانات.",
+          title: t('createGame.warning'),
+          description: t('createGame.errorNoQuestions'),
           variant: "destructive",
         });
         setIsImporting(false);
         return;
       }
-      
+
       setImportedQuestions(parsedQuestions);
-      
+
       // Limit question count to available questions
       const maxQuestions = Math.min(questionCount, parsedQuestions.length);
       setQuestionCount(maxQuestions);
-      
+
       toast({
-        title: "تم بنجاح!",
-        description: `تم استيراد ${parsedQuestions.length} سؤال من الملف.`,
+        title: t('common.success'),
+        description: t('createGame.importSuccess', { count: parsedQuestions.length }),
         variant: "default",
       });
-      
+
     } catch (error) {
       console.error('Excel parsing error:', error);
       toast({
-        title: "خطأ",
-        description: "فشل في قراءة الملف. تأكد من تنسيق البيانات.",
+        title: t('common.error'),
+        description: t('createGame.errorReadFile'),
         variant: "destructive",
       });
     }
-    
+
     setIsImporting(false);
     // Clear the input
     event.target.value = '';
@@ -270,27 +274,27 @@ export default function CreateGame() {
   // Apply imported questions to the form
   const applyImportedQuestions = () => {
     if (importedQuestions.length === 0) return;
-    
+
     // Randomly select questions
     const shuffled = shuffleArray(importedQuestions);
     const selectedQuestions = shuffled.slice(0, questionCount);
-    
+
     if (importMode === 'replace') {
       setQuestions(selectedQuestions);
       toast({
-        title: "تم التطبيق!",
-        description: `تم استبدال الأسئلة بـ ${selectedQuestions.length} سؤال عشوائي.`,
+        title: t('createGame.applySuccess'),
+        description: t('createGame.applyReplaceDetail', { count: selectedQuestions.length }),
         variant: "default",
       });
     } else {
       setQuestions(prev => [...prev, ...selectedQuestions]);
       toast({
-        title: "تم التطبيق!",
-        description: `تم إضافة ${selectedQuestions.length} سؤال عشوائي.`,
+        title: t('createGame.applySuccess'),
+        description: t('createGame.applyAppendDetail', { count: selectedQuestions.length }),
         variant: "default",
       });
     }
-    
+
     // Clear imported questions after applying
     setImportedQuestions([]);
   };
@@ -299,8 +303,8 @@ export default function CreateGame() {
     e.preventDefault();
     if (!gameName.trim()) {
       toast({
-        title: "خطأ",
-        description: "يرجى إدخال اسم اللعبة.",
+        title: t('common.error'),
+        description: t('createGame.errorNoName'),
         variant: "destructive",
       });
       return;
@@ -308,8 +312,8 @@ export default function CreateGame() {
 
     if (!validateQuestions()) {
       toast({
-        title: "خطأ",
-        description: "يرجى التأكد من إكمال جميع الأسئلة بشكل صحيح.",
+        title: t('common.error'),
+        description: t('createGame.errorInvalidQuestions'),
         variant: "destructive",
       });
       return;
@@ -318,11 +322,11 @@ export default function CreateGame() {
     // Filter out empty options and remap correct answer index
     const cleanedQuestions = questions.map(q => {
       const validOptions = q.options.map((opt, index) => ({ opt: opt.trim(), originalIndex: index }))
-                                   .filter(({ opt }) => opt !== "");
-      
+        .filter(({ opt }) => opt !== "");
+
       // Find the new index of the correct answer after filtering
       const newCorrectAnswerIndex = validOptions.findIndex(({ originalIndex }) => originalIndex === q.correctAnswer);
-      
+
       return {
         ...q,
         options: validOptions.map(({ opt }) => opt),
@@ -337,9 +341,9 @@ export default function CreateGame() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden trivia-background" dir="rtl">
+    <div className="min-h-screen relative overflow-hidden trivia-background">
       {/* Stronger overlay for better content readability */}
-      <div className="absolute inset-0 bg-background/85 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
       <div className="container mx-auto px-4 py-6 max-w-4xl relative z-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -349,8 +353,8 @@ export default function CreateGame() {
               className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors bg-background/60 backdrop-blur-sm"
               data-testid="button-back"
             >
-              <ArrowRight className="w-4 h-4" />
-              <span>العودة</span>
+              {isRTL ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              <span>{t('common.back')}</span>
             </Button>
           </Link>
         </div>
@@ -358,21 +362,21 @@ export default function CreateGame() {
         {/* Title */}
         <div className="text-center mb-8" data-testid="header-create-game">
           <h1 className="text-5xl md:text-6xl font-bold font-arabic text-primary mb-3 drop-shadow-lg">
-            إنشاء لعبة جديدة ✨
+            {t('createGame.pageTitle')}
           </h1>
-          <p className="text-lg text-primary font-medium">Create New Trivia Game</p>
+          <p className="text-lg text-primary font-medium">{t('createGame.pageSubtitle')}</p>
         </div>
 
         {/* Game Name */}
         <Card className="mb-6 border-2 border-primary/50 shadow-2xl shadow-primary/40 bg-gradient-to-br from-card/95 to-primary/10 backdrop-blur-md hover:shadow-primary/60 transition-all duration-300">
           <CardContent className="pt-6">
             <Label htmlFor="gameName" className="text-lg font-semibold mb-4 block text-primary">
-              اسم اللعبة / Game Name
+              {t('createGame.gameNameLabel')}
             </Label>
             <Input
               id="gameName"
               type="text"
-              placeholder="أدخل اسم اللعبة"
+              placeholder={t('createGame.gameNamePlaceholder')}
               value={gameName}
               onChange={(e) => setGameName(e.target.value)}
               className="text-lg py-4 bg-background/90 border-2 border-primary/50 focus:ring-4 focus:ring-primary/50 shadow-lg"
@@ -385,10 +389,10 @@ export default function CreateGame() {
         <Tabs defaultValue="manual" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="manual" className="text-base">
-              الإنشاء اليدوي
+              {t('createGame.manualTab')}
             </TabsTrigger>
             <TabsTrigger value="excel" className="text-base">
-              الاستيراد من Excel
+              {t('createGame.excelTab')}
             </TabsTrigger>
           </TabsList>
 
@@ -400,20 +404,20 @@ export default function CreateGame() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-4">
                     <Badge variant={questions.length > 0 ? "default" : "secondary"}>
-                      {questions.length} سؤال
+                      {t('createGame.questionsCount', { count: questions.length })}
                     </Badge>
                     <Badge variant={getCompletionProgress() === 100 ? "default" : "secondary"}>
-                      {questions.filter(getQuestionStatus).length} مكتمل
+                      {questions.filter(getQuestionStatus).length} {t('createGame.completed')}
                     </Badge>
                   </div>
                   <Button onClick={addQuestion} variant="outline" size="sm" data-testid="button-add-question">
-                    <Plus className="w-4 h-4 ml-2" />
-                    إضافة سؤال
+                    <Plus className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                    {t('createGame.addQuestion')}
                   </Button>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm text-primary">
-                    <span>التقدم</span>
+                    <span>{t('createGame.progress')}</span>
                     <span>{Math.round(getCompletionProgress())}%</span>
                   </div>
                   <Progress value={getCompletionProgress()} className="h-2" />
@@ -438,22 +442,22 @@ export default function CreateGame() {
                           <AlertCircle className="w-5 h-5 text-amber-500" />
                         )}
                         <span className="font-medium">
-                          السؤال {questionIndex + 1}
+                          {t('createGame.question', { number: questionIndex + 1 })}
                         </span>
                       </div>
-                      <div className="flex-1 text-right">
+                      <div className="flex-1 text-end">
                         {question.text ? (
                           <p className="text-sm text-primary truncate">
                             {question.text}
                           </p>
                         ) : (
                           <p className="text-sm text-primary italic">
-                            اكتب سؤالك هنا...
+                            {t('createGame.questionPlaceholder')}
                           </p>
                         )}
                       </div>
-                      <Badge variant="outline" className="ml-2">
-                        {question.options.filter(opt => opt.trim()).length} خيار
+                      <Badge variant="outline" className="ltr:ml-2 rtl:mr-2">
+                        {question.options.filter(opt => opt.trim()).length} {t('createGame.options')}
                       </Badge>
                     </div>
                   </AccordionTrigger>
@@ -462,10 +466,10 @@ export default function CreateGame() {
                       {/* Question Text */}
                       <div>
                         <Label className="text-base font-medium mb-2 block">
-                          نص السؤال
+                          {t('createGame.questionTextLabel')}
                         </Label>
                         <Textarea
-                          placeholder="اكتب سؤالك هنا... يُنصح بسؤال قصير وواضح"
+                          placeholder={t('createGame.questionPlaceholder')}
                           value={question.text}
                           onChange={(e) =>
                             updateQuestion(questionIndex, "text", e.target.value)
@@ -478,7 +482,7 @@ export default function CreateGame() {
                       {/* Options with Radio Selection */}
                       <div>
                         <Label className="text-base font-medium mb-3 block">
-                          الخيارات المتاحة
+                          {t('createGame.optionsLabel')}
                         </Label>
                         <RadioGroup
                           value={question.correctAnswer.toString()}
@@ -498,12 +502,12 @@ export default function CreateGame() {
                               />
                               <Label
                                 htmlFor={`q${questionIndex}-o${optionIndex}`}
-                                className="text-sm font-medium text-primary ml-2"
+                                className="text-sm font-medium text-primary ltr:ml-2 rtl:mr-2"
                               >
                                 {String.fromCharCode(65 + optionIndex)}
                               </Label>
                               <Input
-                                placeholder={`الخيار ${optionIndex + 1}`}
+                                placeholder={t('createGame.optionPlaceholder', { number: optionIndex + 1 })}
                                 value={option}
                                 onChange={(e) =>
                                   updateQuestionOption(questionIndex, optionIndex, e.target.value)
@@ -537,8 +541,8 @@ export default function CreateGame() {
                               onClick={() => addOption(questionIndex)}
                               data-testid={`button-add-option-${questionIndex}`}
                             >
-                              <Plus className="w-4 h-4 ml-1" />
-                              إضافة خيار
+                              <Plus className="w-4 h-4 ltr:mr-1 rtl:ml-1" />
+                              {t('createGame.addOption')}
                             </Button>
                           )}
                           {questions.length > 1 && (
@@ -550,8 +554,8 @@ export default function CreateGame() {
                               className="text-destructive hover:text-destructive"
                               data-testid={`button-remove-question-${questionIndex}`}
                             >
-                              <Trash2 className="w-4 h-4 ml-1" />
-                              حذف السؤال
+                              <Trash2 className="w-4 h-4 ltr:mr-1 rtl:ml-1" />
+                              {t('createGame.removeQuestion')}
                             </Button>
                           )}
                         </div>
@@ -569,14 +573,14 @@ export default function CreateGame() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-accent">
                   <FileSpreadsheet className="w-5 h-5" />
-                  استيراد الأسئلة من Excel
+                  {t('createGame.importExcelTitle')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* File Upload */}
                 <div>
                   <Label className="text-base font-medium mb-3 block">
-                    اختر ملف Excel
+                    {t('createGame.uploadLabel')}
                   </Label>
                   <Input
                     type="file"
@@ -587,7 +591,7 @@ export default function CreateGame() {
                     data-testid="input-excel-file"
                   />
                   <p className="text-sm text-primary mt-2">
-                    يدعم .xlsx و .xls (الحد الأقصى 5 ميجابايت)
+                    {t('createGame.fileSupport')}
                   </p>
                 </div>
 
@@ -595,7 +599,7 @@ export default function CreateGame() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-base font-medium mb-3 block">
-                      عدد الأسئلة المطلوبة
+                      {t('createGame.questionCountReq')}
                     </Label>
                     <Input
                       type="number"
@@ -608,15 +612,15 @@ export default function CreateGame() {
                   </div>
                   <div>
                     <Label className="text-base font-medium mb-3 block">
-                      طريقة الاستيراد
+                      {t('createGame.importMode')}
                     </Label>
                     <Select value={importMode} onValueChange={(value: 'replace' | 'append') => setImportMode(value)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="replace">استبدال الأسئلة الحالية</SelectItem>
-                        <SelectItem value="append">إضافة إلى الأسئلة الحالية</SelectItem>
+                        <SelectItem value="replace">{t('createGame.replace')}</SelectItem>
+                        <SelectItem value="append">{t('createGame.append')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -628,19 +632,19 @@ export default function CreateGame() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-medium text-primary">
-                          تم استيراد {importedQuestions.length} سؤال بنجاح!
+                          {t('createGame.importSuccess', { count: importedQuestions.length })}
                         </p>
                         <p className="text-sm text-accent mt-1">
-                          سيتم اختيار {Math.min(questionCount, importedQuestions.length)} سؤال عشوائياً
+                          {t('createGame.importSuccessDetail', { count: Math.min(questionCount, importedQuestions.length) })}
                         </p>
                       </div>
-                      <Button 
+                      <Button
                         onClick={applyImportedQuestions}
                         className="bg-primary hover:bg-primary/90 text-primary-foreground"
                         data-testid="button-apply-questions"
                       >
-                        <Upload className="w-4 h-4 ml-2" />
-                        تطبيق الأسئلة
+                        <Upload className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                        {t('createGame.applyQuestions')}
                       </Button>
                     </div>
                   </div>
@@ -651,21 +655,21 @@ export default function CreateGame() {
                   <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                      <p className="text-blue-800 dark:text-blue-200">جاري معالجة الملف...</p>
+                      <p className="text-blue-800 dark:text-blue-200">{t('createGame.processing')}</p>
                     </div>
                   </div>
                 )}
 
                 {/* Format Guide */}
                 <div className="p-4 bg-muted rounded-lg">
-                  <h4 className="font-medium mb-2">تنسيق الملف المطلوب:</h4>
+                  <h4 className="font-medium mb-2">{t('createGame.formatGuide')}</h4>
                   <div className="text-sm text-primary space-y-1">
-                    <p>• العمود الأول: السؤال أو Question</p>
-                    <p>• العمود الثاني: الخيار 1 أو Option1</p>
-                    <p>• العمود الثالث: الخيار 2 أو Option2</p>
-                    <p>• العمود الرابع: الخيار 3 أو Option3 (اختياري)</p>
-                    <p>• العمود الخامس: الخيار 4 أو Option4 (اختياري)</p>
-                    <p>• العمود الأخير: الإجابة الصحيحة أو Correct (رقم 1-6 أو حرف A-F)</p>
+                    <p>• {t('createGame.formatCol1')}</p>
+                    <p>• {t('createGame.formatCol2')}</p>
+                    <p>• {t('createGame.formatCol3')}</p>
+                    <p>• {t('createGame.formatCol4')}</p>
+                    <p>• {t('createGame.formatCol5')}</p>
+                    <p>• {t('createGame.formatColLast')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -678,48 +682,47 @@ export default function CreateGame() {
           <div className="container mx-auto max-w-4xl">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4 text-sm text-primary">
-                <span>{questions.length} سؤال</span>
+                <span>{t('createGame.questionsCount', { count: questions.length })}</span>
                 <span>•</span>
-                <span>{questions.filter(getQuestionStatus).length} مكتمل</span>
+                <span>{questions.filter(getQuestionStatus).length} {t('createGame.completed')}</span>
               </div>
               <div className="flex gap-3">
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button variant="outline" disabled={!validateQuestions()} data-testid="button-preview">
-                      <Eye className="w-4 h-4 ml-2" />
-                      معاينة
+                      <Eye className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                      {t('common.preview')}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
-                      <DialogTitle>معاينة اللعبة</DialogTitle>
+                      <DialogTitle>{t('createGame.previewTitle')}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                       <div className="p-4 bg-muted rounded-lg">
-                        <h3 className="font-semibold text-lg mb-2">{gameName || "لعبة جديدة"}</h3>
+                        <h3 className="font-semibold text-lg mb-2">{gameName || t('createGame.newGame')}</h3>
                         <p className="text-sm text-primary">
-                          {questions.length} سؤال • {questions.filter(getQuestionStatus).length} مكتمل
+                          {t('createGame.questionsCount', { count: questions.length })} • {questions.filter(getQuestionStatus).length} {t('createGame.completed')}
                         </p>
                       </div>
                       {questions.filter(getQuestionStatus).map((question, index) => (
                         <Card key={index}>
                           <CardContent className="pt-4">
-                            <h4 className="font-medium mb-3">السؤال {index + 1}</h4>
+                            <h4 className="font-medium mb-3">{t('createGame.question', { number: index + 1 })}</h4>
                             <p className="mb-3">{question.text}</p>
                             <div className="space-y-2">
                               {question.options.filter(opt => opt.trim()).map((option, optIndex) => (
-                                <div 
+                                <div
                                   key={optIndex}
-                                  className={`p-2 rounded border ${
-                                    optIndex === question.correctAnswer 
-                                      ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800' 
-                                      : 'bg-muted'
-                                  }`}
+                                  className={`p-2 rounded border ${optIndex === question.correctAnswer
+                                    ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800'
+                                    : 'bg-muted'
+                                    }`}
                                 >
-                                  <span className="font-medium ml-2">{String.fromCharCode(65 + optIndex)}</span>
+                                  <span className="font-medium ltr:mr-2 rtl:ml-2">{String.fromCharCode(65 + optIndex)}</span>
                                   {option}
                                   {optIndex === question.correctAnswer && (
-                                    <CheckCircle2 className="w-4 h-4 text-primary mr-2" />
+                                    <CheckCircle2 className="w-4 h-4 text-primary ltr:ml-2 rtl:mr-2 inline" />
                                   )}
                                 </div>
                               ))}
@@ -730,20 +733,20 @@ export default function CreateGame() {
                     </div>
                   </DialogContent>
                 </Dialog>
-                <Button 
-                  onClick={handleSubmit} 
+                <Button
+                  onClick={handleSubmit}
                   disabled={!gameName.trim() || !validateQuestions() || createGameMutation.isPending}
                   data-testid="button-create-game"
                 >
                   {createGameMutation.isPending ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div>
-                      جاري الإنشاء...
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ltr:mr-2 rtl:ml-2"></div>
+                      {t('createGame.creating')}
                     </>
                   ) : (
                     <>
-                      <Plus className="w-4 h-4 ml-2" />
-                      إنشاء اللعبة
+                      <Plus className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                      {t('createGame.createButton')}
                     </>
                   )}
                 </Button>

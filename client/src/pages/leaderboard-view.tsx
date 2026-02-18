@@ -1,8 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useSearch } from "wouter";
-import { Trophy, Users, Clock, Target, ArrowLeft, RefreshCw } from "lucide-react";
+import { Trophy, Users, Target, ArrowLeft, ArrowRight, RefreshCw, Clock } from "lucide-react";
 import { playSound } from "@/lib/soundUtils";
 
 interface Player {
@@ -26,9 +27,11 @@ interface Game {
 }
 
 export default function LeaderboardView() {
+  const { t, i18n } = useTranslation();
   const search = useSearch();
   const params = new URLSearchParams(search);
   const gameId = params.get("gameId");
+  const isRTL = i18n.dir() === 'rtl';
 
   const { data: game, isLoading: gameLoading } = useQuery<Game>({
     queryKey: ["/api/games", gameId],
@@ -48,11 +51,11 @@ export default function LeaderboardView() {
 
   if (gameLoading || leaderboardLoading) {
     return (
-      <div className="min-h-screen trivia-background relative overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 bg-background/30"></div>
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
         <div className="text-center relative z-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-primary">جارٍ تحميل النتائج...</p>
+          <p className="text-primary">{t('leaderboard.loading')}</p>
         </div>
       </div>
     );
@@ -60,12 +63,12 @@ export default function LeaderboardView() {
 
   if (!game) {
     return (
-      <div className="min-h-screen trivia-background relative overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 bg-background/30"></div>
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
         <div className="text-center relative z-10">
-          <p className="text-destructive mb-4">لم يتم العثور على اللعبة</p>
+          <p className="text-destructive mb-4">{t('leaderboard.gameNotFound')}</p>
           <Link href="/">
-            <Button onClick={playSound.buttonClick}>العودة للصفحة الرئيسية</Button>
+            <Button onClick={playSound.buttonClick}>{t('leaderboard.home')}</Button>
           </Link>
         </div>
       </div>
@@ -76,9 +79,9 @@ export default function LeaderboardView() {
   const totalPlayers = leaderboard?.length || 0;
 
   return (
-    <div className="min-h-screen trivia-background relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Subtle overlay for content readability */}
-      <div className="absolute inset-0 bg-background/30"></div>
+      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
 
       <div className="container mx-auto px-4 py-8 max-w-2xl relative z-10">
         {/* Header */}
@@ -86,7 +89,7 @@ export default function LeaderboardView() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <Trophy className="w-8 h-8 text-primary animate-pulse" />
             <h2 className="text-3xl font-bold text-primary">
-              نتائج اللعبة
+              {t('leaderboard.title')}
             </h2>
             <Trophy className="w-8 h-8 text-primary animate-pulse" />
           </div>
@@ -94,7 +97,7 @@ export default function LeaderboardView() {
             {game.name}
           </p>
           <p className="text-sm text-primary mb-4">
-            رمز اللعبة: <span className="font-mono text-primary">{game.code}</span>
+            {t('leaderboard.gameCode')}: <span className="font-mono text-primary">{game.code}</span>
           </p>
         </div>
 
@@ -106,17 +109,17 @@ export default function LeaderboardView() {
               <div className="text-2xl font-bold text-primary" data-testid="total-players">
                 {totalPlayers}
               </div>
-              <div className="text-sm text-primary">إجمالي اللاعبين</div>
+              <div className="text-sm text-primary">{t('leaderboard.totalPlayers')}</div>
             </CardContent>
           </Card>
-          
+
           <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5">
             <CardContent className="p-4 text-center">
               <Target className="w-8 h-8 text-green-400 mx-auto mb-2" />
               <div className="text-2xl font-bold text-green-400" data-testid="completed-players">
                 {activePlayers.length}
               </div>
-              <div className="text-sm text-primary">أنهوا اللعبة</div>
+              <div className="text-sm text-primary">{t('leaderboard.completedPlayers')}</div>
             </CardContent>
           </Card>
         </div>
@@ -124,23 +127,25 @@ export default function LeaderboardView() {
         {/* Controls */}
         <div className="flex gap-2 mb-6">
           <Link href={`/game-created?gameId=${gameId}`}>
-            <Button 
+            <Button
               onClick={playSound.buttonClick}
-              variant="outline" 
+              variant="outline"
               className="bg-amber-500 hover:bg-amber-600 border border-amber-400 text-white"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              العودة لصفحة اللعبة
+              <div className="flex items-center">
+                {isRTL ? <ArrowRight className="w-4 h-4 ml-2" /> : <ArrowLeft className="w-4 h-4 mr-2" />}
+                {t('leaderboard.backToGame')}
+              </div>
             </Button>
           </Link>
-          
-          <Button 
+
+          <Button
             onClick={handleRefresh}
             variant="outline"
             className="bg-blue-500 hover:bg-blue-600 border border-blue-400 text-white"
           >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            تحديث
+            <RefreshCw className="w-4 h-4 rtl:ml-2 ltr:mr-2" />
+            {t('leaderboard.refresh')}
           </Button>
         </div>
 
@@ -148,7 +153,7 @@ export default function LeaderboardView() {
         <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5">
           <CardHeader className="pb-3">
             <CardTitle className="text-xl text-center text-primary">
-              🏆 ترتيب اللاعبين
+              🏆 {t('leaderboard.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4">
@@ -156,10 +161,10 @@ export default function LeaderboardView() {
               <div className="text-center py-8">
                 <Clock className="w-12 h-12 text-primary mx-auto mb-4" />
                 <p className="text-primary text-lg mb-2">
-                  لا يوجد لاعبون أنهوا اللعبة بعد
+                  {t('leaderboard.noPlayers')}
                 </p>
                 <p className="text-sm text-primary">
-                  سيتم تحديث النتائج تلقائياً عند انتهاء اللاعبين
+                  {t('leaderboard.resultsWillUpdate')}
                 </p>
               </div>
             ) : (
@@ -169,23 +174,21 @@ export default function LeaderboardView() {
                   .map((player, index) => (
                     <div
                       key={player.id}
-                      className={`flex items-center gap-4 p-4 rounded-lg transition-all duration-300 border ${
-                        index === 0
-                          ? "bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-400/50 shadow-lg"
-                          : index === 1
+                      className={`flex items-center gap-4 p-4 rounded-lg transition-all duration-300 border ${index === 0
+                        ? "bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-400/50 shadow-lg"
+                        : index === 1
                           ? "bg-gradient-to-r from-gray-400/20 to-gray-500/20 border-gray-400/50"
                           : index === 2
-                          ? "bg-gradient-to-r from-orange-600/20 to-orange-700/20 border-orange-600/50"
-                          : "bg-gradient-to-r from-card/50 to-primary/5 border-primary/30"
-                      }`}
+                            ? "bg-gradient-to-r from-orange-600/20 to-orange-700/20 border-orange-600/50"
+                            : "bg-gradient-to-r from-card/50 to-primary/5 border-primary/30"
+                        }`}
                       data-testid={`player-rank-${index + 1}`}
                     >
                       {/* Rank */}
-                      <div className={`text-2xl font-bold ${
-                        index === 0 ? "text-yellow-400" : 
-                        index === 1 ? "text-gray-400" : 
-                        index === 2 ? "text-orange-600" : "text-primary"
-                      }`}>
+                      <div className={`text-2xl font-bold ${index === 0 ? "text-yellow-400" :
+                        index === 1 ? "text-gray-400" :
+                          index === 2 ? "text-orange-600" : "text-primary"
+                        }`}>
                         {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}
                       </div>
 
@@ -203,12 +206,11 @@ export default function LeaderboardView() {
 
                       {/* Score */}
                       <div className="text-right">
-                        <div className={`text-2xl font-bold ${
-                          index === 0 ? "text-yellow-400" : "text-primary"
-                        }`} data-testid={`player-score-${index}`}>
+                        <div className={`text-2xl font-bold ${index === 0 ? "text-yellow-400" : "text-primary"
+                          }`} data-testid={`player-score-${index}`}>
                           {player.score.toLocaleString()}
                         </div>
-                        <div className="text-sm text-primary">نقطة</div>
+                        <div className="text-sm text-primary">{t('leaderboard.points')}</div>
                       </div>
                     </div>
                   ))}
@@ -220,12 +222,12 @@ export default function LeaderboardView() {
         {/* Back to Home */}
         <div className="mt-6 text-center">
           <Link href="/">
-            <Button 
+            <Button
               onClick={playSound.buttonClick}
               variant="outline"
               className="bg-card border border-border hover:bg-muted text-card-foreground"
             >
-              العودة للصفحة الرئيسية 🏠
+              {t('leaderboard.home')} 🏠
             </Button>
           </Link>
         </div>

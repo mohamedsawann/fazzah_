@@ -7,8 +7,11 @@ import { playSound } from "@/lib/soundUtils";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { queryClient } from "@/lib/queryClient";
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
+  const { t } = useTranslation();
+
   // Track visitor when component mounts
   const trackVisitorMutation = useMutation({
     mutationFn: async () => {
@@ -33,22 +36,22 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen relative overflow-hidden trivia-background">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Subtle overlay for content readability */}
-      <div className="absolute inset-0 bg-background/30"></div>
-      <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
+      <div className="absolute inset-0 bg-background/90 backdrop-blur-sm"></div>
+      <div className="container mx-auto px-4 py-4 max-w-md relative z-10">
         {/* Header */}
-        <div className="text-center mb-8 mt-8" data-testid="header-title">
+        <div className="text-center mb-8 mt-2" data-testid="header-title">
           <div className="mb-3">
-            <img 
-              src={logoImage} 
-              alt="فزه Logo" 
-              className="w-96 h-96 mx-auto drop-shadow-lg object-cover"
+            <img
+              src={logoImage}
+              alt="فزه Logo"
+              className="w-96 h-96 mx-auto drop-shadow-lg object-cover animate-logo-crazy"
             />
           </div>
-          <p className="text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-1">Fazzah</p>
+          <p className="text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-1">{t('common.appName')}</p>
           <p className="text-base text-primary font-sans">
-            منصة الألعاب التفاعلية ⚡
+            {t('home.title')}
           </p>
         </div>
 
@@ -63,10 +66,10 @@ export default function Home() {
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="flex items-center gap-3">
                   <PlayCircle className="w-7 h-7 animate-spin" style={{ animationDuration: '3s' }} />
-                  <span>الانضمام للعبة برمز 🚀</span>
+                  <span>{t('home.joinGame.title')}</span>
                 </div>
                 <p className="text-base text-primary-foreground/80">
-                  Join Game by Code
+                  {t('home.joinGame.subtitle')}
                 </p>
               </div>
             </Button>
@@ -82,10 +85,10 @@ export default function Home() {
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="flex items-center gap-3">
                   <PlusCircle className="w-7 h-7 animate-pulse" />
-                  <span>إنشاء لعبة جديدة ✨</span>
+                  <span>{t('home.createGame.title')}</span>
                 </div>
                 <p className="text-base text-primary">
-                  Create New Game
+                  {t('home.createGame.subtitle')}
                 </p>
               </div>
             </Button>
@@ -101,10 +104,10 @@ export default function Home() {
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="flex items-center gap-3">
                   <Users className="w-7 h-7 animate-bounce" style={{ animationDuration: '2s' }} />
-                  <span>عرض المتصدرين 🏆</span>
+                  <span>{t('home.viewLeaderboard.title')}</span>
                 </div>
                 <p className="text-base text-primary">
-                  View Leaderboard
+                  {t('home.viewLeaderboard.subtitle')}
                 </p>
               </div>
             </Button>
@@ -112,33 +115,33 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <div className="text-center space-y-3">
+        <div className="text-center space-y-3 bg-black/25 backdrop-blur-sm rounded-2xl px-6 py-4">
           <div className="flex items-center justify-center gap-4">
             <a
               href="https://www.linkedin.com/in/mohammed-sawan-56ba6b251/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-primary hover:text-primary/80 transition-all duration-300 hover:scale-110"
+              className="flex items-center gap-2 text-white hover:text-white/80 transition-all duration-300 hover:scale-110"
               data-testid="linkedin-link"
             >
               <FaLinkedin className="w-5 h-5 hover:animate-bounce" />
               <span className="text-sm">LinkedIn</span>
             </a>
           </div>
-          
+
           <div className="text-center">
-            <p className="text-sm text-primary mb-1">
-              طُور بواسطة / Developed by
+            <p className="text-sm text-white/80 mb-1">
+              {t('home.developedBy')}
             </p>
-            <p className="font-medium text-primary">
-              GDG Mohamed Sawan 🧡
+            <p className="font-medium text-white">
+              Mohamed Sawan 🧡
             </p>
-            
+
             {visitorData && typeof visitorData === 'object' && 'count' in visitorData && (
-              <div className="flex items-center justify-center gap-2 mt-3 text-xs text-primary" data-testid="visitor-count">
+              <div className="flex items-center justify-center gap-2 mt-3 text-xs text-white/70" data-testid="visitor-count">
                 <Users className="w-3 h-3" />
                 <span>
-                  {(visitorData as { count: number }).count.toLocaleString()} زائر / Total Visitors
+                  {(visitorData as { count: number }).count.toLocaleString()} {t('home.visitors')}
                 </span>
               </div>
             )}

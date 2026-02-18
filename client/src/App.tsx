@@ -13,6 +13,7 @@ import Registration from "@/pages/registration";
 import GamePlay from "@/pages/game-play";
 import GameResults from "@/pages/game-results";
 import NotFound from "@/pages/not-found";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 
 function Router() {
   return (
@@ -35,6 +36,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <LanguageSwitcher />
         <Toaster />
         <Router />
       </TooltipProvider>

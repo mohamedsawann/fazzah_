@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -28,18 +29,20 @@ export default function GameCreated() {
     enabled: !!gameId,
   });
 
+  const { t } = useTranslation();
+
   const copyGameCode = async () => {
     if (game?.code) {
       try {
         await navigator.clipboard.writeText(game.code);
         toast({
-          title: "تم النسخ!",
-          description: "تم نسخ رمز اللعبة إلى الحافظة",
+          title: t('gameCreated.copied'),
+          description: t('gameCreated.copySuccess'),
         });
       } catch (error) {
         toast({
-          title: "خطأ",
-          description: "لم يتم نسخ الرمز. يرجى النسخ يدوياً.",
+          title: t('gameCreated.title'),
+          description: t('gameCreated.copyError'),
           variant: "destructive",
         });
       }
@@ -50,8 +53,8 @@ export default function GameCreated() {
     if (game?.code && navigator.share) {
       try {
         await navigator.share({
-          title: `انضم إلى لعبة ${game.name}`,
-          text: `استخدم الرمز: ${game.code}`,
+          title: `${t('gameCreated.shareTitle')} ${game.name}`,
+          text: `${t('gameCreated.shareText')} ${game.code}`,
           url: window.location.origin,
         });
       } catch (error) {
@@ -68,27 +71,27 @@ export default function GameCreated() {
 
   if (isLoading || !game) {
     return (
-      <div className="min-h-screen trivia-background relative overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 bg-background/30"></div>
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
         <div className="text-center relative z-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-primary">جارٍ تحميل اللعبة...</p>
+          <p className="text-primary">{t('gameCreated.loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen trivia-background relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Subtle overlay for content readability */}
-      <div className="absolute inset-0 bg-background/30"></div>
+      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
       <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
         <div className="text-center mb-8" data-testid="header-game-created">
           <div className="text-6xl mb-4">🎉</div>
           <h2 className="text-3xl font-bold font-arabic text-primary mb-2">
-            تم إنشاء اللعبة!
+            {t('gameCreated.title')}
           </h2>
-          <p className="text-primary">Game Created Successfully</p>
+          <p className="text-primary">{t('gameCreated.subtitle')}</p>
         </div>
 
         {/* Game Info */}
@@ -98,16 +101,16 @@ export default function GameCreated() {
               <h3 className="text-xl font-medium mb-4" data-testid="game-name">
                 {game.name}
               </h3>
-              
+
               <div className="bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 rounded-xl p-6 mb-6">
                 <p className="text-sm text-primary mb-2">
-                  رمز اللعبة / Game Code
+                  {t('gameCreated.gameCode')}
                 </p>
                 <div className="text-4xl font-bold font-mono text-primary mb-4" data-testid="game-code">
                   {game.code}
                 </div>
                 <p className="text-sm text-primary">
-                  شارك هذا الرمز مع الأصدقاء للانضمام
+                  {t('gameCreated.shareCode')}
                 </p>
               </div>
 
@@ -121,10 +124,10 @@ export default function GameCreated() {
                   className="flex-1 bg-card border border-primary/30 hover:bg-muted text-card-foreground"
                   data-testid="button-copy-code"
                 >
-                  <Copy className="w-4 h-4 mr-2" />
-                  نسخ الرمز
+                  <Copy className="w-4 h-4 rtl:ml-2 ltr:mr-2" />
+                  {t('gameCreated.copyCode')}
                 </Button>
-                
+
                 <Button
                   onClick={() => {
                     playSound.buttonClick();
@@ -134,8 +137,8 @@ export default function GameCreated() {
                   className="flex-1 bg-card border border-primary/30 hover:bg-muted text-card-foreground"
                   data-testid="button-share-code"
                 >
-                  <Share2 className="w-4 h-4 mr-2" />
-                  مشاركة
+                  <Share2 className="w-4 h-4 rtl:ml-2 ltr:mr-2" />
+                  {t('gameCreated.share')}
                 </Button>
               </div>
             </div>
@@ -152,8 +155,8 @@ export default function GameCreated() {
             className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-4 px-6 rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-[1.02]"
             data-testid="button-start-playing"
           >
-            <Play className="w-5 h-5 mr-2" />
-            ابدأ اللعب الآن / Start Playing Now
+            <Play className="w-5 h-5 rtl:ml-2 ltr:mr-2" />
+            {t('gameCreated.startGame')}
           </Button>
 
           <Link href={`/leaderboard-view?gameId=${gameId}`}>
@@ -163,8 +166,8 @@ export default function GameCreated() {
               className="w-full bg-amber-500 hover:bg-amber-600 border border-amber-400 text-white font-medium py-3 px-6 rounded-lg shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all duration-300 transform hover:scale-[1.02]"
               data-testid="button-view-leaderboard"
             >
-              <BarChart3 className="w-5 h-5 mr-2" />
-              عرض النتائج / View Leaderboard
+              <BarChart3 className="w-5 h-5 rtl:ml-2 ltr:mr-2" />
+              {t('gameCreated.viewLeaderboard')}
             </Button>
           </Link>
 
@@ -175,7 +178,7 @@ export default function GameCreated() {
               className="w-full bg-card border border-primary/30 hover:bg-muted text-card-foreground font-medium py-3 px-6 rounded-lg shadow-lg transition-all duration-300"
               data-testid="button-home"
             >
-              العودة للصفحة الرئيسية / Back to Home
+              {t('gameCreated.home')}
             </Button>
           </Link>
         </div>

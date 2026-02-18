@@ -1,20 +1,23 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useLocation, useSearch } from "wouter";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Registration() {
+  const { t, i18n } = useTranslation();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [, setLocation] = useLocation();
   const search = useSearch();
   const { toast } = useToast();
+  const isRTL = i18n.dir() === 'rtl';
 
   const params = new URLSearchParams(search);
   const gameId = params.get("gameId");
@@ -30,16 +33,16 @@ export default function Registration() {
         if (player.hasCompleted) {
           // Player already completed this game - redirect to results
           toast({
-            title: "لقد لعبت هذه اللعبة من قبل",
-            description: "سيتم نقلك إلى نتائج اللعبة السابقة.",
+            title: t('registration.error'),
+            description: t('registration.gameCompleted'),
             variant: "default",
           });
           setLocation(`/game-results?playerId=${player.id}&gameId=${gameId}`);
         } else {
           // Player exists but hasn't completed - let them continue
           toast({
-            title: "مرحباً بعودتك!",
-            description: "يمكنك متابعة اللعبة من حيث توقفت.",
+            title: t('registration.you'),
+            description: t('registration.startGame'),
             variant: "default",
           });
           setLocation(`/game-play?playerId=${player.id}&gameId=${gameId}`);
@@ -51,8 +54,8 @@ export default function Registration() {
     },
     onError: () => {
       toast({
-        title: "خطأ",
-        description: "حدث خطأ أثناء التسجيل. يرجى المحاولة مرة أخرى.",
+        title: t('registration.error'),
+        description: t('registration.error'),
         variant: "destructive",
       });
     },
@@ -62,8 +65,8 @@ export default function Registration() {
     e.preventDefault();
     if (!name || !phone || !gameId) {
       toast({
-        title: "خطأ",
-        description: "يرجى ملء جميع الحقول المطلوبة.",
+        title: t('registration.error'),
+        description: t('registration.fillAllFields'),
         variant: "destructive",
       });
       return;
@@ -73,8 +76,8 @@ export default function Registration() {
     const phoneRegex = /^05\d{8}$/;
     if (!phoneRegex.test(phone)) {
       toast({
-        title: "خطأ",
-        description: "رقم الهاتف يجب أن يبدأ بـ 05 ويحتوي على 10 أرقام.",
+        title: t('registration.error'),
+        description: t('registration.invalidPhone'),
         variant: "destructive",
       });
       return;
@@ -96,9 +99,9 @@ export default function Registration() {
   };
 
   return (
-    <div className="min-h-screen trivia-background relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Subtle overlay for content readability */}
-      <div className="absolute inset-0 bg-background/30"></div>
+      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
       <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
         <div className="mb-6">
           <Button
@@ -107,16 +110,18 @@ export default function Registration() {
             className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors p-0"
             data-testid="button-back"
           >
-            <ArrowRight className="w-5 h-5" />
-            <span>العودة</span>
+            <div className="flex items-center">
+              {isRTL ? <ArrowRight className="w-5 h-5 ml-2" /> : <ArrowLeft className="w-5 h-5 mr-2" />}
+              <span>{t('registration.back')}</span>
+            </div>
           </Button>
         </div>
 
         <div className="text-center mb-8" data-testid="header-registration">
           <h2 className="text-3xl font-bold font-arabic text-primary mb-2">
-            التسجيل
+            {t('registration.title')}
           </h2>
-          <p className="text-primary">Registration</p>
+          <p className="text-primary">{t('registration.subtitle')}</p>
         </div>
 
         <Card className="border border-primary/30 shadow-lg">
@@ -124,12 +129,12 @@ export default function Registration() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="name" className="block text-sm font-medium mb-2">
-                  الاسم / Name
+                  {t('registration.name')}
                 </Label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="أدخل اسمك"
+                  placeholder={t('registration.enterName')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full bg-muted border border-primary/30 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
@@ -139,12 +144,12 @@ export default function Registration() {
 
               <div>
                 <Label htmlFor="phone" className="block text-sm font-medium mb-2">
-                  رقم الهاتف / Phone Number
+                  {t('registration.phone')}
                 </Label>
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="05xxxxxxxx"
+                  placeholder={t('registration.enterPhone')}
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full bg-muted border border-primary/30 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
@@ -159,7 +164,7 @@ export default function Registration() {
                 className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-medium py-3 px-6 rounded-lg shadow-lg hover:shadow-primary/25 transition-all duration-300"
                 data-testid="button-start-game"
               >
-                {registerPlayerMutation.isPending ? "جارٍ التسجيل..." : "ابدأ اللعب"}
+                {registerPlayerMutation.isPending ? t('registration.loading') : t('registration.startPlaying')}
               </Button>
             </form>
           </CardContent>
