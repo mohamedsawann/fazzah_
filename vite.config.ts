@@ -32,6 +32,8 @@ export default defineConfig({
     fs: {
       strict: true,
       deny: ["**/.*"],
+      // Allow project root so node_modules/vite and other deps are served (e.g. when project path has " copy")
+      allow: [path.resolve(import.meta.dirname)],
     },
   },
 });

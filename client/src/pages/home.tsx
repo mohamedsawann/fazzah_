@@ -11,23 +11,23 @@ import { useTranslation } from "react-i18next";
 
 export default function Home() {
   const { t, i18n } = useTranslation();
-  const isArabic = i18n.language?.startsWith('ar') ?? false;
+  const isArabic = i18n.language?.startsWith("ar") ?? false;
 
   // Track visitor when component mounts
   const trackVisitorMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/visitors/track', { method: 'POST' });
+      const response = await fetch("/api/visitors/track", { method: "POST" });
       return response.json();
     },
     onSuccess: () => {
       // Invalidate visitor count query to show updated count
-      queryClient.invalidateQueries({ queryKey: ['/api/visitors/count'] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["/api/visitors/count"] });
+    },
   });
 
   // Get visitor count
   const { data: visitorData } = useQuery({
-    queryKey: ['/api/visitors/count'],
+    queryKey: ["/api/visitors/count"],
     refetchOnMount: true,
   });
 
@@ -43,7 +43,7 @@ export default function Home() {
       <StickersBackground />
       {/* Developer credit - left side */}
       <div className="fixed bottom-4 left-4 flex flex-col gap-1 text-xs text-primary font-bold z-10 bg-white/70 backdrop-blur-sm rounded-lg px-3 py-2">
-        <span>{t('home.developedBy')} Mohamed Sawan 🧡</span>
+        <span>{t("home.developedBy")} Mohamed Sawan & Nawal Fadi 🧡</span>
         <a
           href="https://www.linkedin.com/in/mohammed-sawan-56ba6b251/"
           target="_blank"
@@ -56,17 +56,26 @@ export default function Home() {
         </a>
       </div>
       {/* Visitor count - right side */}
-      {visitorData && typeof visitorData === 'object' && 'count' in visitorData && (
-        <div className="fixed bottom-4 right-4 flex items-center gap-2 text-xs text-primary font-bold z-10 bg-white/70 backdrop-blur-sm rounded-lg px-3 py-2" data-testid="visitor-count">
-          <Users className="w-3 h-3" />
-          <span>
-            {(visitorData as { count: number }).count.toLocaleString()} {t('home.visitors')}
-          </span>
-        </div>
-      )}
+      {visitorData &&
+        typeof visitorData === "object" &&
+        "count" in visitorData && (
+          <div
+            className="fixed bottom-4 right-4 flex items-center gap-2 text-xs text-primary font-bold z-10 bg-white/70 backdrop-blur-sm rounded-lg px-3 py-2"
+            data-testid="visitor-count"
+          >
+            <Users className="w-3 h-3" />
+            <span>
+              {(visitorData as { count: number }).count.toLocaleString()}{" "}
+              {t("home.visitors")}
+            </span>
+          </div>
+        )}
       <div className="container mx-auto px-4 py-4 max-w-md relative z-10">
         {/* Header */}
-        <div className={`text-center mt-2 ${isArabic ? 'mb-2' : 'mb-1'}`} data-testid="header-title">
+        <div
+          className={`text-center mt-2 ${isArabic ? "mb-2" : "mb-1"}`}
+          data-testid="header-title"
+        >
           <div className="flex flex-col items-center gap-0 mb-0 leading-none [&_img]:block">
             {!isArabic && (
               <div className="relative inline-block mt-0">
@@ -121,10 +130,23 @@ export default function Home() {
               </div>
             )}
           </div>
-          <p className={`text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-0 ${!isArabic ? '-mt-12' : ''} font-bold`}>{t('common.appName')}</p>
-          <div className={`w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] flex justify-center ${isArabic ? 'mt-10' : ''}`}>
-            <p className={`text-base text-primary mt-0 whitespace-pre-line text-center max-w-2xl px-4 font-bold`} style={{ fontFamily: isArabic ? 'Cairo, sans-serif' : 'Nunito, sans-serif' }}>
-              {t('home.title')}
+          <p
+            className={`text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-0 ${!isArabic ? "-mt-12" : ""} font-bold`}
+          >
+            {t("common.appName")}
+          </p>
+          <div
+            className={`w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] flex justify-center ${isArabic ? "mt-10" : ""}`}
+          >
+            <p
+              className={`text-base text-primary mt-0 whitespace-pre-line text-center max-w-2xl px-4 font-bold`}
+              style={{
+                fontFamily: isArabic
+                  ? "Cairo, sans-serif"
+                  : "Nunito, sans-serif",
+              }}
+            >
+              {t("home.title")}
             </p>
           </div>
         </div>
@@ -139,11 +161,14 @@ export default function Home() {
             >
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="flex items-center gap-3">
-                  <PlayCircle className="w-7 h-7 animate-spin" style={{ animationDuration: '3s' }} />
-                  <span className="font-bold">{t('home.joinGame.title')}</span>
+                  <PlayCircle
+                    className="w-7 h-7 animate-spin"
+                    style={{ animationDuration: "3s" }}
+                  />
+                  <span className="font-bold">{t("home.joinGame.title")}</span>
                 </div>
                 <p className={`text-base text-primary-foreground/80 font-bold`}>
-                  {t('home.joinGame.subtitle')}
+                  {t("home.joinGame.subtitle")}
                 </p>
               </div>
             </Button>
@@ -159,10 +184,12 @@ export default function Home() {
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="flex items-center gap-3">
                   <PlusCircle className="w-7 h-7 animate-pulse" />
-                  <span className="font-bold">{t('home.createGame.title')}</span>
+                  <span className="font-bold">
+                    {t("home.createGame.title")}
+                  </span>
                 </div>
                 <p className={`text-base text-primary font-bold`}>
-                  {t('home.createGame.subtitle')}
+                  {t("home.createGame.subtitle")}
                 </p>
               </div>
             </Button>
@@ -177,17 +204,21 @@ export default function Home() {
             >
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="flex items-center gap-3">
-                  <Users className="w-7 h-7 animate-bounce" style={{ animationDuration: '2s' }} />
-                  <span className="font-bold">{t('home.viewLeaderboard.title')}</span>
+                  <Users
+                    className="w-7 h-7 animate-bounce"
+                    style={{ animationDuration: "2s" }}
+                  />
+                  <span className="font-bold">
+                    {t("home.viewLeaderboard.title")}
+                  </span>
                 </div>
                 <p className={`text-base text-primary font-bold`}>
-                  {t('home.viewLeaderboard.subtitle')}
+                  {t("home.viewLeaderboard.subtitle")}
                 </p>
               </div>
             </Button>
           </Link>
         </div>
-
       </div>
     </div>
   );

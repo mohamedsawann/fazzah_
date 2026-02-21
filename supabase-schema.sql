@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS games (
   id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid()::text,
   code VARCHAR(6) NOT NULL UNIQUE,
   name TEXT NOT NULL,
+  question_duration INTEGER NOT NULL DEFAULT 20,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   is_active BOOLEAN NOT NULL DEFAULT true
 );
