@@ -61,7 +61,8 @@ function rowToGame(row: Record<string, unknown>): Game {
     id: row.id as string,
     code: row.code as string,
     name: row.name as string,
-    createdAt: row.created_at as string,
+    questionDurationSeconds: (row.question_duration as number) ?? 20,
+    createdAt: row.created_at ? new Date(row.created_at as string) : new Date(),
     isActive: row.is_active as boolean,
   };
 }
@@ -76,19 +77,49 @@ function rowToPlayer(row: Record<string, unknown>): Player {
     correctAnswers: row.correct_answers as number,
     totalAnswers: row.total_answers as number,
     averageTime: row.average_time as number,
-    completedAt: (row.completed_at as string | null) ?? null,
+    completedAt: row.completed_at ? new Date(row.completed_at as string) : null,
   };
 }
 
+function parseOption(opt: unknown): string | { text: string; image?: string } {
+  if (typeof opt === "object" && opt !== null && "text" in opt) {
+    const obj = opt as Record<string, unknown>;
+    const text = String(obj.text ?? "");
+    const image = (obj.image ?? obj.Image) && typeof (obj.image ?? obj.Image) === "string"
+      ? String(obj.image ?? obj.Image)
+      : undefined;
+    return image ? { text, image } : { text };
+  }
+  if (typeof opt === "string") {
+    try {
+      const parsed = JSON.parse(opt);
+      if (parsed && typeof parsed.text === "string") {
+        const img = parsed.image ?? parsed.Image;
+        return img ? { text: parsed.text, image: String(img) } : { text: parsed.text };
+      }
+    } catch {
+      /* plain string */
+    }
+    return opt;
+  }
+  return String(opt);
+}
+
 function rowToQuestion(row: Record<string, unknown>): Question {
+  const rawOptions = (row.options as unknown[]) || [];
+  const options = rawOptions.map(parseOption);
+  // Handle both 'image' and 'Image' (Supabase/Postgres may vary)
+  const imageVal = row.image ?? row.Image ?? null;
+  const image = (imageVal && typeof imageVal === "string") ? imageVal : undefined;
   return {
     id: row.id as string,
     gameId: row.game_id as string,
     text: row.text as string,
-    options: row.options as string[],
+    image,
+    options,
     correctAnswer: row.correct_answer as number,
     order: row.order as number,
-  };
+  } as Question;
 }
 
 function rowToPlayerAnswer(row: Record<string, unknown>): PlayerAnswer {
@@ -107,7 +138,7 @@ function rowToSiteStats(row: Record<string, unknown>): SiteStats {
   return {
     id: row.id as string,
     visitors: row.visitors as number,
-    updatedAt: row.updated_at as string,
+    updatedAt: row.updated_at ? new Date(row.updated_at as string) : new Date(),
   };
 }
 
@@ -175,11 +206,13 @@ export class SupabaseStorage implements IStorage {
 
   async createGame(insertGame: InsertGame, questionsList: InsertQuestion[]): Promise<Game> {
     const code = await this.generateUniqueGameCode();
+    const questionDuration = insertGame.questionDurationSeconds ?? 20;
     const { data: gameRow, error: gameError } = await supabase()
       .from("games")
       .insert({
         code,
         name: insertGame.name,
+        question_duration: Math.min(120, Math.max(5, questionDuration)),
       })
       .select()
       .single();
@@ -188,14 +221,23 @@ export class SupabaseStorage implements IStorage {
     const game = rowToGame(gameRow);
 
     if (questionsList.length > 0) {
-      const rows = questionsList.map((q, i) => ({
-        game_id: game.id,
-        text: q.text,
-        options: q.options,
-        correct_answer: q.correctAnswer,
-        order: i + 1,
-      }));
-      await supabase().from("questions").insert(rows);
+      type Opt = string | { text: string; image?: string };
+      const rows = questionsList.map((q, i) => {
+        const optionsNormalized = (q.options as Opt[]).map(opt =>
+          typeof opt === "string" ? { text: opt } : { text: opt.text, image: opt.image }
+        );
+        const qWithImage = q as { text: string; image?: string; options: unknown[]; correctAnswer: number };
+        return {
+          game_id: game.id,
+          text: qWithImage.text,
+          image: qWithImage.image ?? null,
+          options: optionsNormalized,
+          correct_answer: qWithImage.correctAnswer,
+          order: i + 1,
+        };
+      });
+      const { error: questionsError } = await supabase().from("questions").insert(rows);
+      if (questionsError) throw new Error(questionsError.message);
     }
 
     return game;
@@ -303,7 +345,7 @@ export class SupabaseStorage implements IStorage {
   async getGameQuestions(gameId: string): Promise<Question[]> {
     const { data, error } = await supabase()
       .from("questions")
-      .select("*")
+      .select("id, game_id, text, image, options, correct_answer, order")
       .eq("game_id", gameId)
       .order("order", { ascending: true });
     if (error) return [];

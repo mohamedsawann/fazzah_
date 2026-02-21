@@ -7,6 +7,7 @@ import { Link, useSearch, useLocation } from "wouter";
 import { Copy, Share2, Play, BarChart3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { playSound } from "@/lib/soundUtils";
+import { StickersBackground } from "@/components/stickers-background";
 
 interface Game {
   id: string;
@@ -71,8 +72,9 @@ export default function GameCreated() {
 
   if (isLoading || !game) {
     return (
-      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center trivia-background">
+        <StickersBackground transparent />
+        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm z-[1]"></div>
         <div className="text-center relative z-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-primary">{t('gameCreated.loading')}</p>
@@ -82,9 +84,10 @@ export default function GameCreated() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden trivia-background">
+      <StickersBackground transparent />
       {/* Subtle overlay for content readability */}
-      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm z-[1]"></div>
       <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
         <div className="text-center mb-8" data-testid="header-game-created">
           <div className="text-6xl mb-4">🎉</div>
@@ -95,14 +98,14 @@ export default function GameCreated() {
         </div>
 
         {/* Game Info */}
-        <Card className="border border-primary/30 shadow-lg mb-6">
+        <Card className="border-2 border-orange-400 shadow-lg mb-6 bg-orange-500/25">
           <CardContent className="p-6">
             <div className="text-center" data-testid="game-info">
               <h3 className="text-xl font-medium mb-4" data-testid="game-name">
                 {game.name}
               </h3>
 
-              <div className="bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 rounded-xl p-6 mb-6">
+              <div className="bg-white/70 border-2 border-black rounded-xl p-6 mb-6">
                 <p className="text-sm text-primary mb-2">
                   {t('gameCreated.gameCode')}
                 </p>
@@ -121,7 +124,7 @@ export default function GameCreated() {
                     copyGameCode();
                   }}
                   variant="outline"
-                  className="flex-1 bg-card border border-primary/30 hover:bg-muted text-card-foreground"
+                  className="flex-1 bg-white/70 hover:bg-white/90 border-2 border-black text-card-foreground"
                   data-testid="button-copy-code"
                 >
                   <Copy className="w-4 h-4 rtl:ml-2 ltr:mr-2" />
@@ -134,7 +137,7 @@ export default function GameCreated() {
                     shareGame();
                   }}
                   variant="outline"
-                  className="flex-1 bg-card border border-primary/30 hover:bg-muted text-card-foreground"
+                  className="flex-1 bg-white/70 hover:bg-white/90 border-2 border-black text-card-foreground"
                   data-testid="button-share-code"
                 >
                   <Share2 className="w-4 h-4 rtl:ml-2 ltr:mr-2" />

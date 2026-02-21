@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS questions (
   id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid()::text,
   game_id VARCHAR NOT NULL REFERENCES games(id),
   text TEXT NOT NULL,
+  image TEXT,
   options TEXT[] NOT NULL,
   correct_answer INTEGER NOT NULL,
   "order" INTEGER NOT NULL

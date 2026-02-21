@@ -18,7 +18,7 @@
         "ok": "OK"
     },
     "home": {
-        "title": "Interactive Gaming Platform ⚡",
+        "title": "Where Play Comes Alive ✨⭐️\nThe next-gen digital playground. Seamless multiplayer, real-time challenges. Don't just play—shape the game.",
         "joinGame": {
             "title": "Join Game by Code 🚀",
             "subtitle": "Enter a code to join the fun!"
@@ -30,6 +30,10 @@
         "viewLeaderboard": {
             "title": "View Leaderboard 🏆",
             "subtitle": "See who's on top!"
+        },
+        "chat": {
+            "title": "Chat with Fazzah 💬",
+            "subtitle": "Ask me anything!"
         },
         "developedBy": "Developed by",
         "visitors": "Visitors"
@@ -48,18 +52,32 @@
         "pageSubtitle": "Create New Trivia Game",
         "gameNameLabel": "Game Name",
         "gameNamePlaceholder": "Enter Game Name",
+        "questionDurationLabel": "Question Duration",
+        "questionDurationHelp": "5–120 seconds. How long players have to answer each question.",
         "manualTab": "Manual Creation",
         "excelTab": "Import from Excel",
         "questionsCount": "{{count}} Question",
         "questionsCount_plural": "{{count}} Questions",
         "completed": "Completed",
         "addQuestion": "Add Question",
+        "aiGenerate": "Generate with AI",
+        "aiGenerateTitle": "Generate Questions with AI",
+        "aiGenerateTopic": "Topic / Category",
+        "aiGenerateTopicPlaceholder": "e.g. General Knowledge, Saudi History, Science",
+        "aiGenerateCount": "Number of questions",
+        "aiGenerateButton": "Generate",
+        "aiGenerateSuccess": "Generated {{count}} questions!",
+        "aiGenerateError": "Failed to generate. Please try again.",
+        "aiGenerateTopicRequired": "Please enter a topic or game name.",
         "progress": "Progress",
         "question": "Question {{number}}",
         "questionTextLabel": "Question Text",
         "questionPlaceholder": "Type your question here...",
         "optionsLabel": "Options",
         "optionPlaceholder": "Option {{number}}",
+        "addImage": "Add Image",
+        "removeImage": "Remove image",
+        "errorUploadImage": "Failed to upload image. Please try again.",
         "addOption": "Add Option",
         "removeQuestion": "Remove Question",
         "importExcelTitle": "Import Questions from Excel",
@@ -176,5 +194,16 @@
         "back": "Back",
         "error": "Error",
         "invalidCode": "Invalid game code. Please check and try again."
+    },
+    "chat": {
+        "title": "Chat",
+        "open": "Open chat",
+        "close": "Close chat",
+        "placeholder": "Send a message to get started...",
+        "typing": "Thinking...",
+        "inputPlaceholder": "Type your message...",
+        "errorNoReply": "No response received.",
+        "errorGeneric": "Something went wrong. Please try again.",
+        "errorEdgeFunction": "Chat is temporarily unavailable. Please try again. If the problem persists, deploy the chat Edge Function: run 'supabase functions deploy chat' and set GOOGLE_GENERATIVE_AI_API_KEY as a secret."
     }
 }

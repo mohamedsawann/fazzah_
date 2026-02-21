@@ -103,7 +103,7 @@ export default function LeaderboardView() {
 
         {/* Game Stats */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5">
+          <Card className="border-2 border-orange-400 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5">
             <CardContent className="p-4 text-center">
               <Users className="w-8 h-8 text-primary mx-auto mb-2" />
               <div className="text-2xl font-bold text-primary" data-testid="total-players">
@@ -113,7 +113,7 @@ export default function LeaderboardView() {
             </CardContent>
           </Card>
 
-          <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5">
+          <Card className="border-2 border-orange-400 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5">
             <CardContent className="p-4 text-center">
               <Target className="w-8 h-8 text-green-400 mx-auto mb-2" />
               <div className="text-2xl font-bold text-green-400" data-testid="completed-players">
@@ -130,7 +130,7 @@ export default function LeaderboardView() {
             <Button
               onClick={playSound.buttonClick}
               variant="outline"
-              className="bg-amber-500 hover:bg-amber-600 border border-amber-400 text-white"
+              className="bg-orange-500 hover:bg-orange-600 border border-orange-400 text-white px-3 py-2"
             >
               <div className="flex items-center">
                 {isRTL ? <ArrowRight className="w-4 h-4 ml-2" /> : <ArrowLeft className="w-4 h-4 mr-2" />}
@@ -150,7 +150,7 @@ export default function LeaderboardView() {
         </div>
 
         {/* Leaderboard */}
-        <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5">
+        <Card className="border-2 border-orange-400 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5">
           <CardHeader className="pb-3">
             <CardTitle className="text-xl text-center text-primary">
               🏆 {t('leaderboard.title')}

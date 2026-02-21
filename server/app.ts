@@ -12,7 +12,7 @@ function log(message: string) {
  */
 export async function createApp(): Promise<{ app: express.Express; server: import("http").Server }> {
   const app = express();
-  app.use(express.json());
+  app.use(express.json({ limit: "10mb" })); // Allow larger payloads for image uploads
   app.use(express.urlencoded({ extended: false }));
 
   app.use((req, res, next) => {

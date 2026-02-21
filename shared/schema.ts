@@ -7,6 +7,7 @@ export const games = pgTable("games", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   code: varchar("code", { length: 6 }).notNull().unique(),
   name: text("name").notNull(),
+  questionDurationSeconds: integer("question_duration").notNull().default(20),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   isActive: boolean("is_active").notNull().default(true),
 });
@@ -55,6 +56,8 @@ export const insertGameSchema = createInsertSchema(games).omit({
   createdAt: true,
   code: true,
   isActive: true,
+}).extend({
+  questionDurationSeconds: z.number().min(5).max(120).optional(),
 });
 
 export const insertPlayerSchema = createInsertSchema(players).omit({

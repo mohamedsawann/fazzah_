@@ -8,6 +8,7 @@ import { Link, useLocation } from "wouter";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { StickersBackground } from "@/components/stickers-background";
 import { playSound } from "@/lib/soundUtils";
 import { useTranslation } from "react-i18next";
 
@@ -50,14 +51,15 @@ export default function JoinGame() {
 
   return (
     <div className="min-h-screen relative overflow-hidden trivia-background">
+      <StickersBackground transparent />
       {/* Stronger overlay for better content readability */}
-      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm z-[1]"></div>
       <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
         <div className="mb-6">
           <Link href="/">
             <Button
               variant="ghost"
-              className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors p-0 bg-background/60 backdrop-blur-sm"
+              className="flex items-center gap-2 text-white bg-orange-500 hover:bg-orange-600 transition-colors px-3 py-2 rounded-md"
               data-testid="button-back"
             >
               {isRTL ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
@@ -73,7 +75,7 @@ export default function JoinGame() {
           <p className="text-lg text-primary font-medium">{t('joinGame.pageSubtitle')}</p>
         </div>
 
-        <Card className="border-2 border-primary/50 shadow-2xl shadow-primary/40 bg-gradient-to-br from-card/95 to-primary/10 backdrop-blur-md hover:shadow-primary/60 transition-all duration-300 hover:scale-[1.02]">
+        <Card className="border-2 border-orange-400 shadow-2xl shadow-primary/40 bg-orange-500/25 backdrop-blur-md hover:shadow-primary/60 transition-all duration-300 hover:scale-[1.02]">
           <CardContent className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -86,7 +88,7 @@ export default function JoinGame() {
                   placeholder={t('joinGame.codePlaceholder')}
                   value={gameCode}
                   onChange={(e) => setGameCode(e.target.value.toUpperCase())}
-                  className="w-full bg-background/90 border-2 border-primary/50 rounded-xl px-6 py-4 text-center text-3xl font-bold tracking-widest focus:ring-4 focus:ring-primary/50 focus:border-primary transition-all shadow-lg"
+                  className="w-full bg-white/70 border-2 border-gray-300 rounded-xl px-6 py-4 text-center text-3xl font-bold tracking-widest focus:ring-4 focus:ring-primary/50 focus:border-primary transition-all shadow-lg"
                   maxLength={6}
                   data-testid="input-game-code"
                 />

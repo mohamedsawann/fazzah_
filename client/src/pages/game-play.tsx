@@ -7,12 +7,24 @@ import { useLocation, useSearch } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { playSound } from "@/lib/soundUtils";
+import { StickersBackground } from "@/components/stickers-background";
+
+type OptionValue = string | { text: string; image?: string };
+
+function getOptionText(opt: OptionValue): string {
+  return typeof opt === "string" ? opt : opt.text;
+}
+
+function getOptionImage(opt: OptionValue): string | undefined {
+  return typeof opt === "string" ? undefined : opt.image;
+}
 
 interface Question {
   id: string;
   gameId: string;
   text: string;
-  options: string[];
+  image?: string;
+  options: OptionValue[];
   correctAnswer: number;
   order: number;
 }
@@ -38,6 +50,13 @@ export default function GamePlay() {
   const params = new URLSearchParams(search);
   const playerId = params.get("playerId");
   const gameId = params.get("gameId");
+
+  const { data: game } = useQuery<{ questionDurationSeconds?: number }>({
+    queryKey: ["/api/games", gameId],
+    enabled: !!gameId,
+  });
+
+  const questionDuration = game?.questionDurationSeconds ?? 20;
 
   const { data: questions, isLoading } = useQuery<Question[]>({
     queryKey: ["/api/games", gameId, "questions"],
@@ -94,7 +113,7 @@ export default function GamePlay() {
 
   // Reset timer when question changes
   useEffect(() => {
-    setTimeRemaining(20);
+    setTimeRemaining(questionDuration);
     setIsAnswered(false);
     setSelectedAnswer(null);
 
@@ -102,7 +121,7 @@ export default function GamePlay() {
     if (currentQuestionIndex === 0) {
       playSound.gameStart();
     }
-  }, [currentQuestionIndex]);
+  }, [currentQuestionIndex, questionDuration]);
 
   const currentQuestion = questions?.[currentQuestionIndex];
 
@@ -112,7 +131,7 @@ export default function GamePlay() {
     setSelectedAnswer(answerIndex);
     setIsAnswered(true);
 
-    const timeSpent = 20 - timeRemaining;
+    const timeSpent = questionDuration - timeRemaining;
     const isCorrect = answerIndex === currentQuestion.correctAnswer;
 
     const answerData = {
@@ -153,8 +172,9 @@ export default function GamePlay() {
 
   if (isLoading || !questions) {
     return (
-      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center trivia-background">
+        <StickersBackground transparent />
+        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm z-[1]"></div>
         <div className="text-center relative z-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">{t('gamePlay.loading')}</p>
@@ -163,7 +183,7 @@ export default function GamePlay() {
     );
   }
 
-  const progressPercentage = ((20 - timeRemaining) / 20) * 100;
+  const progressPercentage = ((questionDuration - timeRemaining) / questionDuration) * 100;
 
   // Dynamic timer bar colors based on time remaining
   const getTimerBarClass = () => {
@@ -177,10 +197,11 @@ export default function GamePlay() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden trivia-background">
+      <StickersBackground transparent />
       {/* Subtle overlay for content readability */}
-      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
-      <div className="container mx-auto px-4 py-8 max-w-md relative z-10">
+      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm z-[1]"></div>
+      <div className="container mx-auto px-4 py-8 max-w-2xl relative z-10">
         {/* Game Header */}
         <div className="flex justify-between items-center mb-6" data-testid="game-header">
           <div className="text-center">
@@ -248,9 +269,20 @@ export default function GamePlay() {
         </div>
 
         {/* Question */}
-        <Card className="border border-primary/30 shadow-lg shadow-primary/20 bg-gradient-to-br from-card to-primary/5 mb-6">
+        <Card className="border-2 border-orange-400 shadow-lg shadow-primary/20 bg-white/50 mb-6">
           <CardContent className="p-6">
-            <h3 className="text-xl font-medium text-center mb-6" data-testid="question-text">
+            {currentQuestion?.image && typeof currentQuestion.image === "string" && currentQuestion.image.length > 0 && (
+              <div className="flex justify-center mb-4 p-3 rounded-lg bg-orange-500/25 border border-orange-400/50">
+                <img
+                  src={currentQuestion.image}
+                  alt=""
+                  className="max-h-56 w-full object-contain rounded-lg shadow-md"
+                  aria-hidden
+                  loading="eager"
+                />
+              </div>
+            )}
+            <h3 className="text-xl font-medium text-center mb-4" data-testid="question-text">
               {currentQuestion?.text}
             </h3>
 
@@ -265,7 +297,7 @@ export default function GamePlay() {
                     playSound.buttonClick();
                     handleAnswerSelect(index);
                   }}
-                  className={`w-full bg-gradient-to-r from-accent/10 to-primary/10 hover:from-primary hover:to-accent hover:text-primary-foreground border border-accent/30 rounded-lg p-4 transition-all duration-300 transform hover:scale-[1.02] hover:-rotate-1 shadow-lg hover:shadow-accent/30 h-auto text-start ${isAnswered
+                  className={`w-full bg-orange-500/25 hover:bg-orange-500/35 border border-orange-400/50 rounded-lg p-4 transition-all duration-300 transform hover:scale-[1.02] hover:-rotate-1 shadow-lg h-auto text-start flex flex-col items-stretch gap-2 ${isAnswered
                     ? selectedAnswer === index
                       ? index === currentQuestion.correctAnswer
                         ? "bg-green-600 text-white"
@@ -277,7 +309,16 @@ export default function GamePlay() {
                     }`}
                   data-testid={`answer-option-${index}`}
                 >
-                  {option}
+                  {getOptionImage(option) && typeof getOptionImage(option) === "string" && getOptionImage(option)!.length > 0 && (
+                    <img
+                      src={getOptionImage(option)}
+                      alt=""
+                      className="max-h-32 w-full object-contain rounded-lg border border-white/20"
+                      aria-hidden
+                      loading="eager"
+                    />
+                  )}
+                  <span className={getOptionImage(option) ? "text-sm" : ""}>{getOptionText(option)}</span>
                 </Button>
               ))}
             </div>

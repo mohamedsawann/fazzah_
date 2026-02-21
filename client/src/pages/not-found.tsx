@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen w-full relative overflow-hidden flex items-center justify-center">
       <div className="absolute inset-0 bg-background/95 backdrop-blur-sm"></div>
-      <Card className="w-full max-w-md mx-4 relative z-10">
+      <Card className="w-full max-w-md mx-4 relative z-10 border-2 border-orange-400">
         <CardContent className="pt-6">
           <div className="flex mb-4 gap-2">
             <AlertCircle className="h-8 w-8 text-red-500" />
