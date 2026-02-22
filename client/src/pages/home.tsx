@@ -43,7 +43,7 @@ export default function Home() {
       <StickersBackground />
       {/* Developer credit - left side */}
       <div className="fixed bottom-4 left-4 flex flex-col gap-1 text-xs text-primary font-bold z-10 bg-white/70 backdrop-blur-sm rounded-lg px-3 py-2">
-        <span>{t("home.developedBy")} Mohamed Sawan & Nawal Fadi 🧡</span>
+        <span>{t("home.developedBy")} Mohamed Sawan 🧡</span>
         <a
           href="https://www.linkedin.com/in/mohammed-sawan-56ba6b251/"
           target="_blank"
