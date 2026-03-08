@@ -195,6 +195,27 @@ export default function Home() {
             </Button>
           </Link>
 
+          <Link href="/sin-jeem">
+            <Button
+              onClick={playSound.buttonClick}
+              variant="outline"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 border border-emerald-500 text-white font-medium py-6 px-8 rounded-xl shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 transition-all duration-300 transform hover:scale-[1.02] hover:rotate-1 text-xl h-auto"
+              data-testid="button-sin-jeem"
+            >
+              <div className="flex flex-col items-center justify-center gap-2">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl" aria-hidden>
+                    🎯
+                  </span>
+                  <span className="font-bold">{t("home.sinJeem.title")}</span>
+                </div>
+                <p className={`text-base text-primary font-bold`}>
+                  {t("home.sinJeem.subtitle")}
+                </p>
+              </div>
+            </Button>
+          </Link>
+
           <Link href="/view-leaderboard">
             <Button
               onClick={playSound.buttonClick}

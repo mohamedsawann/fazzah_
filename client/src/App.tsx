@@ -13,6 +13,8 @@ import Registration from "@/pages/registration";
 import GamePlay from "@/pages/game-play";
 import GameResults from "@/pages/game-results";
 import NotFound from "@/pages/not-found";
+import { SinJeemPage } from "@/features/sin-jeem";
+import AdminSinJeem from "@/pages/admin-sinjeem";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 
 function Router() {
@@ -27,6 +29,8 @@ function Router() {
       <Route path="/registration" component={Registration} />
       <Route path="/game-play" component={GamePlay} />
       <Route path="/game-results" component={GameResults} />
+      <Route path="/sin-jeem" component={SinJeemPage} />
+      <Route path="/admin/sinjeem" component={AdminSinJeem} />
       <Route component={NotFound} />
     </Switch>
   );

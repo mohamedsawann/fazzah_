@@ -35,6 +35,10 @@
             "title": "Chat with Fazzah 💬",
             "subtitle": "Ask me anything!"
         },
+        "sinJeem": {
+            "title": "Sin Jeem Game 🎯",
+            "subtitle": "Sin Jeem – Team Quiz"
+        },
         "developedBy": "Developed by",
         "visitors": "Visitors"
     },
@@ -194,6 +198,18 @@
         "back": "Back",
         "error": "Error",
         "invalidCode": "Invalid game code. Please check and try again."
+    },
+    "sinJeem": {
+        "setupTitle": "Sin Jeem Setup",
+        "team1Name": "Team 1 Name",
+        "team2Name": "Team 2 Name",
+        "selectCategories": "Select 4 to 6 categories",
+        "selected": "selected",
+        "startGame": "Start Game",
+        "sounds": "Sounds",
+        "winnerTitle": "The winner is",
+        "tie": "It's a tie!",
+        "playAgain": "Start New Game"
     },
     "chat": {
         "title": "Chat",
