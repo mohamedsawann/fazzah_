@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const MIN_CATEGORIES = 4;
 const MAX_CATEGORIES = 6;
-const DICE_FACES = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+const COIN_FACES = ["🪙", "⭕", "🪙", "⭕", "🪙", "⭕"];
 
 interface SinJeemSetupProps {
   onStart: (team1Name: string, team2Name: string, categoryIds: string[]) => void;
@@ -20,10 +20,10 @@ export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
   const [team1Name, setTeam1Name] = useState("");
   const [team2Name, setTeam2Name] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [diceRolling, setDiceRolling] = useState(false);
-  const [diceResult, setDiceResult] = useState<string | null>(null);
-  const [diceFace, setDiceFace] = useState("⚅");
-  const rollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [coinFlipping, setCoinFlipping] = useState(false);
+  const [coinResult, setCoinResult] = useState<string | null>(null);
+  const [coinFace, setCoinFace] = useState("🪙");
+  const flipIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const {
     data: categories = [],
@@ -34,25 +34,25 @@ export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
     queryFn: fetchSinJeemCategories,
   });
 
-  const rollDice = () => {
+  const flipCoin = () => {
     const t1 = team1Name.trim();
     const t2 = team2Name.trim();
     if (!t1 || !t2) return;
-    setDiceRolling(true);
-    setDiceResult(null);
-    if (rollIntervalRef.current) clearInterval(rollIntervalRef.current);
+    setCoinFlipping(true);
+    setCoinResult(null);
+    if (flipIntervalRef.current) clearInterval(flipIntervalRef.current);
     let count = 0;
-    rollIntervalRef.current = setInterval(() => {
-      setDiceFace(DICE_FACES[Math.floor(Math.random() * 6)]);
+    flipIntervalRef.current = setInterval(() => {
+      setCoinFace(COIN_FACES[Math.floor(Math.random() * COIN_FACES.length)]);
       count++;
-      if (count > 15) {
-        clearInterval(rollIntervalRef.current!);
-        rollIntervalRef.current = null;
+      if (count > 16) {
+        clearInterval(flipIntervalRef.current!);
+        flipIntervalRef.current = null;
         const winner = Math.random() < 0.5 ? t1 : t2;
-        setDiceResult(winner);
-        setDiceRolling(false);
+        setCoinResult(winner);
+        setCoinFlipping(false);
       }
-    }, 100);
+    }, 90);
   };
 
   const toggleCategory = (id: string) => {
@@ -119,32 +119,33 @@ export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
           </div>
         </div>
 
-        {/* ── Dice roll ── */}
+        {/* ── Coin flip ── */}
         {team1Name.trim() && team2Name.trim() && (
           <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-6 flex flex-col items-center gap-4 text-center">
             <p className="text-slate-400 text-sm">
-              {isArabic ? "ارمِ الزهر لتحديد من يبدأ" : "Roll the dice to decide who goes first"}
+              {isArabic ? "اقلب العملة لتحديد من يبدأ" : "Flip the coin to decide who goes first"}
             </p>
             <span
               className={cn(
-                "text-7xl select-none transition-all duration-75",
-                diceRolling && "animate-spin"
+                "text-7xl select-none",
+                coinFlipping && "animate-spin"
               )}
+              style={{ display: "inline-block" }}
             >
-              {diceFace}
+              {coinFace}
             </span>
             <button
-              onClick={rollDice}
-              disabled={diceRolling}
+              onClick={flipCoin}
+              disabled={coinFlipping}
               className="bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black font-black py-3 px-8 rounded-2xl text-lg shadow-lg shadow-amber-500/20 transition-all active:scale-95"
             >
-              {diceRolling
-                ? isArabic ? "يتم الرمي…" : "Rolling…"
-                : isArabic ? "🎲 ارمِ الزهر" : "🎲 Roll Dice"}
+              {coinFlipping
+                ? isArabic ? "جارٍ القلب…" : "Flipping…"
+                : isArabic ? "🪙 اقلب العملة" : "🪙 Flip Coin"}
             </button>
-            {diceResult && !diceRolling && (
+            {coinResult && !coinFlipping && (
               <div className="text-2xl font-black text-amber-400 animate-bounce mt-1">
-                🏆 {isArabic ? "يبدأ أولاً:" : "Goes first:"} {diceResult}
+                🏆 {isArabic ? "يبدأ أولاً:" : "Goes first:"} {coinResult}
               </div>
             )}
           </div>
