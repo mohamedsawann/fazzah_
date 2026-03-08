@@ -13,8 +13,8 @@ import Registration from "@/pages/registration";
 import GamePlay from "@/pages/game-play";
 import GameResults from "@/pages/game-results";
 import NotFound from "@/pages/not-found";
-import { SinJeemPage } from "@/features/sin-jeem";
-import AdminSinJeem from "@/pages/admin-sinjeem";
+import { SinJeemPage } from "@/features/sin-jeem/SinJeemPage";
+import AdminSinJeem from "@/pages/admin-sinjeem.tsx";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 
 function Router() {
