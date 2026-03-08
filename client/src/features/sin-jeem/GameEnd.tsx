@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface GameEndProps {
   team1Name: string;
@@ -9,39 +9,91 @@ interface GameEndProps {
   onPlayAgain: () => void;
 }
 
-export function GameEnd({
-  team1Name,
-  team2Name,
-  team1Score,
-  team2Score,
-  onPlayAgain,
-}: GameEndProps) {
+export function GameEnd({ team1Name, team2Name, team1Score, team2Score, onPlayAgain }: GameEndProps) {
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language?.startsWith("ar") ?? true;
-  const winner =
-    team1Score > team2Score
-      ? team1Name
-      : team2Score > team1Score
-        ? team2Name
-        : null;
+
+  const isTie = team1Score === team2Score;
+  const team1Wins = team1Score > team2Score;
+  const winner = isTie ? null : team1Wins ? team1Name : team2Name;
+  const winnerColor = team1Wins ? "text-amber-400" : "text-cyan-400";
+  const winnerGlow = team1Wins
+    ? "drop-shadow-[0_0_30px_rgba(251,191,36,0.6)]"
+    : "drop-shadow-[0_0_30px_rgba(34,211,238,0.6)]";
 
   return (
     <div
-      className="max-w-md mx-auto text-center space-y-6 py-8"
+      className="min-h-screen flex flex-col items-center justify-center text-center px-6 py-12 space-y-8"
       dir={isArabic ? "rtl" : "ltr"}
     >
-      <h2 className="text-3xl font-black text-amber-500">
-        🏆 {t("sinJeem.winnerTitle")}
-      </h2>
-      <p className="text-2xl font-bold text-white animate-pulse">
-        {winner ?? t("sinJeem.tie")}
-      </p>
-      <p className="text-lg text-muted-foreground">
-        {team1Name}: {team1Score} — {team2Name}: {team2Score}
-      </p>
-      <Button size="lg" className="text-lg" onClick={onPlayAgain}>
-        {t("sinJeem.playAgain")}
-      </Button>
+      <div className="text-8xl animate-bounce">{isTie ? "🤝" : "🏆"}</div>
+
+      <div className="space-y-3">
+        <h2 className="text-slate-400 text-lg font-semibold uppercase tracking-widest">
+          {isTie
+            ? isArabic ? "تعادل!" : "It's a tie!"
+            : isArabic ? "الفائز" : "Winner"}
+        </h2>
+        {winner && (
+          <p className={cn("text-5xl font-black", winnerColor, winnerGlow)}>
+            {winner}
+          </p>
+        )}
+      </div>
+
+      {/* Score cards */}
+      <div className="flex gap-6 items-end justify-center">
+        <div
+          className={cn(
+            "rounded-2xl px-8 py-5 border-2 flex flex-col items-center",
+            team1Wins
+              ? "bg-amber-500/20 border-amber-400"
+              : isTie
+                ? "bg-slate-700/50 border-slate-600"
+                : "bg-slate-800/50 border-slate-700"
+          )}
+        >
+          <span className="text-sm text-slate-400 font-semibold">{team1Name}</span>
+          <span
+            className={cn(
+              "text-5xl font-black tabular-nums mt-1",
+              team1Wins ? "text-amber-400" : "text-white"
+            )}
+          >
+            {team1Score}
+          </span>
+        </div>
+
+        <span className="text-slate-500 text-3xl font-black mb-4">VS</span>
+
+        <div
+          className={cn(
+            "rounded-2xl px-8 py-5 border-2 flex flex-col items-center",
+            !team1Wins && !isTie
+              ? "bg-cyan-500/20 border-cyan-400"
+              : isTie
+                ? "bg-slate-700/50 border-slate-600"
+                : "bg-slate-800/50 border-slate-700"
+          )}
+        >
+          <span className="text-sm text-slate-400 font-semibold">{team2Name}</span>
+          <span
+            className={cn(
+              "text-5xl font-black tabular-nums mt-1",
+              !team1Wins && !isTie ? "text-cyan-400" : "text-white"
+            )}
+          >
+            {team2Score}
+          </span>
+        </div>
+      </div>
+
+      <button
+        onClick={onPlayAgain}
+        className="bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-black font-black text-xl py-4 px-12 rounded-2xl shadow-xl shadow-amber-500/30 active:scale-95 transition-all"
+      >
+        {t("sinJeem.playAgain")} 🎮
+      </button>
     </div>
   );
 }

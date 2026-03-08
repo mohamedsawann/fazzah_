@@ -26,7 +26,6 @@ export function buildBoardFromQuestions(
     if (!byDiff) return;
 
     board[categoryId] = {} as Record<SinJeemDifficulty, TileState>;
-
     const doubleDifficulty = DIFFICULTIES[Math.floor(Math.random() * DIFFICULTIES.length)];
 
     DIFFICULTIES.forEach((d) => {
@@ -44,13 +43,17 @@ export function buildBoardFromQuestions(
   return board;
 }
 
-export function pickQuestionFromTile(tile: TileState): SinJeemQuestion | null {
+// Pure — does NOT mutate; caller must update state with incremented usedCount
+export function getNextQuestion(tile: TileState): SinJeemQuestion | null {
   if (tile.usedCount >= tile.questions.length) return null;
-  const q = tile.questions[tile.usedCount] ?? null;
-  tile.usedCount++;
-  return q;
+  return tile.questions[tile.usedCount] ?? null;
+}
+
+/** @deprecated use getNextQuestion — kept for backwards compat */
+export function pickQuestionFromTile(tile: TileState): SinJeemQuestion | null {
+  return getNextQuestion(tile);
 }
 
 export function isTileFullyUsed(tile: TileState): boolean {
-  return tile.usedCount >= tile.questions.length;
+  return !tile || tile.questions.length === 0 || tile.usedCount >= tile.questions.length;
 }

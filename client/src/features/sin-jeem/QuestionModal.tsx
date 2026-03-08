@@ -1,11 +1,6 @@
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { Timer } from "./Timer";
 import type { SinJeemQuestion } from "./types";
 
@@ -56,96 +51,130 @@ export function QuestionModal({
     ? (question?.answer_ar ?? "")
     : (question?.answer_en ?? question?.answer_ar ?? "");
 
+  // Prevent background scroll while open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  if (!open || !question) return null;
+
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent
-        className="max-w-lg max-h-[90vh] overflow-y-auto"
-        dir={isArabic ? "rtl" : "ltr"}
-      >
-        <DialogHeader>
-          <DialogTitle className="text-xl">
-            {isDouble && (
-              <span className="text-amber-500 font-bold mx-2">
-                ⭐ {isArabic ? "مضاعفة النقاط" : "Double Points"} ⭐
-              </span>
-            )}
-            {!isDouble && (
-              <span>
-                {displayPoints} {isArabic ? "نقطة" : "pts"}
-              </span>
-            )}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <p className="text-lg font-medium leading-relaxed">{questionText}</p>
-          {question?.image_url && (
-            <img
-              src={question.image_url}
-              alt=""
-              className="w-full rounded-lg object-contain max-h-48"
-            />
-          )}
-          {question?.audio_url && (
-            <audio src={question.audio_url} controls className="w-full" />
-          )}
-          {question?.video_url && (
-            <video
-              src={question.video_url}
-              controls
-              className="w-full rounded-lg"
-            />
-          )}
-          <Timer
-            running={timerRunning}
-            onExpire={onTimerExpire}
-            playTick={onPlayTick}
-            playBuzzer={onPlayBuzzer}
+    <div
+      className="fixed inset-0 z-[200] flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
+      {/* ── Top bar: points badge + close ── */}
+      <div className="flex items-center justify-between px-4 pt-5 pb-3 flex-shrink-0">
+        <button
+          onClick={onClose}
+          className="text-slate-500 hover:text-slate-300 text-2xl w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition"
+          aria-label="close"
+        >
+          ✕
+        </button>
+
+        {isDouble ? (
+          <div className="flex-1 mx-4 text-center">
+            <span className="inline-block bg-gradient-to-r from-amber-500 to-yellow-300 text-black rounded-full px-6 py-2 text-xl font-black shadow-xl shadow-amber-500/40 animate-pulse">
+              ⭐&nbsp;نقاط مضاعفة&nbsp;·&nbsp;{displayPoints}&nbsp;نقطة&nbsp;⭐
+            </span>
+          </div>
+        ) : (
+          <div className="flex-1 mx-4 text-center">
+            <span className="inline-block bg-blue-700 text-white rounded-full px-6 py-2 text-xl font-black shadow-xl shadow-blue-500/30">
+              {displayPoints}&nbsp;{isArabic ? "نقطة" : "pts"}
+            </span>
+          </div>
+        )}
+
+        {/* spacer to centre badge */}
+        <div className="w-10" />
+      </div>
+
+      {/* ── Timer ── */}
+      <div className="flex justify-center flex-shrink-0 pb-2">
+        <Timer
+          running={timerRunning}
+          onExpire={onTimerExpire}
+          playTick={onPlayTick}
+          playBuzzer={onPlayBuzzer}
+        />
+      </div>
+
+      {/* ── Question text (scrollable if very long) ── */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 sm:px-16 overflow-y-auto">
+        <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center leading-relaxed max-w-3xl">
+          {questionText}
+        </p>
+
+        {question.image_url && (
+          <img
+            src={question.image_url}
+            alt=""
+            className="mt-6 max-h-64 rounded-2xl object-contain shadow-2xl"
           />
-          {!answerRevealed ? (
-            <Button
-              size="lg"
-              className="w-full text-lg"
-              onClick={onRevealAnswer}
-            >
-              {isArabic ? "كشف الإجابة" : "Reveal Answer"}
-            </Button>
-          ) : (
-            <>
-              <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-4 border-2 border-green-500/50">
-                <p className="text-sm opacity-80 mb-1">
-                  {isArabic ? "الإجابة:" : "Answer:"}
-                </p>
-                <p className="text-xl font-bold text-green-700 dark:text-green-400">
-                  {answerText}
-                </p>
-              </div>
-              <p className="text-sm font-bold text-center">
-                +{displayPoints} {isArabic ? "للفريق الأول" : "Team 1"} / +
-                {displayPoints} {isArabic ? "للفريق الثاني" : "Team 2"}
+        )}
+        {question.audio_url && (
+          <audio src={question.audio_url} controls className="mt-4 w-full max-w-sm" />
+        )}
+        {question.video_url && (
+          <video src={question.video_url} controls className="mt-4 w-full max-w-lg rounded-2xl" />
+        )}
+      </div>
+
+      {/* ── Answer / Award section ── */}
+      <div className="flex-shrink-0 p-5 pb-8 max-w-3xl mx-auto w-full space-y-4">
+        {!answerRevealed ? (
+          <button
+            onClick={onRevealAnswer}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xl font-black py-5 rounded-2xl shadow-xl shadow-emerald-500/20 transition-all"
+          >
+            {isArabic ? "اكشف الإجابة 👁" : "Reveal Answer 👁"}
+          </button>
+        ) : (
+          <>
+            {/* Answer box */}
+            <div className="rounded-2xl bg-emerald-500/15 border-2 border-emerald-500 p-5 text-center animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <p className="text-emerald-400 text-sm font-semibold mb-2">
+                {isArabic ? "الإجابة" : "Answer"}
               </p>
-              <div className="grid grid-cols-3 gap-2">
-                <Button
-                  variant="default"
-                  className="bg-green-600 hover:bg-green-700"
-                  onClick={onAwardTeam1}
-                >
-                  +{displayPoints} {team1Name}
-                </Button>
-                <Button
-                  variant="default"
-                  className="bg-blue-600 hover:bg-blue-700"
-                  onClick={onAwardTeam2}
-                >
-                  +{displayPoints} {team2Name}
-                </Button>
-                <Button variant="outline" onClick={onNoPoints}>
-                  {isArabic ? "لا نقاط" : "No Points"}
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+              <p className="text-3xl font-black text-emerald-300 leading-snug">{answerText}</p>
+            </div>
+
+            {/* Award buttons */}
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={onAwardTeam1}
+                className="flex flex-col items-center justify-center gap-1 bg-amber-500 hover:bg-amber-400 active:scale-95 text-black font-black py-4 rounded-2xl shadow-lg shadow-amber-500/30 transition-all"
+              >
+                <span className="text-xl">+{displayPoints}</span>
+                <span className="text-xs truncate max-w-full px-2">{team1Name}</span>
+              </button>
+              <button
+                onClick={onAwardTeam2}
+                className="flex flex-col items-center justify-center gap-1 bg-cyan-500 hover:bg-cyan-400 active:scale-95 text-black font-black py-4 rounded-2xl shadow-lg shadow-cyan-500/30 transition-all"
+              >
+                <span className="text-xl">+{displayPoints}</span>
+                <span className="text-xs truncate max-w-full px-2">{team2Name}</span>
+              </button>
+              <button
+                onClick={onNoPoints}
+                className="flex flex-col items-center justify-center gap-1 bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-300 font-bold py-4 rounded-2xl transition-all"
+              >
+                <span className="text-xl">✗</span>
+                <span className="text-xs">{isArabic ? "لا نقاط" : "No Points"}</span>
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
   );
 }

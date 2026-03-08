@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 const TOTAL_SECONDS = 30;
 
@@ -11,17 +11,11 @@ interface TimerProps {
 }
 
 export function Timer({ running, onExpire, playTick, playBuzzer }: TimerProps) {
-  const { i18n } = useTranslation();
-  const isArabic = i18n.language?.startsWith("ar") ?? true;
   const [seconds, setSeconds] = useState(TOTAL_SECONDS);
-  const [lastTick, setLastTick] = useState<number | null>(null);
 
+  // Reset when (re)started
   useEffect(() => {
-    if (!running) {
-      setSeconds(TOTAL_SECONDS);
-      return;
-    }
-    setSeconds(TOTAL_SECONDS);
+    if (running) setSeconds(TOTAL_SECONDS);
   }, [running]);
 
   useEffect(() => {
@@ -42,15 +36,51 @@ export function Timer({ running, onExpire, playTick, playBuzzer }: TimerProps) {
 
   if (!running) return null;
 
+  const pct = (seconds / TOTAL_SECONDS) * 100;
+  const urgent = seconds <= 10;
+  const critical = seconds <= 5;
+
   return (
-    <div
-      className="flex items-center justify-center gap-2 rounded-xl bg-amber-500/20 border-2 border-amber-500 text-amber-600 dark:text-amber-400 py-3 px-6 text-2xl font-bold"
-      dir={isArabic ? "rtl" : "ltr"}
-    >
-      <span aria-hidden className="text-3xl">
-        ⏱
-      </span>
-      <span>{seconds}</span>
+    <div className="flex items-center gap-3">
+      {/* Circular countdown */}
+      <div className="relative w-16 h-16 flex-shrink-0">
+        <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="28" fill="none" stroke="#1e293b" strokeWidth="5" />
+          <circle
+            cx="32"
+            cy="32"
+            r="28"
+            fill="none"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeDasharray={`${2 * Math.PI * 28}`}
+            strokeDashoffset={`${2 * Math.PI * 28 * (1 - pct / 100)}`}
+            className={cn(
+              "transition-all duration-1000",
+              critical ? "stroke-red-500" : urgent ? "stroke-amber-400" : "stroke-emerald-400"
+            )}
+          />
+        </svg>
+        <span
+          className={cn(
+            "absolute inset-0 flex items-center justify-center text-xl font-black",
+            critical ? "text-red-400" : urgent ? "text-amber-300" : "text-white"
+          )}
+        >
+          {seconds}
+        </span>
+      </div>
+
+      {/* Bar */}
+      <div className="flex-1 h-3 rounded-full bg-slate-800 overflow-hidden max-w-xs">
+        <div
+          className={cn(
+            "h-full rounded-full transition-all duration-1000",
+            critical ? "bg-red-500" : urgent ? "bg-amber-400" : "bg-emerald-400"
+          )}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
     </div>
   );
 }
