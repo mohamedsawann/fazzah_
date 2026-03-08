@@ -4,9 +4,13 @@
   publish = "dist/public"
   functions = "netlify/functions"
 
-# Use Node 20 and skip Netlify's own function build (we ship pre-built server.js)
+# Use Node 20 and skip Netlify's own function build (we ship pre-built server.js).
+# SUPABASE_URL is intentionally public (same value as VITE_SUPABASE_URL in the client bundle);
+# exclude it from secrets scanning so the build doesn't fail.
 [build.environment]
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL"
 
-# Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Netlify: Site settings → Environment variables
+# Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
+# in Netlify: Site settings → Environment variables
