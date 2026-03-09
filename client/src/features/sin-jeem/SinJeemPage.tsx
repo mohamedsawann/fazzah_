@@ -22,8 +22,10 @@ import type {
   BoardState,
   SinJeemDifficulty,
 } from "./types";
+import { playSound } from "@/lib/soundUtils";
 
 type Phase = "setup" | "board" | "ended";
+type TeamTurn = "team1" | "team2";
 
 export function SinJeemPage() {
   const { t, i18n } = useTranslation();
@@ -37,6 +39,26 @@ export function SinJeemPage() {
   const [board, setBoard] = useState<BoardState>({});
   const [team1Score, setTeam1Score] = useState(0);
   const [team2Score, setTeam2Score] = useState(0);
+  const [currentTurn, setCurrentTurn] = useState<TeamTurn>("team1");
+  const [team1Avatar] = useState("🦅");
+  const [team2Avatar] = useState("🐆");
+  const [team1PowerUps, setTeam1PowerUps] = useState({
+    double: true,
+    skip: true,
+  });
+  const [team2PowerUps, setTeam2PowerUps] = useState({
+    double: true,
+    skip: true,
+  });
+  const [pendingDoubleForTeam, setPendingDoubleForTeam] =
+    useState<TeamTurn | null>(null);
+  const [stealToast, setStealToast] = useState<{
+    open: boolean;
+    team: TeamTurn;
+    multiplier: number;
+    points: number;
+  } | null>(null);
+
   const [modalOpen, setModalOpen] = useState(false);
   const [currentQuestion, setCurrentQuestion] =
     useState<SinJeemGameState["currentQuestion"]>(null);
@@ -44,6 +66,10 @@ export function SinJeemPage() {
   const [currentIsDouble, setCurrentIsDouble] = useState(false);
   const [answerRevealed, setAnswerRevealed] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
+
+  const switchTurn = useCallback(() => {
+    setCurrentTurn((prev) => (prev === "team1" ? "team2" : "team1"));
+  }, []);
 
   const handleStart = useCallback(
     async (t1: string, t2: string, ids: string[]) => {
@@ -58,27 +84,27 @@ export function SinJeemPage() {
       setBoard(newBoard);
       setTeam1Score(0);
       setTeam2Score(0);
+      setCurrentTurn("team1");
+      setTeam1PowerUps({ double: true, skip: true });
+      setTeam2PowerUps({ double: true, skip: true });
+      setPendingDoubleForTeam(null);
       setPhase("board");
+      playSound.gameStart();
     },
     [],
   );
 
-  // ── Open a tile — reads board directly (no setTimeout needed) ─────────────
-  // isDouble is ONLY set via forceDouble (the dedicated double-points button).
-  // Clicking a tile directly never doubles points.
   const openTile = useCallback(
     (
       categoryId: string,
       difficulty: SinJeemDifficulty,
       forceDouble = false,
     ) => {
-      // Read question before state update (board is in deps so it's fresh)
       const tile = board[categoryId]?.[difficulty];
       if (!tile || isTileFullyUsed(tile)) return;
       const q = getNextQuestion(tile);
       if (!q) return;
 
-      // Immutably increment usedCount
       setBoard((prev) => ({
         ...prev,
         [categoryId]: {
@@ -90,15 +116,16 @@ export function SinJeemPage() {
         },
       }));
 
-      // Open the modal (batched with setBoard in React 18)
+      const powerDouble = pendingDoubleForTeam === currentTurn;
       setCurrentQuestion(q);
       setCurrentPoints(difficulty);
-      setCurrentIsDouble(forceDouble); // ONLY the button can trigger double
+      setCurrentIsDouble(forceDouble || powerDouble);
+      if (powerDouble) setPendingDoubleForTeam(null);
       setAnswerRevealed(false);
       setTimerRunning(true);
       setModalOpen(true);
     },
-    [board],
+    [board, pendingDoubleForTeam, currentTurn],
   );
 
   const handleSelectTile = useCallback(
@@ -108,7 +135,6 @@ export function SinJeemPage() {
     [openTile],
   );
 
-  // ── Double-points random picker ───────────────────────────────────────────
   const handleDoublePoints = useCallback(() => {
     const available: { categoryId: string; difficulty: SinJeemDifficulty }[] =
       [];
@@ -131,7 +157,6 @@ export function SinJeemPage() {
     ),
   );
 
-  // ── Answer handlers ───────────────────────────────────────────────────────
   const handleRevealAnswer = useCallback(() => {
     setAnswerRevealed(true);
     setTimerRunning(false);
@@ -143,7 +168,6 @@ export function SinJeemPage() {
     setTimerRunning(false);
   }, []);
 
-  // Check game end only after modal closes (not while it's open)
   useEffect(() => {
     if (phase !== "board" || modalOpen || categoryIds.length === 0) return;
     const allUsed = categoryIds.every((catId) => {
@@ -154,29 +178,80 @@ export function SinJeemPage() {
       );
     });
     if (allUsed) {
-      // Ensure modal is gone before transitioning
       setModalOpen(false);
       setCurrentQuestion(null);
       setTimerRunning(false);
       setPhase("ended");
+      playSound.gameComplete();
     }
   }, [phase, modalOpen, board, categoryIds]);
 
-  const handleAwardTeam1 = useCallback(() => {
+  const handleAwardCurrentTeam = useCallback(() => {
     const pts = currentIsDouble ? currentPoints * 2 : currentPoints;
-    setTeam1Score((s) => s + pts);
+    if (currentTurn === "team1") {
+      setTeam1Score((s) => s + pts);
+    } else {
+      setTeam2Score((s) => s + pts);
+    }
+    playSound.correctAnswer();
+    switchTurn();
     closeModal();
-  }, [currentPoints, currentIsDouble, closeModal]);
+  }, [currentIsDouble, currentPoints, currentTurn, closeModal, switchTurn]);
 
-  const handleAwardTeam2 = useCallback(() => {
-    const pts = currentIsDouble ? currentPoints * 2 : currentPoints;
-    setTeam2Score((s) => s + pts);
+  const handleStealByOtherTeam = useCallback(() => {
+    // coin flip: 50% full points, 50% half points
+    const multiplier = Math.random() < 0.5 ? 1 : 0.5;
+    const base = currentIsDouble ? currentPoints * 2 : currentPoints;
+    const stealPoints = Math.round(base * multiplier);
+    const otherTeam = currentTurn === "team1" ? "team2" : "team1";
+    if (otherTeam === "team1") {
+      setTeam1Score((s) => s + stealPoints);
+    } else {
+      setTeam2Score((s) => s + stealPoints);
+    }
+    setStealToast({
+      open: true,
+      team: otherTeam,
+      multiplier,
+      points: stealPoints,
+    });
+    setCurrentTurn(otherTeam);
+    playSound.correctAnswer();
     closeModal();
-  }, [currentPoints, currentIsDouble, closeModal]);
+  }, [currentTurn, currentIsDouble, currentPoints, closeModal]);
 
-  const handleNoPoints = useCallback(() => closeModal(), [closeModal]);
+  const handleNoPoints = useCallback(() => {
+    playSound.wrongAnswer();
+    switchTurn();
+    closeModal();
+  }, [closeModal, switchTurn]);
 
   const handleTimerExpire = useCallback(() => setTimerRunning(false), []);
+
+  const handleUseDoublePower = useCallback(() => {
+    if (currentTurn === "team1") {
+      if (!team1PowerUps.double) return;
+      setTeam1PowerUps((p) => ({ ...p, double: false }));
+    } else {
+      if (!team2PowerUps.double) return;
+      setTeam2PowerUps((p) => ({ ...p, double: false }));
+    }
+    setPendingDoubleForTeam(currentTurn);
+    playSound.buttonClick();
+  }, [currentTurn, team1PowerUps.double, team2PowerUps.double]);
+
+  const handleUseSkipPower = useCallback(() => {
+    if (currentTurn === "team1") {
+      if (!team1PowerUps.skip) return;
+      setTeam1PowerUps((p) => ({ ...p, skip: false }));
+      setCurrentTurn("team2");
+    } else {
+      if (!team2PowerUps.skip) return;
+      setTeam2PowerUps((p) => ({ ...p, skip: false }));
+      setCurrentTurn("team1");
+    }
+    playSound.buttonClick();
+  }, [currentTurn, team1PowerUps.skip, team2PowerUps.skip]);
 
   const handlePlayAgain = useCallback(() => {
     setPhase("setup");
@@ -185,9 +260,18 @@ export function SinJeemPage() {
     setCategories([]);
     setModalOpen(false);
     setCurrentQuestion(null);
+    setPendingDoubleForTeam(null);
+    setStealToast(null);
   }, []);
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!stealToast?.open) return;
+    const timeout = setTimeout(() => {
+      setStealToast((prev) => (prev ? { ...prev, open: false } : prev));
+    }, 2200);
+    return () => clearTimeout(timeout);
+  }, [stealToast]);
+
   if (phase === "ended") {
     return (
       <div
@@ -247,6 +331,13 @@ export function SinJeemPage() {
               team2Name={team2Name}
               team1Score={team1Score}
               team2Score={team2Score}
+              team1Avatar={team1Avatar}
+              team2Avatar={team2Avatar}
+              currentTurn={currentTurn}
+              team1PowerUps={team1PowerUps}
+              team2PowerUps={team2PowerUps}
+              onUseDouble={handleUseDoublePower}
+              onUseSkip={handleUseSkipPower}
             />
             <SinJeemBoard
               categories={categories}
@@ -259,7 +350,6 @@ export function SinJeemPage() {
         )}
       </div>
 
-      {/* Full-screen question overlay — only render during board phase */}
       {phase === "board" && (
         <QuestionModal
           open={modalOpen}
@@ -268,17 +358,46 @@ export function SinJeemPage() {
           isDouble={currentIsDouble}
           team1Name={team1Name}
           team2Name={team2Name}
+          currentTurn={currentTurn}
+          team1Avatar={team1Avatar}
+          team2Avatar={team2Avatar}
           timerRunning={timerRunning}
           answerRevealed={answerRevealed}
           onRevealAnswer={handleRevealAnswer}
-          onAwardTeam1={handleAwardTeam1}
-          onAwardTeam2={handleAwardTeam2}
+          onAwardCurrentTeam={handleAwardCurrentTeam}
+          onStealByOtherTeam={handleStealByOtherTeam}
           onNoPoints={handleNoPoints}
           onTimerExpire={handleTimerExpire}
-          onPlayTick={undefined}
-          onPlayBuzzer={undefined}
+          onPlayTick={playSound.warningTick}
+          onPlayBuzzer={playSound.timeWarning}
           onClose={closeModal}
         />
+      )}
+
+      {phase === "board" && stealToast?.open && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[220] animate-in fade-in slide-in-from-top-3 duration-300">
+          <div className="rounded-2xl border border-amber-300/40 bg-slate-900/95 backdrop-blur px-5 py-3 shadow-2xl shadow-amber-500/20 text-center min-w-[260px]">
+            <p className="text-xs text-slate-400 mb-1">
+              {isArabic ? "نتيجة السرقة" : "Steal Result"}
+            </p>
+            <p className="text-base font-black text-amber-300">
+              {stealToast.team === "team1"
+                ? `${team1Avatar} ${team1Name}`
+                : `${team2Avatar} ${team2Name}`}
+            </p>
+            <p className="text-sm font-bold text-white mt-0.5">
+              {stealToast.multiplier === 1
+                ? isArabic
+                  ? "🪙 نقاط كاملة"
+                  : "🪙 Full points"
+                : isArabic
+                  ? "🪙 نصف النقاط"
+                  : "🪙 Half points"}
+              {" · +"}
+              {stealToast.points}
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );

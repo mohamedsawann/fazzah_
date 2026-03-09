@@ -9,6 +9,7 @@ import CreateGame from "@/pages/create-game";
 import GameCreated from "@/pages/game-created";
 import LeaderboardView from "@/pages/leaderboard-view";
 import ViewLeaderboard from "@/pages/view-leaderboard";
+import QuizGameHub from "@/pages/quiz-game";
 import Registration from "@/pages/registration";
 import GamePlay from "@/pages/game-play";
 import GameResults from "@/pages/game-results";
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/game-created" component={GameCreated} />
       <Route path="/leaderboard-view" component={LeaderboardView} />
       <Route path="/view-leaderboard" component={ViewLeaderboard} />
+      <Route path="/quiz-game" component={QuizGameHub} />
       <Route path="/registration" component={Registration} />
       <Route path="/game-play" component={GamePlay} />
       <Route path="/game-results" component={GameResults} />

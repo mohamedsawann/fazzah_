@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { PlayCircle, PlusCircle, Users } from "lucide-react";
+import { Gamepad2, Users } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
 import { playSound } from "@/lib/soundUtils";
 import { StickersBackground } from "@/components/stickers-background";
@@ -135,110 +135,80 @@ export default function Home() {
           >
             {t("common.appName")}
           </p>
-          <div
-            className={`w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] flex justify-center ${isArabic ? "mt-10" : ""}`}
-          >
-            <p
-              className={`text-base text-primary mt-0 whitespace-pre-line text-center max-w-2xl px-4 font-bold`}
-              style={{
-                fontFamily: isArabic
-                  ? "Cairo, sans-serif"
-                  : "Nunito, sans-serif",
-              }}
-            >
-              {t("home.title")}
-            </p>
-          </div>
+          <div className={`h-2 ${isArabic ? "mt-10" : ""}`} />
         </div>
 
         {/* Main Action Buttons */}
         <div className="space-y-4 mb-6">
-          <Link href="/join-game">
-            <Button
-              onClick={playSound.buttonClick}
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-6 px-8 rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-[1.02] hover:-rotate-1 text-xl h-auto"
-              data-testid="button-join-game"
-            >
-              <div className="flex flex-col items-center justify-center gap-2">
-                <div className="flex items-center gap-3">
-                  <PlayCircle
-                    className="w-7 h-7 animate-spin"
-                    style={{ animationDuration: "3s" }}
-                  />
-                  <span className="font-bold">{t("home.joinGame.title")}</span>
-                </div>
-                <p className={`text-base text-primary-foreground/80 font-bold`}>
-                  {t("home.joinGame.subtitle")}
-                </p>
-              </div>
-            </Button>
-          </Link>
-
-          <Link href="/create-game">
-            <Button
-              onClick={playSound.buttonClick}
-              variant="secondary"
-              className="w-full bg-amber-500 hover:bg-amber-600 border border-amber-400 text-white font-medium py-6 px-8 rounded-xl shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all duration-300 transform hover:scale-[1.02] hover:rotate-1 text-xl h-auto"
-              data-testid="button-create-game"
-            >
-              <div className="flex flex-col items-center justify-center gap-2">
-                <div className="flex items-center gap-3">
-                  <PlusCircle className="w-7 h-7 animate-pulse" />
-                  <span className="font-bold">
-                    {t("home.createGame.title")}
-                  </span>
-                </div>
-                <p className={`text-base text-primary font-bold`}>
-                  {t("home.createGame.subtitle")}
-                </p>
-              </div>
-            </Button>
-          </Link>
-
           <Link href="/sin-jeem">
             <Button
               onClick={playSound.buttonClick}
               variant="outline"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 border border-emerald-500 text-white font-medium py-6 px-8 rounded-xl shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 transition-all duration-300 transform hover:scale-[1.02] hover:rotate-1 text-xl h-auto"
+              className="w-full relative overflow-hidden bg-emerald-600 hover:bg-emerald-700 border border-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/50 transition-all duration-300 transform hover:scale-[1.02] hover:-rotate-1 h-auto py-7 px-6"
               data-testid="button-sin-jeem"
             >
-              <div className="flex flex-col items-center justify-center gap-2">
+              <div className="absolute -top-4 -right-3 text-6xl opacity-20 pointer-events-none">
+                🎯
+              </div>
+              <div className="absolute -bottom-4 -left-3 text-5xl opacity-20 pointer-events-none">
+                ⭐
+              </div>
+              <div className="relative flex flex-col items-center text-center gap-2 w-full">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl" aria-hidden>
+                  <span className="text-3xl" aria-hidden>
                     🎯
                   </span>
-                  <span className="font-bold">{t("home.sinJeem.title")}</span>
+                  <span className="font-black text-2xl">
+                    {t("home.sinJeem.title")}
+                  </span>
                 </div>
-                <p className={`text-base text-primary font-bold`}>
+                <p className="text-base text-white/90 font-semibold">
                   {t("home.sinJeem.subtitle")}
                 </p>
               </div>
             </Button>
           </Link>
 
-          <Link href="/view-leaderboard">
+          <Link href="/quiz-game">
             <Button
               onClick={playSound.buttonClick}
               variant="outline"
-              className="w-full bg-slate-600 hover:bg-slate-700 border border-slate-500 text-white font-medium py-6 px-8 rounded-xl shadow-lg shadow-slate-600/20 hover:shadow-slate-600/40 transition-all duration-300 transform hover:scale-[1.02] hover:-rotate-1 text-xl h-auto"
-              data-testid="button-view-leaderboard"
+              className="w-full relative overflow-hidden bg-orange-500 hover:bg-orange-600 border border-orange-400 text-white rounded-2xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-[1.02] hover:rotate-1 h-auto py-7 px-6"
+              data-testid="button-quiz-hub"
             >
-              <div className="flex flex-col items-center justify-center gap-2">
+              <div className="absolute -top-4 -right-2 text-6xl opacity-20 pointer-events-none">
+                🏆
+              </div>
+              <div className="absolute -bottom-4 -left-2 text-5xl opacity-20 pointer-events-none">
+                🎮
+              </div>
+              <div className="relative flex flex-col items-center text-center gap-2 w-full">
                 <div className="flex items-center gap-3">
-                  <Users
-                    className="w-7 h-7 animate-bounce"
-                    style={{ animationDuration: "2s" }}
-                  />
-                  <span className="font-bold">
-                    {t("home.viewLeaderboard.title")}
+                  <Gamepad2 className="w-8 h-8" />
+                  <span className="font-black text-2xl">
+                    {isArabic ? "لعبة الكويز" : "Quiz Game"}
                   </span>
                 </div>
-                <p className={`text-base text-primary font-bold`}>
-                  {t("home.viewLeaderboard.subtitle")}
+                <p className="text-base text-white/90 font-semibold">
+                  {isArabic
+                    ? "انضم، أنشئ لعبة، وشاهد لوحة المتصدرين"
+                    : "Join, create game, and view leaderboard"}
                 </p>
               </div>
             </Button>
           </Link>
+
+          <div className="flex justify-center pt-1">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-sm text-primary text-sm font-bold animate-pulse">
+              <span className="text-base" aria-hidden>
+                ✨
+              </span>
+              <span>{isArabic ? "اختر وضع اللعب" : "Choose your mode"}</span>
+              <span className="text-base" aria-hidden>
+                🎮
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

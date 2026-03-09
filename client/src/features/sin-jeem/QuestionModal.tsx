@@ -11,11 +11,14 @@ interface QuestionModalProps {
   isDouble: boolean;
   team1Name: string;
   team2Name: string;
+  currentTurn: "team1" | "team2";
+  team1Avatar: string;
+  team2Avatar: string;
   timerRunning: boolean;
   answerRevealed: boolean;
   onRevealAnswer: () => void;
-  onAwardTeam1: () => void;
-  onAwardTeam2: () => void;
+  onAwardCurrentTeam: () => void;
+  onStealByOtherTeam: () => void;
   onNoPoints: () => void;
   onTimerExpire: () => void;
   onPlayTick?: () => void;
@@ -30,11 +33,14 @@ export function QuestionModal({
   isDouble,
   team1Name,
   team2Name,
+  currentTurn,
+  team1Avatar,
+  team2Avatar,
   timerRunning,
   answerRevealed,
   onRevealAnswer,
-  onAwardTeam1,
-  onAwardTeam2,
+  onAwardCurrentTeam,
+  onStealByOtherTeam,
   onNoPoints,
   onTimerExpire,
   onPlayTick,
@@ -50,6 +56,10 @@ export function QuestionModal({
   const answerText = isArabic
     ? (question?.answer_ar ?? "")
     : (question?.answer_en ?? question?.answer_ar ?? "");
+  const currentTeamName = currentTurn === "team1" ? team1Name : team2Name;
+  const currentTeamAvatar = currentTurn === "team1" ? team1Avatar : team2Avatar;
+  const otherTeamName = currentTurn === "team1" ? team2Name : team1Name;
+  const otherTeamAvatar = currentTurn === "team1" ? team2Avatar : team1Avatar;
 
   // Prevent background scroll while open
   useEffect(() => {
@@ -110,6 +120,12 @@ export function QuestionModal({
 
       {/* ── Question text (scrollable if very long) ── */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 sm:px-16 overflow-y-auto">
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-bold text-amber-300">
+          <span>{currentTeamAvatar}</span>
+          <span>
+            {isArabic ? "الدور على" : "Turn:"} {currentTeamName}
+          </span>
+        </div>
         <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center leading-relaxed max-w-3xl">
           {questionText}
         </p>
@@ -122,10 +138,18 @@ export function QuestionModal({
           />
         )}
         {question.audio_url && (
-          <audio src={question.audio_url} controls className="mt-4 w-full max-w-sm" />
+          <audio
+            src={question.audio_url}
+            controls
+            className="mt-4 w-full max-w-sm"
+          />
         )}
         {question.video_url && (
-          <video src={question.video_url} controls className="mt-4 w-full max-w-lg rounded-2xl" />
+          <video
+            src={question.video_url}
+            controls
+            className="mt-4 w-full max-w-lg rounded-2xl"
+          />
         )}
       </div>
 
@@ -145,31 +169,41 @@ export function QuestionModal({
               <p className="text-emerald-400 text-sm font-semibold mb-2">
                 {isArabic ? "الإجابة" : "Answer"}
               </p>
-              <p className="text-3xl font-black text-emerald-300 leading-snug">{answerText}</p>
+              <p className="text-3xl font-black text-emerald-300 leading-snug">
+                {answerText}
+              </p>
             </div>
 
             {/* Award buttons */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
-                onClick={onAwardTeam1}
+                onClick={onAwardCurrentTeam}
                 className="flex flex-col items-center justify-center gap-1 bg-amber-500 hover:bg-amber-400 active:scale-95 text-black font-black py-4 rounded-2xl shadow-lg shadow-amber-500/30 transition-all"
               >
                 <span className="text-xl">+{displayPoints}</span>
-                <span className="text-xs truncate max-w-full px-2">{team1Name}</span>
+                <span className="text-xs truncate max-w-full px-2">
+                  {currentTeamAvatar} {currentTeamName}
+                </span>
               </button>
               <button
-                onClick={onAwardTeam2}
+                onClick={onStealByOtherTeam}
                 className="flex flex-col items-center justify-center gap-1 bg-cyan-500 hover:bg-cyan-400 active:scale-95 text-black font-black py-4 rounded-2xl shadow-lg shadow-cyan-500/30 transition-all"
               >
-                <span className="text-xl">+{displayPoints}</span>
-                <span className="text-xs truncate max-w-full px-2">{team2Name}</span>
+                <span className="text-base">
+                  {isArabic ? "سرقة 🎲" : "Steal 🎲"}
+                </span>
+                <span className="text-xs truncate max-w-full px-2">
+                  {otherTeamAvatar} {otherTeamName}
+                </span>
               </button>
               <button
                 onClick={onNoPoints}
                 className="flex flex-col items-center justify-center gap-1 bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-300 font-bold py-4 rounded-2xl transition-all"
               >
                 <span className="text-xl">✗</span>
-                <span className="text-xs">{isArabic ? "لا نقاط" : "No Points"}</span>
+                <span className="text-xs">
+                  {isArabic ? "لا نقاط" : "No Points"}
+                </span>
               </button>
             </div>
           </>

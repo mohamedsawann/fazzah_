@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { useMemo } from "react";
 
 interface GameEndProps {
   team1Name: string;
@@ -9,7 +10,13 @@ interface GameEndProps {
   onPlayAgain: () => void;
 }
 
-export function GameEnd({ team1Name, team2Name, team1Score, team2Score, onPlayAgain }: GameEndProps) {
+export function GameEnd({
+  team1Name,
+  team2Name,
+  team1Score,
+  team2Score,
+  onPlayAgain,
+}: GameEndProps) {
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language?.startsWith("ar") ?? true;
 
@@ -20,19 +27,64 @@ export function GameEnd({ team1Name, team2Name, team1Score, team2Score, onPlayAg
   const winnerGlow = team1Wins
     ? "drop-shadow-[0_0_30px_rgba(251,191,36,0.6)]"
     : "drop-shadow-[0_0_30px_rgba(34,211,238,0.6)]";
+  const confettiPieces = useMemo(
+    () =>
+      Array.from({ length: 40 }).map((_, i) => ({
+        id: i,
+        left: `${(i * 2.5) % 100}%`,
+        delay: `${(i % 10) * 0.12}s`,
+        duration: `${3 + (i % 5) * 0.4}s`,
+        emoji: ["🎉", "✨", "🎊", "⭐"][i % 4],
+      })),
+    [],
+  );
 
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center text-center px-6 py-12 space-y-8"
       dir={isArabic ? "rtl" : "ltr"}
     >
+      {!isTie && (
+        <>
+          <style>{`
+            @keyframes sjConfettiFall {
+              0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+              10% { opacity: 1; }
+              100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+            }
+          `}</style>
+          <div className="pointer-events-none fixed inset-0 overflow-hidden">
+            {confettiPieces.map((p) => (
+              <span
+                key={p.id}
+                className="absolute text-2xl"
+                style={{
+                  left: p.left,
+                  top: "-8vh",
+                  animationName: "sjConfettiFall",
+                  animationTimingFunction: "linear",
+                  animationIterationCount: "infinite",
+                  animationDelay: p.delay,
+                  animationDuration: p.duration,
+                }}
+              >
+                {p.emoji}
+              </span>
+            ))}
+          </div>
+        </>
+      )}
       <div className="text-8xl animate-bounce">{isTie ? "🤝" : "🏆"}</div>
 
       <div className="space-y-3">
         <h2 className="text-slate-400 text-lg font-semibold uppercase tracking-widest">
           {isTie
-            ? isArabic ? "تعادل!" : "It's a tie!"
-            : isArabic ? "الفائز" : "Winner"}
+            ? isArabic
+              ? "تعادل!"
+              : "It's a tie!"
+            : isArabic
+              ? "الفائز"
+              : "Winner"}
         </h2>
         {winner && (
           <p className={cn("text-5xl font-black", winnerColor, winnerGlow)}>
@@ -50,14 +102,16 @@ export function GameEnd({ team1Name, team2Name, team1Score, team2Score, onPlayAg
               ? "bg-amber-500/20 border-amber-400"
               : isTie
                 ? "bg-slate-700/50 border-slate-600"
-                : "bg-slate-800/50 border-slate-700"
+                : "bg-slate-800/50 border-slate-700",
           )}
         >
-          <span className="text-sm text-slate-400 font-semibold">{team1Name}</span>
+          <span className="text-sm text-slate-400 font-semibold">
+            {team1Name}
+          </span>
           <span
             className={cn(
               "text-5xl font-black tabular-nums mt-1",
-              team1Wins ? "text-amber-400" : "text-white"
+              team1Wins ? "text-amber-400" : "text-white",
             )}
           >
             {team1Score}
@@ -73,14 +127,16 @@ export function GameEnd({ team1Name, team2Name, team1Score, team2Score, onPlayAg
               ? "bg-cyan-500/20 border-cyan-400"
               : isTie
                 ? "bg-slate-700/50 border-slate-600"
-                : "bg-slate-800/50 border-slate-700"
+                : "bg-slate-800/50 border-slate-700",
           )}
         >
-          <span className="text-sm text-slate-400 font-semibold">{team2Name}</span>
+          <span className="text-sm text-slate-400 font-semibold">
+            {team2Name}
+          </span>
           <span
             className={cn(
               "text-5xl font-black tabular-nums mt-1",
-              !team1Wins && !isTie ? "text-cyan-400" : "text-white"
+              !team1Wins && !isTie ? "text-cyan-400" : "text-white",
             )}
           >
             {team2Score}
