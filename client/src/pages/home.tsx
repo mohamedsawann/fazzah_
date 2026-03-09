@@ -36,6 +36,10 @@ export default function Home() {
     trackVisitorMutation.mutate();
   }, []);
 
+  useEffect(() => {
+    document.title = `${t("common.appName")} — ${t("common.tagline")}`;
+  }, [t, i18n.language]);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Subtle overlay for content readability */}
@@ -134,6 +138,9 @@ export default function Home() {
             className={`text-2xl text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text font-sans mb-0 ${!isArabic ? "-mt-12" : ""} font-bold`}
           >
             {t("common.appName")}
+          </p>
+          <p className="text-sm md:text-base text-primary/80 font-medium mt-1">
+            {t("common.tagline")}
           </p>
           <div className={`h-2 ${isArabic ? "mt-10" : ""}`} />
         </div>

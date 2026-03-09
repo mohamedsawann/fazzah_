@@ -1,6 +1,7 @@
 {
     "common": {
         "appName": "Fazzah",
+        "tagline": "Where Play Comes Alive ✨",
         "loading": "Loading...",
         "error": "Error",
         "success": "Success",
