@@ -70,7 +70,7 @@ export default function Home() {
             </span>
           </div>
         )}
-      <div className="container mx-auto px-4 py-4 max-w-md relative z-10">
+      <div className="container mx-auto px-4 py-4 pb-28 md:pb-4 max-w-md relative z-10">
         {/* Header */}
         <div
           className={`text-center mt-2 ${isArabic ? "mb-2" : "mb-1"}`}
