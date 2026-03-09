@@ -9,7 +9,7 @@ import CreateGame from "@/pages/create-game";
 import GameCreated from "@/pages/game-created";
 import LeaderboardView from "@/pages/leaderboard-view";
 import ViewLeaderboard from "@/pages/view-leaderboard";
-import QuizGameHub from "@/pages/quiz-game";
+import QuizGameHub from "@/pages/quiz-game.tsx";
 import Registration from "@/pages/registration";
 import GamePlay from "@/pages/game-play";
 import GameResults from "@/pages/game-results";
