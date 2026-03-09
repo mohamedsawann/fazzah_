@@ -105,7 +105,6 @@ export function SinJeemBoard({
                   {categories.map((cat, colIdx) => {
                     const tile = board[cat.id]?.[diff];
                     const used = !tile || isTileFullyUsed(tile);
-                    const isDouble = tile?.isDouble ?? false;
 
                     return (
                       <td
@@ -124,24 +123,13 @@ export function SinJeemBoard({
                             "w-full min-h-[72px] rounded-xl font-black text-xl transition-all duration-150 flex flex-col items-center justify-center gap-1 border-2",
                             used
                               ? "bg-slate-800/30 border-slate-700/20 text-slate-700 cursor-not-allowed"
-                              : cn(
-                                  style.cell,
-                                  "border-2 active:scale-95 hover:scale-[1.04]",
-                                  isDouble && "ring-2 ring-amber-400 ring-offset-1 ring-offset-slate-900 shadow-lg shadow-amber-500/30"
-                                )
+                              : cn(style.cell, "border-2 active:scale-95 hover:scale-[1.04]")
                           )}
                         >
                           {used ? (
                             <span className="text-slate-700 text-2xl">—</span>
                           ) : (
-                            <>
-                              <span>{diff}</span>
-                              {isDouble && (
-                                <span className="text-amber-300 text-xs font-bold">
-                                  ⭐ {isArabic ? "×٢" : "×2"}
-                                </span>
-                              )}
-                            </>
+                            <span>{diff}</span>
                           )}
                         </button>
                       </td>

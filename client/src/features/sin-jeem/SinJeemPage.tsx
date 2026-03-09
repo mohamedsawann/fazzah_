@@ -63,41 +63,38 @@ export function SinJeemPage() {
     [],
   );
 
-  // ── Open a tile — immutably increments usedCount in board state ──────────
+  // ── Open a tile — reads board directly (no setTimeout needed) ─────────────
+  // isDouble is ONLY set via forceDouble (the dedicated double-points button).
+  // Clicking a tile directly never doubles points.
   const openTile = useCallback(
     (categoryId: string, difficulty: SinJeemDifficulty, forceDouble = false) => {
-      setBoard((prev) => {
-        const tile = prev[categoryId]?.[difficulty];
-        if (!tile || isTileFullyUsed(tile)) return prev;
-        const q = getNextQuestion(tile);
-        if (!q) return prev;
+      // Read question before state update (board is in deps so it's fresh)
+      const tile = board[categoryId]?.[difficulty];
+      if (!tile || isTileFullyUsed(tile)) return;
+      const q = getNextQuestion(tile);
+      if (!q) return;
 
-        // Immutable update
-        const updated: BoardState = {
-          ...prev,
-          [categoryId]: {
-            ...prev[categoryId],
-            [difficulty]: {
-              ...tile,
-              usedCount: tile.usedCount + 1,
-            },
+      // Immutably increment usedCount
+      setBoard((prev) => ({
+        ...prev,
+        [categoryId]: {
+          ...prev[categoryId],
+          [difficulty]: {
+            ...prev[categoryId][difficulty],
+            usedCount: prev[categoryId][difficulty].usedCount + 1,
           },
-        };
+        },
+      }));
 
-        // Schedule modal open after state update
-        setTimeout(() => {
-          setCurrentQuestion(q);
-          setCurrentPoints(difficulty);
-          setCurrentIsDouble(forceDouble || tile.isDouble);
-          setAnswerRevealed(false);
-          setTimerRunning(true);
-          setModalOpen(true);
-        }, 0);
-
-        return updated;
-      });
+      // Open the modal (batched with setBoard in React 18)
+      setCurrentQuestion(q);
+      setCurrentPoints(difficulty);
+      setCurrentIsDouble(forceDouble); // ONLY the button can trigger double
+      setAnswerRevealed(false);
+      setTimerRunning(true);
+      setModalOpen(true);
     },
-    [],
+    [board],
   );
 
   const handleSelectTile = useCallback(
@@ -107,7 +104,7 @@ export function SinJeemPage() {
     [openTile],
   );
 
-  // ── Double-points: pick a random available tile ───────────────────────────
+  // ── Double-points random picker ───────────────────────────────────────────
   const handleDoublePoints = useCallback(() => {
     const available: { categoryId: string; difficulty: SinJeemDifficulty }[] = [];
     for (const catId of categoryIds) {
@@ -129,7 +126,7 @@ export function SinJeemPage() {
     ),
   );
 
-  // ── Answer handling ───────────────────────────────────────────────────────
+  // ── Answer handlers ───────────────────────────────────────────────────────
   const handleRevealAnswer = useCallback(() => {
     setAnswerRevealed(true);
     setTimerRunning(false);
@@ -141,6 +138,7 @@ export function SinJeemPage() {
     setTimerRunning(false);
   }, []);
 
+  // Check game end only after modal closes (not while it's open)
   useEffect(() => {
     if (phase !== "board" || modalOpen || categoryIds.length === 0) return;
     const allUsed = categoryIds.every((catId) => {
@@ -150,7 +148,13 @@ export function SinJeemPage() {
         isTileFullyUsed(catBoard[d]),
       );
     });
-    if (allUsed) setPhase("ended");
+    if (allUsed) {
+      // Ensure modal is gone before transitioning
+      setModalOpen(false);
+      setCurrentQuestion(null);
+      setTimerRunning(false);
+      setPhase("ended");
+    }
   }, [phase, modalOpen, board, categoryIds]);
 
   const handleAwardTeam1 = useCallback(() => {
@@ -165,19 +169,17 @@ export function SinJeemPage() {
     closeModal();
   }, [currentPoints, currentIsDouble, closeModal]);
 
-  const handleNoPoints = useCallback(() => {
-    closeModal();
-  }, [closeModal]);
+  const handleNoPoints = useCallback(() => closeModal(), [closeModal]);
 
-  const handleTimerExpire = useCallback(() => {
-    setTimerRunning(false);
-  }, []);
+  const handleTimerExpire = useCallback(() => setTimerRunning(false), []);
 
   const handlePlayAgain = useCallback(() => {
     setPhase("setup");
     setBoard({});
     setCategoryIds([]);
     setCategories([]);
+    setModalOpen(false);
+    setCurrentQuestion(null);
   }, []);
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -203,7 +205,6 @@ export function SinJeemPage() {
       className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 text-white"
       dir={isArabic ? "rtl" : "ltr"}
     >
-      {/* ── Top bar (only on board phase) ── */}
       {phase === "board" && (
         <div className="sticky top-0 z-10 bg-slate-950/90 backdrop-blur border-b border-slate-800 px-4 py-2 flex items-center justify-between gap-2">
           <Link href="/">
@@ -218,10 +219,8 @@ export function SinJeemPage() {
       )}
 
       <div className="max-w-4xl mx-auto px-3 py-4 space-y-4">
-        {/* Setup phase */}
         {phase === "setup" && (
           <>
-            {/* Back link on setup */}
             <div className="pt-2">
               <Link href="/">
                 <button className="text-slate-400 hover:text-white flex items-center gap-1 text-sm py-1 px-2 rounded-lg hover:bg-white/5 transition">
@@ -234,7 +233,6 @@ export function SinJeemPage() {
           </>
         )}
 
-        {/* Board phase */}
         {phase === "board" && (
           <>
             <ScoreBoard
@@ -254,25 +252,27 @@ export function SinJeemPage() {
         )}
       </div>
 
-      {/* Full-screen question overlay */}
-      <QuestionModal
-        open={modalOpen}
-        question={currentQuestion}
-        points={currentPoints}
-        isDouble={currentIsDouble}
-        team1Name={team1Name}
-        team2Name={team2Name}
-        timerRunning={timerRunning}
-        answerRevealed={answerRevealed}
-        onRevealAnswer={handleRevealAnswer}
-        onAwardTeam1={handleAwardTeam1}
-        onAwardTeam2={handleAwardTeam2}
-        onNoPoints={handleNoPoints}
-        onTimerExpire={handleTimerExpire}
-        onPlayTick={undefined}
-        onPlayBuzzer={undefined}
-        onClose={closeModal}
-      />
+      {/* Full-screen question overlay — only render during board phase */}
+      {phase === "board" && (
+        <QuestionModal
+          open={modalOpen}
+          question={currentQuestion}
+          points={currentPoints}
+          isDouble={currentIsDouble}
+          team1Name={team1Name}
+          team2Name={team2Name}
+          timerRunning={timerRunning}
+          answerRevealed={answerRevealed}
+          onRevealAnswer={handleRevealAnswer}
+          onAwardTeam1={handleAwardTeam1}
+          onAwardTeam2={handleAwardTeam2}
+          onNoPoints={handleNoPoints}
+          onTimerExpire={handleTimerExpire}
+          onPlayTick={undefined}
+          onPlayBuzzer={undefined}
+          onClose={closeModal}
+        />
+      )}
     </div>
   );
 }

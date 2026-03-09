@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 const MIN_CATEGORIES = 4;
 const MAX_CATEGORIES = 6;
+// Coin faces used during spin (not displayed — we use CSS animation instead)
 const COIN_FACES = ["🪙", "⭕", "🪙", "⭕", "🪙", "⭕"];
 
 interface SinJeemSetupProps {
@@ -40,19 +41,15 @@ export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
     if (!t1 || !t2) return;
     setCoinFlipping(true);
     setCoinResult(null);
-    if (flipIntervalRef.current) clearInterval(flipIntervalRef.current);
-    let count = 0;
-    flipIntervalRef.current = setInterval(() => {
-      setCoinFace(COIN_FACES[Math.floor(Math.random() * COIN_FACES.length)]);
-      count++;
-      if (count > 16) {
-        clearInterval(flipIntervalRef.current!);
-        flipIntervalRef.current = null;
-        const winner = Math.random() < 0.5 ? t1 : t2;
-        setCoinResult(winner);
-        setCoinFlipping(false);
-      }
-    }, 90);
+    setCoinFace("🪙");
+    if (flipIntervalRef.current) clearTimeout(flipIntervalRef.current);
+    // Let the CSS animation play for 1.5s, then show result
+    flipIntervalRef.current = setTimeout(() => {
+      const winner = Math.random() < 0.5 ? t1 : t2;
+      setCoinFace(winner === t1 ? "🟡" : "⚪");
+      setCoinResult(winner);
+      setCoinFlipping(false);
+    }, 1500);
   };
 
   const toggleCategory = (id: string) => {
@@ -122,27 +119,38 @@ export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
         {/* ── Coin flip ── */}
         {team1Name.trim() && team2Name.trim() && (
           <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-6 flex flex-col items-center gap-4 text-center">
+            {/* CSS keyframe for realistic Y-axis coin spin */}
+            <style>{`
+              @keyframes coinFlipY {
+                0%   { transform: perspective(300px) rotateY(0deg); }
+                100% { transform: perspective(300px) rotateY(1080deg); }
+              }
+              .coin-flip-anim {
+                animation: coinFlipY 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+              }
+            `}</style>
+
             <p className="text-slate-400 text-sm">
               {isArabic ? "اقلب العملة لتحديد من يبدأ" : "Flip the coin to decide who goes first"}
             </p>
+
             <span
-              className={cn(
-                "text-7xl select-none",
-                coinFlipping && "animate-spin"
-              )}
-              style={{ display: "inline-block" }}
+              key={coinFlipping ? "flipping" : coinResult ?? "idle"}
+              className={cn("text-7xl select-none inline-block", coinFlipping && "coin-flip-anim")}
             >
               {coinFace}
             </span>
+
             <button
               onClick={flipCoin}
               disabled={coinFlipping}
-              className="bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black font-black py-3 px-8 rounded-2xl text-lg shadow-lg shadow-amber-500/20 transition-all active:scale-95"
+              className="bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-black font-black py-3 px-8 rounded-2xl text-lg shadow-lg shadow-amber-500/20 transition-all active:scale-95"
             >
               {coinFlipping
                 ? isArabic ? "جارٍ القلب…" : "Flipping…"
                 : isArabic ? "🪙 اقلب العملة" : "🪙 Flip Coin"}
             </button>
+
             {coinResult && !coinFlipping && (
               <div className="text-2xl font-black text-amber-400 animate-bounce mt-1">
                 🏆 {isArabic ? "يبدأ أولاً:" : "Goes first:"} {coinResult}
