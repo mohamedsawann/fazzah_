@@ -5,7 +5,10 @@ import { isTileFullyUsed } from "./utils";
 
 const DIFFICULTIES: SinJeemDifficulty[] = [200, 400, 600];
 
-const DIFF_STYLE: Record<number, { cell: string; badge: string; label: string }> = {
+const DIFF_STYLE: Record<
+  number,
+  { cell: string; badge: string; label: string }
+> = {
   200: {
     cell: "bg-sky-600/20 hover:bg-sky-500/40 border-sky-500/60 text-sky-100",
     badge: "bg-sky-600 text-white",
@@ -43,7 +46,6 @@ export function SinJeemBoard({
 
   return (
     <div className="w-full space-y-4" dir={isArabic ? "rtl" : "ltr"}>
-
       {/* ── Double-points random button ── */}
       <button
         type="button"
@@ -53,17 +55,24 @@ export function SinJeemBoard({
           "w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-lg transition-all duration-200 border-2",
           hasAvailableTiles
             ? "bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border-amber-400 text-amber-300 hover:from-amber-500/35 hover:to-yellow-500/35 hover:shadow-lg hover:shadow-amber-500/20 active:scale-[0.98]"
-            : "bg-slate-800/30 border-slate-700/40 text-slate-600 cursor-not-allowed"
+            : "bg-slate-800/30 border-slate-700/40 text-slate-600 cursor-not-allowed",
         )}
       >
         <span className="text-2xl">⭐</span>
-        <span>{isArabic ? "سؤال النقاط المضاعفة — سؤال عشوائي" : "Double Points — Random Question"}</span>
+        <span>
+          {isArabic
+            ? "سؤال النقاط المضاعفة — سؤال عشوائي"
+            : "Double Points — Random Question"}
+        </span>
         <span className="text-2xl">⭐</span>
       </button>
 
       {/* ── Board table ── */}
       <div className="w-full overflow-x-auto pb-2 rounded-2xl border border-slate-700/60">
-        <table className="w-full border-collapse bg-slate-900/80" style={{ minWidth: `${categories.length * 120 + 60}px` }}>
+        <table
+          className="w-full border-collapse bg-slate-900/80"
+          style={{ minWidth: `${categories.length * 120 + 60}px` }}
+        >
           <thead>
             <tr>
               {/* Points column header */}
@@ -76,7 +85,9 @@ export function SinJeemBoard({
                   className="py-3 px-3 bg-slate-800/60 border-b border-e border-slate-700 last:border-e-0"
                 >
                   <div className="flex flex-col items-center gap-1">
-                    <span className="text-3xl leading-none">{cat.icon || "📚"}</span>
+                    <span className="text-3xl leading-none">
+                      {cat.icon || "📚"}
+                    </span>
                     <span className="text-xs font-bold text-white leading-tight text-center line-clamp-2 max-w-[100px]">
                       {isArabic ? cat.name_ar : cat.name_en}
                     </span>
@@ -96,7 +107,7 @@ export function SinJeemBoard({
                       "py-2 px-1 text-center font-black text-base border-b border-e border-slate-700",
                       rowIdx === DIFFICULTIES.length - 1 && "border-b-0",
                       style.label,
-                      "bg-slate-800/40"
+                      "bg-slate-800/40",
                     )}
                   >
                     {diff}
@@ -112,7 +123,7 @@ export function SinJeemBoard({
                         className={cn(
                           "p-2 border-e border-b border-slate-700/50",
                           colIdx === categories.length - 1 && "border-e-0",
-                          rowIdx === DIFFICULTIES.length - 1 && "border-b-0"
+                          rowIdx === DIFFICULTIES.length - 1 && "border-b-0",
                         )}
                       >
                         <button
@@ -123,7 +134,10 @@ export function SinJeemBoard({
                             "w-full min-h-[72px] rounded-xl font-black text-xl transition-all duration-150 flex flex-col items-center justify-center gap-1 border-2",
                             used
                               ? "bg-slate-800/30 border-slate-700/20 text-slate-700 cursor-not-allowed"
-                              : cn(style.cell, "border-2 active:scale-95 hover:scale-[1.04]")
+                              : cn(
+                                  style.cell,
+                                  "border-2 active:scale-95 hover:scale-[1.04]",
+                                ),
                           )}
                         >
                           {used ? (

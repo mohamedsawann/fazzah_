@@ -67,7 +67,11 @@ export function SinJeemPage() {
   // isDouble is ONLY set via forceDouble (the dedicated double-points button).
   // Clicking a tile directly never doubles points.
   const openTile = useCallback(
-    (categoryId: string, difficulty: SinJeemDifficulty, forceDouble = false) => {
+    (
+      categoryId: string,
+      difficulty: SinJeemDifficulty,
+      forceDouble = false,
+    ) => {
       // Read question before state update (board is in deps so it's fresh)
       const tile = board[categoryId]?.[difficulty];
       if (!tile || isTileFullyUsed(tile)) return;
@@ -106,7 +110,8 @@ export function SinJeemPage() {
 
   // ── Double-points random picker ───────────────────────────────────────────
   const handleDoublePoints = useCallback(() => {
-    const available: { categoryId: string; difficulty: SinJeemDifficulty }[] = [];
+    const available: { categoryId: string; difficulty: SinJeemDifficulty }[] =
+      [];
     for (const catId of categoryIds) {
       for (const d of [200, 400, 600] as SinJeemDifficulty[]) {
         const tile = board[catId]?.[d];
@@ -213,7 +218,9 @@ export function SinJeemPage() {
               {t("common.back")}
             </button>
           </Link>
-          <span className="text-amber-400 font-black text-lg tracking-wide">سين جيم</span>
+          <span className="text-amber-400 font-black text-lg tracking-wide">
+            سين جيم
+          </span>
           <div className="w-20" />
         </div>
       )}

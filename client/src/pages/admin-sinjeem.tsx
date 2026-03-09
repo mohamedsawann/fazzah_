@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, Plus, Pencil, Trash2, X, Check, LogOut } from "lucide-react";
+import {
+  ArrowRight,
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+  Check,
+  LogOut,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   fetchSinJeemCategories,
@@ -14,10 +22,14 @@ import {
   deleteQuestion,
   type QuestionPayload,
 } from "@/features/sin-jeem/api";
-import type { SinJeemCategory, SinJeemQuestion, SinJeemDifficulty } from "@/features/sin-jeem/types";
+import type {
+  SinJeemCategory,
+  SinJeemQuestion,
+  SinJeemDifficulty,
+} from "@/features/sin-jeem/types";
 
 // ── Simple password gate ──────────────────────────────────────────────────
-const ADMIN_PASSWORD = "fazzah1234"; // Change this to whatever you want
+const ADMIN_PASSWORD = "Fazzah@01042004"; // Change this to whatever you want
 
 const DIFF_COLORS: Record<number, string> = {
   200: "bg-sky-500/20 text-sky-300 border-sky-500/40",
@@ -25,14 +37,22 @@ const DIFF_COLORS: Record<number, string> = {
   600: "bg-rose-500/20 text-rose-300 border-rose-500/40",
 };
 
-const DIFF_LABEL: Record<number, string> = { 200: "سهل", 400: "متوسط", 600: "صعب" };
+const DIFF_LABEL: Record<number, string> = {
+  200: "سهل",
+  400: "متوسط",
+  600: "صعب",
+};
 
 type View =
   | { kind: "login" }
   | { kind: "categories" }
   | { kind: "category-questions"; category: SinJeemCategory }
   | { kind: "category-form"; editing?: SinJeemCategory }
-  | { kind: "question-form"; category: SinJeemCategory; editing?: SinJeemQuestion };
+  | {
+      kind: "question-form";
+      category: SinJeemCategory;
+      editing?: SinJeemQuestion;
+    };
 
 // ── Login Screen ──────────────────────────────────────────────────────────
 function LoginScreen({ onLogin }: { onLogin: () => void }) {
@@ -62,16 +82,23 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
           <input
             type="password"
             value={pw}
-            onChange={(e) => { setPw(e.target.value); setError(false); }}
+            onChange={(e) => {
+              setPw(e.target.value);
+              setError(false);
+            }}
             placeholder="كلمة المرور"
             autoFocus
             className={cn(
               "w-full bg-slate-800 border-2 rounded-xl px-4 py-3 text-white text-center text-lg focus:outline-none transition",
-              error ? "border-red-500 shake" : "border-slate-600 focus:border-amber-400"
+              error
+                ? "border-red-500 shake"
+                : "border-slate-600 focus:border-amber-400",
             )}
           />
           {error && (
-            <p className="text-red-400 text-sm text-center">كلمة المرور غير صحيحة</p>
+            <p className="text-red-400 text-sm text-center">
+              كلمة المرور غير صحيحة
+            </p>
           )}
           <button
             type="submit"
@@ -110,8 +137,16 @@ function CategoryForm({
   const saveMutation = useMutation({
     mutationFn: () =>
       editing
-        ? updateCategory(editing.id, { name_ar: nameAr.trim(), name_en: nameEn.trim(), icon: icon.trim() || undefined })
-        : insertCategory({ name_ar: nameAr.trim(), name_en: nameEn.trim(), icon: icon.trim() || undefined }),
+        ? updateCategory(editing.id, {
+            name_ar: nameAr.trim(),
+            name_en: nameEn.trim(),
+            icon: icon.trim() || undefined,
+          })
+        : insertCategory({
+            name_ar: nameAr.trim(),
+            name_en: nameEn.trim(),
+            icon: icon.trim() || undefined,
+          }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["sin-jeem-categories"] });
       onSaved();
@@ -123,7 +158,10 @@ function CategoryForm({
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <button onClick={onBack} className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition">
+        <button
+          onClick={onBack}
+          className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition"
+        >
           <ArrowRight className="w-5 h-5" />
         </button>
         <h2 className="text-xl font-black text-white">
@@ -133,7 +171,9 @@ function CategoryForm({
 
       <div className="bg-slate-800/60 rounded-2xl border border-slate-700 p-6 space-y-4">
         <div className="space-y-2">
-          <label className="text-amber-300 text-sm font-semibold">اسم الفئة (عربي) *</label>
+          <label className="text-amber-300 text-sm font-semibold">
+            اسم الفئة (عربي) *
+          </label>
           <input
             value={nameAr}
             onChange={(e) => setNameAr(e.target.value)}
@@ -143,7 +183,9 @@ function CategoryForm({
           />
         </div>
         <div className="space-y-2">
-          <label className="text-amber-300 text-sm font-semibold">Category Name (English) *</label>
+          <label className="text-amber-300 text-sm font-semibold">
+            Category Name (English) *
+          </label>
           <input
             value={nameEn}
             onChange={(e) => setNameEn(e.target.value)}
@@ -153,7 +195,9 @@ function CategoryForm({
           />
         </div>
         <div className="space-y-2">
-          <label className="text-amber-300 text-sm font-semibold">أيقونة (إيموجي)</label>
+          <label className="text-amber-300 text-sm font-semibold">
+            أيقونة (إيموجي)
+          </label>
           <input
             value={icon}
             onChange={(e) => setIcon(e.target.value)}
@@ -169,7 +213,11 @@ function CategoryForm({
         onClick={() => saveMutation.mutate()}
         className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-black py-4 rounded-2xl text-lg transition active:scale-95"
       >
-        {saveMutation.isPending ? "جاري الحفظ…" : editing ? "حفظ التغييرات ✓" : "إضافة الفئة +"}
+        {saveMutation.isPending
+          ? "جاري الحفظ…"
+          : editing
+            ? "حفظ التغييرات ✓"
+            : "إضافة الفئة +"}
       </button>
       {saveMutation.isError && (
         <p className="text-red-400 text-sm text-center">
@@ -193,7 +241,9 @@ function QuestionForm({
   onSaved: () => void;
 }) {
   const qc = useQueryClient();
-  const [difficulty, setDifficulty] = useState<SinJeemDifficulty>(editing?.difficulty ?? 200);
+  const [difficulty, setDifficulty] = useState<SinJeemDifficulty>(
+    editing?.difficulty ?? 200,
+  );
   const [qAr, setQAr] = useState(editing?.question_ar ?? "");
   const [qEn, setQEn] = useState(editing?.question_en ?? "");
   const [aAr, setAAr] = useState(editing?.answer_ar ?? "");
@@ -230,21 +280,28 @@ function QuestionForm({
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-3">
-        <button onClick={onBack} className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition">
+        <button
+          onClick={onBack}
+          className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition"
+        >
           <ArrowRight className="w-5 h-5" />
         </button>
         <div>
           <h2 className="text-xl font-black text-white">
             {editing ? "تعديل السؤال" : "سؤال جديد"}
           </h2>
-          <p className="text-slate-400 text-xs">{category.icon} {category.name_ar}</p>
+          <p className="text-slate-400 text-xs">
+            {category.icon} {category.name_ar}
+          </p>
         </div>
       </div>
 
       <div className="bg-slate-800/60 rounded-2xl border border-slate-700 p-5 space-y-4">
         {/* Difficulty picker */}
         <div className="space-y-2">
-          <label className="text-amber-300 text-sm font-semibold">مستوى الصعوبة *</label>
+          <label className="text-amber-300 text-sm font-semibold">
+            مستوى الصعوبة *
+          </label>
           <div className="grid grid-cols-3 gap-2">
             {([200, 400, 600] as SinJeemDifficulty[]).map((d) => (
               <button
@@ -255,7 +312,7 @@ function QuestionForm({
                   "py-3 rounded-xl font-black text-lg border-2 transition",
                   difficulty === d
                     ? DIFF_COLORS[d]
-                    : "border-slate-600 text-slate-500 hover:border-slate-400"
+                    : "border-slate-600 text-slate-500 hover:border-slate-400",
                 )}
               >
                 {d} — {DIFF_LABEL[d]}
@@ -266,7 +323,9 @@ function QuestionForm({
 
         {/* Question AR */}
         <div className="space-y-2">
-          <label className="text-amber-300 text-sm font-semibold">السؤال (عربي) *</label>
+          <label className="text-amber-300 text-sm font-semibold">
+            السؤال (عربي) *
+          </label>
           <textarea
             value={qAr}
             onChange={(e) => setQAr(e.target.value)}
@@ -279,7 +338,9 @@ function QuestionForm({
 
         {/* Answer AR */}
         <div className="space-y-2">
-          <label className="text-amber-300 text-sm font-semibold">الإجابة (عربي) *</label>
+          <label className="text-amber-300 text-sm font-semibold">
+            الإجابة (عربي) *
+          </label>
           <input
             value={aAr}
             onChange={(e) => setAAr(e.target.value)}
@@ -291,7 +352,9 @@ function QuestionForm({
 
         {/* Question EN */}
         <div className="space-y-2">
-          <label className="text-slate-400 text-sm">Question (English) — optional</label>
+          <label className="text-slate-400 text-sm">
+            Question (English) — optional
+          </label>
           <textarea
             value={qEn}
             onChange={(e) => setQEn(e.target.value)}
@@ -304,7 +367,9 @@ function QuestionForm({
 
         {/* Answer EN */}
         <div className="space-y-2">
-          <label className="text-slate-400 text-sm">Answer (English) — optional</label>
+          <label className="text-slate-400 text-sm">
+            Answer (English) — optional
+          </label>
           <input
             value={aEn}
             onChange={(e) => setAEn(e.target.value)}
@@ -316,7 +381,9 @@ function QuestionForm({
 
         {/* Image URL */}
         <div className="space-y-2">
-          <label className="text-slate-400 text-sm">رابط الصورة — image URL (optional)</label>
+          <label className="text-slate-400 text-sm">
+            رابط الصورة — image URL (optional)
+          </label>
           <input
             value={imgUrl}
             onChange={(e) => setImgUrl(e.target.value)}
@@ -325,7 +392,11 @@ function QuestionForm({
             className="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-slate-400 transition"
           />
           {imgUrl && (
-            <img src={imgUrl} alt="" className="rounded-xl max-h-40 object-contain border border-slate-600" />
+            <img
+              src={imgUrl}
+              alt=""
+              className="rounded-xl max-h-40 object-contain border border-slate-600"
+            />
           )}
         </div>
 
@@ -353,7 +424,11 @@ function QuestionForm({
         onClick={() => saveMutation.mutate()}
         className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-black py-4 rounded-2xl text-lg transition active:scale-95"
       >
-        {saveMutation.isPending ? "جاري الحفظ…" : editing ? "حفظ التغييرات ✓" : "إضافة السؤال +"}
+        {saveMutation.isPending
+          ? "جاري الحفظ…"
+          : editing
+            ? "حفظ التغييرات ✓"
+            : "إضافة السؤال +"}
       </button>
       {saveMutation.isError && (
         <p className="text-red-400 text-sm text-center">
@@ -392,7 +467,11 @@ function CategoryQuestions({
     },
   });
 
-  const grouped: Record<number, SinJeemQuestion[]> = { 200: [], 400: [], 600: [] };
+  const grouped: Record<number, SinJeemQuestion[]> = {
+    200: [],
+    400: [],
+    600: [],
+  };
   questions.forEach((q) => {
     if (grouped[q.difficulty]) grouped[q.difficulty].push(q);
   });
@@ -402,7 +481,10 @@ function CategoryQuestions({
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition">
+          <button
+            onClick={onBack}
+            className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition"
+          >
             <ArrowRight className="w-5 h-5" />
           </button>
           <div>
@@ -410,7 +492,9 @@ function CategoryQuestions({
               <span className="text-3xl">{category.icon || "📚"}</span>
               {category.name_ar}
             </h2>
-            <p className="text-slate-400 text-xs">{category.name_en} · {questions.length} سؤال</p>
+            <p className="text-slate-400 text-xs">
+              {category.name_en} · {questions.length} سؤال
+            </p>
           </div>
         </div>
         <button
@@ -425,7 +509,10 @@ function CategoryQuestions({
       {isLoading && (
         <div className="space-y-2">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="rounded-xl bg-slate-800/40 h-16 animate-pulse" />
+            <div
+              key={i}
+              className="rounded-xl bg-slate-800/40 h-16 animate-pulse"
+            />
           ))}
         </div>
       )}
@@ -434,7 +521,10 @@ function CategoryQuestions({
         <div className="text-center py-12 space-y-3">
           <div className="text-5xl">📭</div>
           <p className="text-slate-400">لا توجد أسئلة في هذه الفئة</p>
-          <button onClick={onAddQuestion} className="text-amber-400 hover:text-amber-300 font-bold text-sm">
+          <button
+            onClick={onAddQuestion}
+            className="text-amber-400 hover:text-amber-300 font-bold text-sm"
+          >
             + أضف أول سؤال
           </button>
         </div>
@@ -446,7 +536,12 @@ function CategoryQuestions({
         if (!qs || qs.length === 0) return null;
         return (
           <div key={diff} className="space-y-2">
-            <div className={cn("inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold border", DIFF_COLORS[diff])}>
+            <div
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold border",
+                DIFF_COLORS[diff],
+              )}
+            >
               {diff} نقطة — {DIFF_LABEL[diff]}
             </div>
             <div className="space-y-2">
@@ -456,13 +551,23 @@ function CategoryQuestions({
                   className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 flex gap-3 items-start"
                 >
                   {q.image_url && (
-                    <img src={q.image_url} alt="" className="w-16 h-16 rounded-lg object-cover flex-shrink-0 border border-slate-600" />
+                    <img
+                      src={q.image_url}
+                      alt=""
+                      className="w-16 h-16 rounded-lg object-cover flex-shrink-0 border border-slate-600"
+                    />
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-white font-semibold text-sm leading-snug" dir="rtl">
+                    <p
+                      className="text-white font-semibold text-sm leading-snug"
+                      dir="rtl"
+                    >
                       {q.question_ar}
                     </p>
-                    <p className="text-emerald-400 text-xs mt-1 font-bold" dir="rtl">
+                    <p
+                      className="text-emerald-400 text-xs mt-1 font-bold"
+                      dir="rtl"
+                    >
                       ✓ {q.answer_ar}
                     </p>
                   </div>
@@ -564,7 +669,10 @@ function CategoriesDashboard({
       {isLoading && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="rounded-2xl bg-slate-800/40 h-36 animate-pulse" />
+            <div
+              key={i}
+              className="rounded-2xl bg-slate-800/40 h-36 animate-pulse"
+            />
           ))}
         </div>
       )}
@@ -573,7 +681,10 @@ function CategoriesDashboard({
         <div className="text-center py-16 space-y-3">
           <div className="text-6xl">📂</div>
           <p className="text-slate-400">لا توجد فئات بعد</p>
-          <button onClick={onAddCategory} className="text-amber-400 hover:text-amber-300 font-bold">
+          <button
+            onClick={onAddCategory}
+            className="text-amber-400 hover:text-amber-300 font-bold"
+          >
             + أضف أول فئة
           </button>
         </div>
@@ -591,14 +702,19 @@ function CategoriesDashboard({
               className="w-full p-4 flex flex-col items-center gap-2 text-center"
             >
               <span className="text-5xl">{cat.icon || "📚"}</span>
-              <span className="text-white font-bold text-sm leading-tight">{cat.name_ar}</span>
+              <span className="text-white font-bold text-sm leading-tight">
+                {cat.name_ar}
+              </span>
               <span className="text-slate-500 text-xs">{cat.name_en}</span>
             </button>
 
             {/* Action buttons overlay */}
             <div className="absolute top-2 end-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
               <button
-                onClick={(e) => { e.stopPropagation(); onEditCategory(cat); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditCategory(cat);
+                }}
                 className="p-1.5 rounded-lg bg-slate-700 text-slate-300 hover:text-white hover:bg-slate-600 transition"
               >
                 <Pencil className="w-3.5 h-3.5" />
@@ -606,13 +722,19 @@ function CategoriesDashboard({
               {confirmDelete === cat.id ? (
                 <>
                   <button
-                    onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(cat.id); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteMutation.mutate(cat.id);
+                    }}
                     className="p-1.5 rounded-lg bg-red-600 text-white hover:bg-red-500 transition"
                   >
                     <Check className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={(e) => { e.stopPropagation(); setConfirmDelete(null); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setConfirmDelete(null);
+                    }}
                     className="p-1.5 rounded-lg bg-slate-700 text-slate-300 hover:text-white transition"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -620,7 +742,10 @@ function CategoriesDashboard({
                 </>
               ) : (
                 <button
-                  onClick={(e) => { e.stopPropagation(); setConfirmDelete(cat.id); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setConfirmDelete(cat.id);
+                  }}
                   className="p-1.5 rounded-lg bg-slate-700 text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -645,7 +770,7 @@ function CategoriesDashboard({
 // ── Main Admin Page ───────────────────────────────────────────────────────
 export default function AdminSinJeem() {
   const [authed, setAuthed] = useState(
-    () => sessionStorage.getItem("sj_admin") === "1"
+    () => sessionStorage.getItem("sj_admin") === "1",
   );
   const [view, setView] = useState<View>({ kind: "categories" });
 
@@ -659,13 +784,20 @@ export default function AdminSinJeem() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 text-white p-4" dir="rtl">
+    <div
+      className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 text-white p-4"
+      dir="rtl"
+    >
       <div className="max-w-2xl mx-auto py-4">
         {view.kind === "categories" && (
           <CategoriesDashboard
             onAddCategory={() => setView({ kind: "category-form" })}
-            onEditCategory={(c) => setView({ kind: "category-form", editing: c })}
-            onOpenCategory={(c) => setView({ kind: "category-questions", category: c })}
+            onEditCategory={(c) =>
+              setView({ kind: "category-form", editing: c })
+            }
+            onOpenCategory={(c) =>
+              setView({ kind: "category-questions", category: c })
+            }
             onLogout={logout}
           />
         )}
@@ -686,7 +818,11 @@ export default function AdminSinJeem() {
               setView({ kind: "question-form", category: view.category })
             }
             onEditQuestion={(q) =>
-              setView({ kind: "question-form", category: view.category, editing: q })
+              setView({
+                kind: "question-form",
+                category: view.category,
+                editing: q,
+              })
             }
           />
         )}

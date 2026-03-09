@@ -11,7 +11,11 @@ const MAX_CATEGORIES = 6;
 const COIN_FACES = ["🪙", "⭕", "🪙", "⭕", "🪙", "⭕"];
 
 interface SinJeemSetupProps {
-  onStart: (team1Name: string, team2Name: string, categoryIds: string[]) => void;
+  onStart: (
+    team1Name: string,
+    team2Name: string,
+    categoryIds: string[],
+  ) => void;
 }
 
 export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
@@ -81,13 +85,14 @@ export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
       dir={isArabic ? "rtl" : "ltr"}
     >
       <div className="w-full max-w-2xl space-y-8">
-
         {/* ── Title ── */}
         <div className="text-center space-y-1">
           <h1 className="text-5xl font-black text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.4)]">
             سين جيم
           </h1>
-          <p className="text-slate-400 text-sm tracking-widest uppercase">Sin Jeem Game</p>
+          <p className="text-slate-400 text-sm tracking-widest uppercase">
+            Sin Jeem Game
+          </p>
         </div>
 
         {/* ── Team names ── */}
@@ -131,12 +136,17 @@ export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
             `}</style>
 
             <p className="text-slate-400 text-sm">
-              {isArabic ? "اقلب العملة لتحديد من يبدأ" : "Flip the coin to decide who goes first"}
+              {isArabic
+                ? "اقلب العملة لتحديد من يبدأ"
+                : "Flip the coin to decide who goes first"}
             </p>
 
             <span
-              key={coinFlipping ? "flipping" : coinResult ?? "idle"}
-              className={cn("text-7xl select-none inline-block", coinFlipping && "coin-flip-anim")}
+              key={coinFlipping ? "flipping" : (coinResult ?? "idle")}
+              className={cn(
+                "text-7xl select-none inline-block",
+                coinFlipping && "coin-flip-anim",
+              )}
             >
               {coinFace}
             </span>
@@ -147,8 +157,12 @@ export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
               className="bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-black font-black py-3 px-8 rounded-2xl text-lg shadow-lg shadow-amber-500/20 transition-all active:scale-95"
             >
               {coinFlipping
-                ? isArabic ? "جارٍ القلب…" : "Flipping…"
-                : isArabic ? "🪙 اقلب العملة" : "🪙 Flip Coin"}
+                ? isArabic
+                  ? "جارٍ القلب…"
+                  : "Flipping…"
+                : isArabic
+                  ? "🪙 اقلب العملة"
+                  : "🪙 Flip Coin"}
             </button>
 
             {coinResult && !coinFlipping && (
@@ -168,7 +182,9 @@ export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
             <span
               className={cn(
                 "font-black text-lg tabular-nums",
-                selectedIds.size >= MIN_CATEGORIES ? "text-emerald-400" : "text-slate-400"
+                selectedIds.size >= MIN_CATEGORIES
+                  ? "text-emerald-400"
+                  : "text-slate-400",
               )}
             >
               {selectedIds.size}
@@ -219,7 +235,7 @@ export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
                       ? "bg-amber-500/20 border-amber-400 shadow-lg shadow-amber-500/20 scale-[1.03]"
                       : disabled
                         ? "bg-slate-800/30 border-slate-700/30 opacity-40 cursor-not-allowed"
-                        : "bg-slate-800/60 border-slate-700 hover:border-amber-500/50 hover:bg-slate-700/60 cursor-pointer"
+                        : "bg-slate-800/60 border-slate-700 hover:border-amber-500/50 hover:bg-slate-700/60 cursor-pointer",
                   )}
                 >
                   {selected && (
@@ -227,11 +243,13 @@ export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
                       ✓
                     </span>
                   )}
-                  <span className="text-4xl leading-none">{c.icon || "📚"}</span>
+                  <span className="text-4xl leading-none">
+                    {c.icon || "📚"}
+                  </span>
                   <span
                     className={cn(
                       "text-xs font-bold text-center leading-tight line-clamp-2",
-                      selected ? "text-amber-300" : "text-slate-300"
+                      selected ? "text-amber-300" : "text-slate-300",
                     )}
                   >
                     {isArabic ? c.name_ar : c.name_en}
@@ -258,7 +276,7 @@ export function SinJeemSetup({ onStart }: SinJeemSetupProps) {
             "w-full text-xl font-black py-5 rounded-2xl shadow-xl transition-all duration-200",
             canStart
               ? "bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-black shadow-amber-500/30 active:scale-[0.98]"
-              : "bg-slate-700 text-slate-500 cursor-not-allowed opacity-50"
+              : "bg-slate-700 text-slate-500 cursor-not-allowed opacity-50",
           )}
         >
           {isArabic ? "ابدأ اللعبة 🎮" : "Start Game 🎮"}
